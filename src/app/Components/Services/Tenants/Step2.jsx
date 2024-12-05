@@ -95,7 +95,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                 return errors;
             }}
             onSubmit={(values, { setSubmitting }) => {
-                setPreValues((pre) => ({ ...values, ...prevValues }))
+                setPreValues((pre) => ({...pre, ...values}))
                 nextStep()
             }}
             validateOnChange={false}
@@ -103,8 +103,6 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
             enableReinitialize={true}
         >
             {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors }) => {
-                // console.log(values)
-                // console.log(errors)
                 return (
                     <Form>
 

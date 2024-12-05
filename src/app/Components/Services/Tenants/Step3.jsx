@@ -59,7 +59,6 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
             }}
         >
             {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors }) => {
-                console.log(errors)
                 const tenetPartnerArray = [{ val: 'CL', label: `${values?.firstName} ${values?.lastName}` }, { val: 'both', label: 'BOTH' },]
                 return (
                     <Form>

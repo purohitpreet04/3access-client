@@ -772,10 +772,10 @@ const LoginForm = () => {
                   </Button>
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
 
-                    <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                    <Link  onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor:'pointer' }}>
                       Already have an Account?
                     </Link>
-                    <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                    <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1,cursor:'pointer' }}>
                       Get New Company Account?
                     </Link>
                   </Box>

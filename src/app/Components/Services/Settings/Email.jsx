@@ -30,16 +30,7 @@ const Email = () => {
 
     useEffect(() => {
         FetchEmailData()
-        // if (editData?.emailcc.length > 0) {
-        // }
-
-
     }, [])
-
-
-
-
-
     const { user, isAuthenticate, token } = useSelector((state) => state.auth);
     const [editData, setEditData] = useState({ emailcc: '' })
     const [companyEmails, setCompanyEmails] = useState([])
@@ -82,8 +73,7 @@ const Email = () => {
                 dispatch(setIsLoading({ data: false }))
                 dispatch(showSnackbar({ message: 'something went wrong!' || error.response.data.message, severity: 'error' }))
             }
-            console.log('Form submitted:', modifyVal)
-            // Handle form submission here
+            
         }
     })
 
@@ -119,7 +109,9 @@ const Email = () => {
             // if (res.data?.message) {
             //     dispatch(showSnackbar({ message: res.data?.message, severity: 'success' }))
             // }
-            setCompanyEmails([...res.data?.data?.emailcc.split(',')])
+            if (res.data?.data?.emailcc !== '') {
+                setCompanyEmails([...res.data?.data?.emailcc.split(',')])
+            }
             setEditData(res.data?.data)
             dispatch(setIsLoading({ data: false }))
         } catch (error) {
@@ -132,9 +124,8 @@ const Email = () => {
         // setPage(1);
     };
     const handleChangePage = (_, newPage) => {
-        console.log(newPage)
         // if (newPage > 0) {
-            setPage(newPage+1);
+        setPage(newPage + 1);
         // }
     };
 
@@ -150,6 +141,7 @@ const Email = () => {
     const handleDeleteEmail = (emailToDelete) => {
         setCompanyEmails(companyEmails.filter(email => email !== emailToDelete))
     }
+   
     return (
         <>
 
@@ -168,7 +160,7 @@ const Email = () => {
                             <TextField
                                 fullWidth
                                 name="emailto"
-                                value={formik.values.emailto}
+                                value={formik.values.emailto || editData?.emailto}
                                 onChange={formik.handleChange}
                                 error={formik.touched.emailto && Boolean(formik.errors.emailto)}
                                 helperText={formik.touched.emailto && formik.errors.emailto}
@@ -268,7 +260,7 @@ const Email = () => {
 
                 <Paper sx={{ p: 3, maxWidth: "100%", mt: 2 }}>
                     <Typography variant="subtitle1" gutterBottom>
-                        Email Log (Latest 250)
+                        Email Log
                     </Typography>
                     <Box>
                         <Box

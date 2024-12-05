@@ -211,7 +211,6 @@ const CreateAccountForm = () => {
                       helperText={errors.phone}
                     />
                   </Grid>
-
                   <Grid item xs={12} sm={12} lg={12} md={12}>
                     <Box mt={2} width='100%'>
                       {!loading ? (<Button onClick={(e) => handleSubmit(e)} variant="contained" color="primary" type="button">
@@ -222,7 +221,7 @@ const CreateAccountForm = () => {
                       {"Already have an account?"}
                       <NavLink
                         to='/auth/login'
-                        style={{ color: theme.palette.primary.main, marginLeft: 5 }}>
+                        style={{ color: theme.palette.primary.main, marginLeft: 5,cursor:'pointer' }}>
                         {"Sign in"}
                       </NavLink>
                     </Paragraph>
