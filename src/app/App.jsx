@@ -13,7 +13,7 @@ import Loadable from './Components/Loadable.jsx';
 import API from 'Constance.js';
 import { setData } from './Redux/Sclice/MultiSelectSlice.js';
 import { showSnackbar } from './Redux/Sclice/SnaackBarSclice.js';
-import { AddNewProperty, AddTenants, DeshboardCom, LoginScreen, NotFound, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddTenants, Assessment, DeshboardCom, LoginScreen, NotFound, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 import Document from './Components/Tenant-pdfs/Document.jsx';
 // import { StaffList } from './Components/Services/StaffList.jsx';
@@ -40,6 +40,7 @@ function App() {
         { path: "/services/addtenants", element: ["company", 'agent', 'staff', 'company-agent'].includes(user.role) ? <AddTenants /> : <Navigate to="*" replace /> },
         { path: "/services/addproperty", element: ["company", 'agent', 'staff', 'company-agent'].includes(user.role) ? <AddNewProperty /> : <Navigate to="*" replace /> },
         { path: "/services/tenetdetails", element: ["company", 'agent', 'staff', 'company-agent'].includes(user.role) ? <TenantDetails /> : <Navigate to="*" replace /> },
+        { path: "/services/tenetdetails/assesment", element: ["company", 'agent', 'staff', 'company-agent'].includes(user.role) ? <Assessment /> : <Navigate to="*" replace /> },
         { path: "/services/settings", element: ["company"].includes(user.role) ? <SettingEmails /> : <Navigate to="*" replace /> },
         { path: '/desh', element: isAuthenticate ? <DeshboardCom /> : <Navigate to="/auth/login" replace /> },
       ]

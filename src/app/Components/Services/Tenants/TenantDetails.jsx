@@ -14,7 +14,10 @@ import {
     Divider,
     Avatar,
     Tabs,
-    Tab
+    Tab,
+    AppBar,
+    Toolbar,
+    IconButton
 } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -30,7 +33,7 @@ import Loadable from '@app/Components/Loadable';
 import { getDate } from '@app/Utils/utils';
 import { handleDownload, handleView } from '@app/Utils/CustomHooks';
 import EditTenantModal from './EditTenatns';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 function TenantDetails() {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -86,8 +89,8 @@ function TenantDetails() {
             { name: 'BCC Claim Form:', needsAssessment: false, type: '' }
         ],
         referral: [
-            { name: 'Interim Risk Review:', needsAssessment: true },
-            { name: 'Referral and Risk Assessment:', needsAssessment: true }
+            { name: 'Interim Risk Review:', needsAssessment: true, navigate: '/services/tenetdetails/assesment' },
+            { name: 'Referral and Risk Assessment:', needsAssessment: true, }
         ],
         support: [
             { name: 'Support Agreement:', needsAssessment: false },
@@ -139,294 +142,117 @@ function TenantDetails() {
 
 
     return (
-        <Box sx={{ p: 3 }}>
-            <DynamicTitle title='Tenant Details' />
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    mb: 4
-                }}
-            >
-                <Avatar
+        <>
+            <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #e0e0e0' }}>
+                <Toolbar>
+                    <IconButton edge="start" color="inherit" onClick={() => { navigation(-1) }} aria-label="back">
+                        <ArrowBackIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <Box sx={{ p: 3 }}>
+
+                <DynamicTitle title='Tenant Details' />
+
+
+                <Box
                     sx={{
-                        width: 120,
-                        height: 120,
-                        mb: 2
-                    }}
-                    alt={tenantdata?.firstName}
-                    src="/path-to-avatar-image.png" // Add your avatar image path here
-                />
-                <Typography
-                    variant="h5"
-                    component="h2"
-                    sx={{
-                        fontWeight: 500,
-                        textAlign: 'center'
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        mb: 4
                     }}
                 >
-                    {`${tenantdata?.title_before_name || ''}. ${tenantdata?.firstName || ''} ${tenantdata?.middleName || ''} ${tenantdata?.lastName || ''}`}
-                </Typography>
-            </Box>
-            <Grid container spacing={3}>
-                {/* Left Panel - Document Upload */}
-                <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 2, mb: 2 }}>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                color: 'white',
-                                bgcolor: '#337ab7', // Blue header background
-                                p: 1,
-                                mb: 2,
-                                borderRadius: '4px'
-                            }}
-                        >
-                            Birmingham City Council Housing Benefit Form
-                        </Typography>
-                        <Typography sx={{ mb: 1 }}>
-                            To Update BCC Form or Change of Circumstance
-                        </Typography>
-                        <Box sx={{ mb: 2 }}>
-                            <Button
-                                variant="outlined"
-                                component="label"
+                    <Avatar
+                        sx={{
+                            width: 120,
+                            height: 120,
+                            mb: 2
+                        }}
+                        alt={tenantdata?.firstName}
+                        src="/path-to-avatar-image.png" // Add your avatar image path here
+                    />
+                    <Typography
+                        variant="h5"
+                        component="h2"
+                        sx={{
+                            fontWeight: 500,
+                            textAlign: 'center'
+                        }}
+                    >
+                        {`${tenantdata?.title_before_name || ''}. ${tenantdata?.firstName || ''} ${tenantdata?.middleName || ''} ${tenantdata?.lastName || ''}`}
+                    </Typography>
+                </Box>
+                <Grid container spacing={3}>
+                    {/* Left Panel - Document Upload */}
+                    <Grid item xs={12} md={6}>
+                        <Paper sx={{ p: 2, mb: 2 }}>
+                            <Typography
+                                variant="subtitle1"
                                 sx={{
-                                    textTransform: 'none',
-                                    border: '1px solid #ccc',
-                                    color: '#333',
-                                    bgcolor: '#fff',
+                                    color: 'white',
+                                    bgcolor: '#337ab7', // Blue header background
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                Birmingham City Council Housing Benefit Form
+                            </Typography>
+                            <Typography sx={{ mb: 1 }}>
+                                To Update BCC Form or Change of Circumstance
+                            </Typography>
+                            <Box sx={{ mb: 2 }}>
+                                <Button
+                                    variant="outlined"
+                                    component="label"
+                                    sx={{
+                                        textTransform: 'none',
+                                        border: '1px solid #ccc',
+                                        color: '#333',
+                                        bgcolor: '#fff',
+                                        '&:hover': {
+                                            bgcolor: '#e6e6e6',
+                                            borderColor: '#adadad'
+                                        }
+                                    }}
+                                >
+                                    Choose File
+                                    <input hidden accept="*/*" type="file" />
+                                </Button>
+
+                            </Box>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    bgcolor: '#337ab7',
                                     '&:hover': {
-                                        bgcolor: '#e6e6e6',
-                                        borderColor: '#adadad'
+                                        bgcolor: '#286090'
                                     }
                                 }}
                             >
-                                Choose File
-                                <input hidden accept="*/*" type="file" />
+                                Upload
                             </Button>
+                        </Paper>
 
-                        </Box>
-                        <Button
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#337ab7',
-                                '&:hover': {
-                                    bgcolor: '#286090'
-                                }
-                            }}
-                        >
-                            Upload
-                        </Button>
-                    </Paper>
-
-                    {/* Tenant Information */}
-                    <Paper sx={{ p: 2, mb: 2 }}>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                color: 'white',
-                                bgcolor: '#337ab7',
-                                p: 1,
-                                mb: 2,
-                                borderRadius: '4px'
-                            }}
-                        >
-                            Tenant Informations
-                        </Typography>
-                        <TableContainer>
-                            <Table>
-                                <TableBody>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            National Insurance Number:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.nationalInsuranceNumber}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Date of Birth:
-                                        </TableCell>
-                                        <TableCell>
-                                            {getDate(tenantdata?.dateOfBirth)}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Claim Reference Number:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.claimReferenceNumber}
-                                            <LaunchIcon
-                                                sx={{
-                                                    ml: 1,
-                                                    fontSize: 16,
-                                                    color: '#337ab7',
-                                                    cursor: 'pointer'
-                                                }}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Gender:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.gender}
-                                            <LaunchIcon
-                                                sx={{
-                                                    ml: 1,
-                                                    fontSize: 16,
-                                                    color: '#337ab7',
-                                                    cursor: 'pointer'
-                                                }}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Contact:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.tenantContactNumber}
-                                            <LaunchIcon
-                                                sx={{
-                                                    ml: 1,
-                                                    fontSize: 16,
-                                                    color: '#337ab7',
-                                                    cursor: 'pointer'
-                                                }}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Email:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.tenantEmail}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '200px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Status:
-                                        </TableCell>
-                                        <TableCell>
-                                            {tenantdata?.status === 0 ? 'Not active' : 'Active'}
-                                            <LaunchIcon
-                                                sx={{
-                                                    ml: 1,
-                                                    fontSize: 16,
-                                                    color: '#337ab7',
-                                                    cursor: 'pointer'
-                                                }}
-                                            />
-                                        </TableCell>
-                                    </TableRow>
-                                    {/* {tenantInfo.map((row) => (
+                        {/* Tenant Information */}
+                        <Paper sx={{ p: 2, mb: 2 }}>
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    color: 'white',
+                                    bgcolor: '#337ab7',
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px'
+                                }}
+                            >
+                                Tenant Informations
+                            </Typography>
+                            <TableContainer>
+                                <Table>
+                                    <TableBody>
                                         <TableRow
-                                            key={row.label}
                                             sx={{
                                                 '& td, & th': {
                                                     border: 'none',
@@ -442,384 +268,576 @@ function TenantDetails() {
                                                     color: '#666'
                                                 }}
                                             >
-                                                {row.label}
+                                                National Insurance Number:
                                             </TableCell>
                                             <TableCell>
-                                                {row.value}
-                                                {row.hasLink && (
-                                                    <LaunchIcon
-                                                        sx={{
-                                                            ml: 1,
-                                                            fontSize: 16,
-                                                            color: '#337ab7',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    />
-                                                )}
+                                                {tenantdata?.nationalInsuranceNumber}
                                             </TableCell>
                                         </TableRow>
-                                    ))} */}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                        <Box sx={{ mt: 2, textAlign: 'right' }}>
-                            <Button
-                                onClick={()=>{handleeditdata(tenantdata?._id)}}
-                                variant="contained"
-                                startIcon={<EditIcon />}
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Date of Birth:
+                                            </TableCell>
+                                            <TableCell>
+                                                {getDate(tenantdata?.dateOfBirth)}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Claim Reference Number:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.claimReferenceNumber}
+                                                <LaunchIcon
+                                                    sx={{
+                                                        ml: 1,
+                                                        fontSize: 16,
+                                                        color: '#337ab7',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Gender:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.gender}
+                                                <LaunchIcon
+                                                    sx={{
+                                                        ml: 1,
+                                                        fontSize: 16,
+                                                        color: '#337ab7',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Contact:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.tenantContactNumber}
+                                                <LaunchIcon
+                                                    sx={{
+                                                        ml: 1,
+                                                        fontSize: 16,
+                                                        color: '#337ab7',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Email:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.tenantEmail}
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Status:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.status === 0 ? 'Not active' : 'Active'}
+                                                <LaunchIcon
+                                                    sx={{
+                                                        ml: 1,
+                                                        fontSize: 16,
+                                                        color: '#337ab7',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        {/* {tenantInfo.map((row) => (
+                            <TableRow
+                                key={row.label}
                                 sx={{
-                                    bgcolor: '#337ab7',
-                                    '&:hover': {
-                                        bgcolor: '#286090'
+                                    '& td, & th': {
+                                        border: 'none',
+                                        padding: '8px 16px 8px 0'
                                     }
                                 }}
                             >
-                                Edit Tenant Details
-                            </Button>
-                        </Box>
-                    </Paper>
-
-                    <Paper sx={{ p: 2, mb: 2 }}>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                color: 'white',
-                                bgcolor: '#337ab7',
-                                p: 1,
-                                mb: 2,
-                                borderRadius: '4px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            RSL Information
-                        </Typography>
-                        <TableContainer>
-                            <Table>
-                                <TableBody>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '120px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Name
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.rslDetails?.rslname}</TableCell>
-                                    </TableRow>
-                                    <TableRow
-                                        sx={{
-                                            '& td, & th': {
-                                                border: 'none',
-                                                padding: '8px 16px 8px 0'
-                                            }
-                                        }}
-                                    >
-                                        <TableCell
-                                            component="th"
-                                            scope="row"
-                                            sx={{
-                                                width: '120px',
-                                                color: '#666'
-                                            }}
-                                        >
-                                            Address
-                                        </TableCell>
-                                        <TableCell>{`${tenantdata?.rslDetails?.address} ${tenantdata?.rslDetails?.area} ${tenantdata?.rslDetails?.city}`}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
-
-                    <Paper sx={{ p: 2, mb: 2 }}>
-                        <Typography
-                            variant="subtitle1"
-                            sx={{
-                                color: 'white',
-                                bgcolor: '#337ab7',
-                                p: 1,
-                                mb: 2,
-                                borderRadius: '4px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            Property Informations
-                        </Typography>
-                        <TableContainer>
-                            <Table>
-                                <TableBody>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '140px', color: '#666' }}>
-                                            Property Address:
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.propertyDetails?.address}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            Room Number:
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.room}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            Sign in Date:
-                                        </TableCell>
-                                        <TableCell>{getDate(tenantdata?.signInDate)}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            Area:
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.propertyDetails?.area}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            City:
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.propertyDetails?.city}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            Post Code:
-                                        </TableCell>
-                                        <TableCell>{tenantdata?.propertyDetails?.postCode}</TableCell>
-                                    </TableRow>
-                                    <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
-                                        <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
-                                            Eligible Rent:
-                                        </TableCell>
-                                        <TableCell>£ {tenantdata?.propertyDetails?.eligibleRent}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Paper>
-                </Grid>
-
-                {/* Right Panel - Documents List */}
-                <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="subtitle1"
-                            sx={{
-                                color: 'white',
-                                bgcolor: '#337ab7',
-                                p: 1,
-                                mb: 2,
-                                borderRadius: '4px',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}>Tenant Documents</Typography>
-
-                        <Tabs
-                            value={tabValue}
-                            onChange={handleTabChange}
-                            sx={{
-                                borderBottom: 1,
-                                borderColor: 'divider',
-                                mb: 2
-                            }}
-                        >
-                            <Tab label="Signup" />
-                            <Tab label="Referral & Risk Assessments" />
-                            <Tab label="Support Plan" />
-                        </Tabs>
-
-                        <Box role="tabpanel" hidden={tabValue !== 0}>
-                            {documents.signup.map((doc) => (
-                                <Box
-                                    key={doc.name}
+                                <TableCell
+                                    component="th"
+                                    scope="row"
                                     sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        borderBottom: '1px solid #eee',
-                                        py: 1
+                                        width: '200px',
+                                        color: '#666'
                                     }}
                                 >
-                                    <Typography>{doc.name}</Typography>
-                                    <Box>
-                                        <Button
-                                            size="small"
-                                            startIcon={<DownloadIcon />}
-                                            sx={{
-                                                bgcolor: '#337ab7',
-                                                color: 'white',
-                                                mr: 1,
-                                                '&:hover': {
-                                                    bgcolor: '#286090'
-                                                }
-                                            }}
-
-                                            onClick={() => {
-                                                handleDownload({ type: doc.type, id: tenantId })
-                                            }}
-                                        >
-                                            Download
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            startIcon={<VisibilityIcon />}
-                                            sx={{
-                                                bgcolor: '#337ab7',
-                                                color: 'white',
-                                                '&:hover': {
-                                                    bgcolor: '#286090'
-                                                }
-                                            }}
-                                            onClick={() => {
-                                                window.open(`/document?type=${doc.type}&t=${tenantId}`, '_blank')
-                                                // handleView({ type: doc.type, id: tenantId })
-                                            }}
-                                        >
-                                            View
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            ))}
-                        </Box>
-
-                        <Box role="tabpanel" hidden={tabValue !== 1}>
-                            {documents.referral.map((doc) => (
-                                <Box
-                                    key={doc.name}
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        borderBottom: '1px solid #eee',
-                                        py: 1
-                                    }}
-                                >
-                                    <Typography>{doc.name}</Typography>
-                                    <Typography
-                                        sx={{
-                                            color: '#337ab7',
-                                            display: 'flex',
-                                            alignItems: 'center'
-                                        }}
-                                    >
-                                        Assessment needs to be done
-                                        <Box
-                                            component="span"
+                                    {row.label}
+                                </TableCell>
+                                <TableCell>
+                                    {row.value}
+                                    {row.hasLink && (
+                                        <LaunchIcon
                                             sx={{
                                                 ml: 1,
-                                                width: 20,
-                                                height: 20,
-                                                borderRadius: '50%',
-                                                bgcolor: '#337ab7',
-                                                color: 'white',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '14px'
+                                                fontSize: 16,
+                                                color: '#337ab7',
+                                                cursor: 'pointer'
                                             }}
-                                        >
-                                            +
-                                        </Box>
-                                    </Typography>
-                                </Box>
-                            ))}
-                        </Box>
-
-                        <Box role="tabpanel" hidden={tabValue !== 2}>
-                            {documents.support.map((doc, index) => (
-                                <Box
-                                    key={doc.name}
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        borderBottom: '1px solid #eee',
-                                        py: 1
-                                    }}
-                                >
-                                    <Typography>{doc.name}</Typography>
-                                    <Box>
-                                        <Button
-                                            size="small"
-                                            startIcon={<DownloadIcon />}
-                                            sx={{
-                                                bgcolor: '#337ab7',
-                                                color: 'white',
-                                                mr: 1,
-                                                '&:hover': {
-                                                    bgcolor: '#286090'
-                                                }
-                                            }}
-                                        >
-                                            Download
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            startIcon={<VisibilityIcon />}
-                                            sx={{
-                                                bgcolor: '#337ab7',
-                                                color: 'white',
-                                                '&:hover': {
-                                                    bgcolor: '#286090'
-                                                }
-                                            }}
-                                        >
-                                            View
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            ))}
-
-                            {/* Support Plan Upload Section */}
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    mt: 2
-                                }}
-                            >
-                                <Typography sx={{ mr: 2 }}>Support Plan:</Typography>
+                                        />
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        ))} */}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Box sx={{ mt: 2, textAlign: 'right' }}>
                                 <Button
-                                    variant="outlined"
-                                    component="label"
+                                    onClick={() => { handleeditdata(tenantdata?._id) }}
+                                    variant="contained"
+                                    startIcon={<EditIcon />}
                                     sx={{
-                                        textTransform: 'none',
-                                        border: '1px solid #ccc',
-                                        color: '#333',
-                                        mr: 2
-                                    }}
-                                >
-                                    Choose File
-                                    <input hidden accept="*/*" type="file" />
-                                </Button>
-                                <Typography sx={{ color: '#555' }}>No file chosen</Typography>
-                                <Button
-                                    sx={{
-                                        ml: 'auto',
                                         bgcolor: '#337ab7',
-                                        color: 'white',
                                         '&:hover': {
                                             bgcolor: '#286090'
                                         }
                                     }}
                                 >
-                                    Upload
+                                    Edit Tenant Details
                                 </Button>
                             </Box>
-                        </Box>
-                    </Paper>
+                        </Paper>
+
+                        <Paper sx={{ p: 2, mb: 2 }}>
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    color: 'white',
+                                    bgcolor: '#337ab7',
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                RSL Information
+                            </Typography>
+                            <TableContainer>
+                                <Table>
+                                    <TableBody>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '120px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Name
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.rslDetails?.rslname}</TableCell>
+                                        </TableRow>
+                                        <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '120px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Address
+                                            </TableCell>
+                                            <TableCell>{`${tenantdata?.rslDetails?.address} ${tenantdata?.rslDetails?.area} ${tenantdata?.rslDetails?.city}`}</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Paper>
+
+                        <Paper sx={{ p: 2, mb: 2 }}>
+                            <Typography
+                                variant="subtitle1"
+                                sx={{
+                                    color: 'white',
+                                    bgcolor: '#337ab7',
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                Property Informations
+                            </Typography>
+                            <TableContainer>
+                                <Table>
+                                    <TableBody>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '140px', color: '#666' }}>
+                                                Property Address:
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.propertyDetails?.address}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                Room Number:
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.room}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                Sign in Date:
+                                            </TableCell>
+                                            <TableCell>{getDate(tenantdata?.signInDate)}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                Area:
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.propertyDetails?.area}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                City:
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.propertyDetails?.city}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                Post Code:
+                                            </TableCell>
+                                            <TableCell>{tenantdata?.propertyDetails?.postCode}</TableCell>
+                                        </TableRow>
+                                        <TableRow sx={{ '& td, & th': { border: 'none', padding: '8px 16px 8px 0' } }}>
+                                            <TableCell component="th" scope="row" sx={{ width: '120px', color: '#666' }}>
+                                                Eligible Rent:
+                                            </TableCell>
+                                            <TableCell>£ {tenantdata?.propertyDetails?.eligibleRent}</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Paper>
+                    </Grid>
+
+                    {/* Right Panel - Documents List */}
+                    <Grid item xs={12} md={6}>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="subtitle1"
+                                sx={{
+                                    color: 'white',
+                                    bgcolor: '#337ab7',
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>Tenant Documents</Typography>
+
+                            <Tabs
+                                value={tabValue}
+                                onChange={handleTabChange}
+                                sx={{
+                                    borderBottom: 1,
+                                    borderColor: 'divider',
+                                    mb: 2
+                                }}
+                            >
+                                <Tab label="Signup" />
+                                <Tab label="Referral & Risk Assessments" />
+                                <Tab label="Support Plan" />
+                            </Tabs>
+
+                            <Box role="tabpanel" hidden={tabValue !== 0}>
+                                {documents.signup.map((doc) => (
+                                    <Box
+                                        key={doc.name}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            borderBottom: '1px solid #eee',
+                                            py: 1
+                                        }}
+                                    >
+                                        <Typography>{doc.name}</Typography>
+                                        <Box>
+                                            <Button
+                                                size="small"
+                                                startIcon={<DownloadIcon />}
+                                                sx={{
+                                                    bgcolor: '#337ab7',
+                                                    color: 'white',
+                                                    mr: 1,
+                                                    '&:hover': {
+                                                        bgcolor: '#286090'
+                                                    }
+                                                }}
+
+                                                onClick={() => {
+                                                    handleDownload({ type: doc.type, id: tenantId })
+                                                }}
+                                            >
+                                                Download
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                startIcon={<VisibilityIcon />}
+                                                sx={{
+                                                    bgcolor: '#337ab7',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        bgcolor: '#286090'
+                                                    }
+                                                }}
+                                                onClick={() => {
+                                                    window.open(`/document?type=${doc.type}&t=${tenantId}`, '_blank')
+                                                    // handleView({ type: doc.type, id: tenantId })
+                                                }}
+                                            >
+                                                View
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+
+                            <Box role="tabpanel" hidden={tabValue !== 1}>
+                                {documents.referral.map((doc, i) => (
+                                    <Box
+                                        key={doc.name}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            borderBottom: '1px solid #eee',
+                                            py: 1
+                                        }}
+                                    >
+                                        <Typography>{doc.name}</Typography>
+                                        <Typography
+                                            sx={{
+                                                color: '#337ab7',
+                                                display: 'flex',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            Assessment needs to be done
+                                            <Box
+                                                component="span"
+                                                sx={{
+                                                    ml: 1,
+                                                    width: 20,
+                                                    height: 20,
+                                                    borderRadius: '50%',
+                                                    bgcolor: '#337ab7',
+                                                    color: 'white',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '14px',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onClick={() => navigation(`${doc?.navigate}?sd=${tenantdata?.signInDate}&t=${i + 1}&tid=${tenantdata?._id}`)}
+                                            >
+                                                +
+                                            </Box>
+                                        </Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+
+                            <Box role="tabpanel" hidden={tabValue !== 2}>
+                                {documents.support.map((doc, index) => (
+                                    <Box
+                                        key={doc.name}
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            borderBottom: '1px solid #eee',
+                                            py: 1
+                                        }}
+                                    >
+                                        <Typography>{doc.name}</Typography>
+                                        <Box>
+                                            <Button
+                                                size="small"
+                                                startIcon={<DownloadIcon />}
+                                                sx={{
+                                                    bgcolor: '#337ab7',
+                                                    color: 'white',
+                                                    mr: 1,
+                                                    '&:hover': {
+                                                        bgcolor: '#286090'
+                                                    }
+                                                }}
+                                            >
+                                                Download
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                startIcon={<VisibilityIcon />}
+                                                sx={{
+                                                    bgcolor: '#337ab7',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        bgcolor: '#286090'
+                                                    }
+                                                }}
+                                            >
+                                                View
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                ))}
+
+                                {/* Support Plan Upload Section */}
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        mt: 2
+                                    }}
+                                >
+                                    <Typography sx={{ mr: 2 }}>Support Plan:</Typography>
+                                    <Button
+                                        variant="outlined"
+                                        component="label"
+                                        sx={{
+                                            textTransform: 'none',
+                                            border: '1px solid #ccc',
+                                            color: '#333',
+                                            mr: 2
+                                        }}
+                                    >
+                                        Choose File
+                                        <input hidden accept="*/*" type="file" />
+                                    </Button>
+                                    <Typography sx={{ color: '#555' }}>No file chosen</Typography>
+                                    <Button
+                                        sx={{
+                                            ml: 'auto',
+                                            bgcolor: '#337ab7',
+                                            color: 'white',
+                                            '&:hover': {
+                                                bgcolor: '#286090'
+                                            }
+                                        }}
+                                    >
+                                        Upload
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Paper>
+                    </Grid>
                 </Grid>
-            </Grid>
-            <EditTenantModal open={open} setOpen={setOpen} editdata={editdata} setEditdata={setEditData} refetch={getTenantDetails} />
-        </Box>
+                <EditTenantModal open={open} setOpen={setOpen} editdata={editdata} setEditdata={setEditData} refetch={getTenantDetails} />
+            </Box>
+        </>
+
     );
 }
 
