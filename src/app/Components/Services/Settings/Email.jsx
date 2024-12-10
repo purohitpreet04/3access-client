@@ -133,7 +133,7 @@ const Email = () => {
     const handleAddEmail = () => {
 
         if (formik.values.emailcc && !formik.errors.emailcc) {
-            setCompanyEmails([...companyEmails, `${formik.values.emailcc}/n`])
+            setCompanyEmails([...companyEmails, `${formik.values.emailcc}`])
             formik.setFieldValue('emailcc', '')
         }
     }

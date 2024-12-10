@@ -62,9 +62,9 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
         eyeColor: Yup.string()
             .matches(/^[a-zA-Z\s]+$/, "Eye color must contain only letters")
             .required("Eye color is required"),
-        // tenantContactNumber: Yup.string()
-        //     // .matches(/^(?:\+44|0)[1-9]\d{8,9}$/, "Please enter a valid UK phone number")
-        //     .required("Contact number is required"),
+        tenantContactNumber: Yup.string()
+            // .matches(/^(?:\+44|0)[1-9]\d{8,9}$/, "Please enter a valid UK phone number")
+            .required("Contact number is required"),
         skinTone: Yup.string()
             .matches(/^[a-zA-Z\s]+$/, "Skin tone must contain only letters")
             .required("Skin tone is required"),

@@ -14,6 +14,15 @@ API.interceptors.request.use(async (req) => {
         req.headers.authorization = `Bearer ${token}`
         req.headers['user'] = String(user?._id);
     }
+    const commonParams = {
+        addedByModel: ['company', 'agent'].includes(user?.role) ? "User" : "Staff",
+    };
+
+    if (req.params) {
+        req.params = { ...req.params, ...commonParams };
+    } else {
+        req.params = commonParams;
+    }
     return req
 })
 

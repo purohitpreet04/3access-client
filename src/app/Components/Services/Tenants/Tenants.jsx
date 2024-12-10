@@ -23,16 +23,16 @@ const TableCellstyle = styled(TableCell)(() => ({
 const Tenants = () => {
     const dispatch = useDispatch()
     const navigation = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
     const [fromdate, setFromDate] = useState('');
     const [todate, setTodate] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
     const [editdata, setEditData] = useState({});
     const [departmentFilter, setDepartmentFilter] = useState('');
     const [open, setOpen] = useState(false);
-    const [page, setPage] = useState(1);
     const [totalpage, setTotalPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
     const { user } = useSelector(state => state.auth)

@@ -11,4 +11,7 @@ export default defineConfig({
       'redux-persist/lib/storage': 'redux-persist/lib/storage',
     },
   },
+  server:{
+    host: true
+  }
 })

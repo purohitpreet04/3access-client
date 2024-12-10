@@ -109,7 +109,7 @@ function AddTenantForm() {
         try {
             dispatch(setIsLoading({ data: true }))
             const res = await API.get('/api/property/checkroomavebility', { params: { property_id, room } })
-            if(res.data.message){
+            if (res.data.message) {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
             setRooms(res.data.rooms || [])
@@ -198,10 +198,10 @@ function AddTenantForm() {
                     addedByModel: ['company', 'agent'].includes(user?.role) ? "User" : "Staff",
                     signInDate: moment(values.signInDate).toISOString(),
                     endDate: (values.endDate && checkroom) ? moment(values.endDate).toISOString() : '',
-                    isSignOut: 0
+                    isSignOut: 0,
+                    addedByRole:user?.role
                 }
-                // console.log(modifyVal)
-                // return
+
                 try {
                     dispatch(setIsLoading({ data: true }))
                     const res = await API.post('/api/tenents/addtenants', modifyVal)
@@ -467,11 +467,11 @@ function AddTenantForm() {
                                                                         I agree for Terms and condition
                                                                     </label>
                                                                 </div>
-                                                                <SignatureCanvas 
-                                                                name={com.name} 
-                                                                setFieldValue={setFieldValue} 
-                                                                onSave={(sign) => setFieldValue(com.name, sign)} 
-                                                                value={values[com.name]}
+                                                                <SignatureCanvas
+                                                                    name={com.name}
+                                                                    setFieldValue={setFieldValue}
+                                                                    onSave={(sign) => setFieldValue(com.name, sign)}
+                                                                    value={values[com.name]}
                                                                 />
                                                             </Grid>
                                                         )

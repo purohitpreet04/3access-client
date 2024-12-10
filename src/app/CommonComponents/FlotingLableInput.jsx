@@ -8,7 +8,7 @@ const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, 
         console.log(e.target.files[0])
     }
     // console.log(errors)
-    if (!select && ['text', 'date'].includes(type)) {
+    if (!select && ['text', 'date', "datetime - local"].includes(type)) {
         return (
             <>
                 <TextField
@@ -26,7 +26,7 @@ const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, 
                     value={value}
                     error={errors && errors[name]}
                     helperText={errors && errors[name]}
-                    InputLabelProps={InputLabelProps}
+                    InputLabelProps={{ ...InputLabelProps, shrink: type === "date"  || 'text' && true  }}
                     inputProps={inputProps}
                 />
             </>
@@ -111,7 +111,7 @@ const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, 
             }}
             inputProps={inputProps}
         >
-            {menuItems.map(({ val, label }) => (<MenuItem value={val}>{label}</MenuItem>))}
+            {menuItems.length > 0 && menuItems.map(({ val, label }) => (<MenuItem value={val}>{label}</MenuItem>))}
         </TextField>)
     }
 

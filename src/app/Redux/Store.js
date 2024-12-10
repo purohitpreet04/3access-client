@@ -7,6 +7,7 @@ import manageStateSlice from './Sclice/manageStateSclice';
 import multiselectSlice from './Sclice/MultiSelectSlice';
 import TenantSclice from './Sclice/TenantSclice';
 import PropertySclice from './PropertySclice';
+import ActivitySclice from './Sclice/ActivitiLogSclice'
 
 const persistConfig = {
   key: 'root',
@@ -23,12 +24,13 @@ export const store = configureStore({
     utils: manageStateSlice,
     sideselect: multiselectSlice,
     tenants: TenantSclice,
-    property: PropertySclice
-
+    property: PropertySclice,
+    activitylog:ActivitySclice
   },
   devTools: import.meta.env?.VITE_MODE != 'dev'
 })
 export const persistor = persistStore(store);
+
 
 
 

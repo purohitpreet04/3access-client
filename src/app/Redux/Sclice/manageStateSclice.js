@@ -10,7 +10,8 @@ export const manageStateSlice = createSlice({
         isOpen: false,
         openVaccine: false,
         isloading: false,
-        openTreat:false
+        openTreat: false,
+        openLogs: false
     },
     reducers: {
         openAddPet: (state, action) => {
@@ -31,17 +32,21 @@ export const manageStateSlice = createSlice({
         closeVaccModal: (state, action) => {
             state.openVaccine = false
         },
-        openTreatModal:(state, action)=>{
+        openTreatModal: (state, action) => {
             state.openTreat = true
         },
-        closeTreatModal:(state, action)=>{
+        closeTreatModal: (state, action) => {
             state.openTreat = false
+        },
+        handleLogs: (state, action) => {
+            state.openLogs = action.payload;
         }
+
 
     }
 })
 
 
 
-export const { openAddPet, closeModal, setIsLoading, closeVaccModal, openVaccModal, closeTreatModal, openTreatModal } = manageStateSlice.actions
+export const { openAddPet, closeModal, setIsLoading, closeVaccModal, openVaccModal, closeTreatModal, openTreatModal, handleLogs } = manageStateSlice.actions
 export default manageStateSlice.reducer

@@ -13,6 +13,7 @@ import debounce from "lodash/debounce";
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { saveAs } from 'file-saver';
 
 const queryClient = new QueryClient()
 
@@ -295,33 +296,229 @@ export const handleView = async ({ type, id }) => {
   }
 };
 
-export const handleDownload = async ({ type, id }) => {
+// export const handleDownload = async ({ type, id }) => {
+//   try {
+//     const response = await API.get('/api/tenents/getdocument', { params: { type, id } })
+//     const htmlContent = await response.data;
+//     const tempElement = document.createElement('div');
+//     tempElement.innerHTML = htmlContent;
+//     document.body.appendChild(tempElement);
+//     const canvas = await html2canvas(tempElement, { scale: 2 });
+//     const pdf = new jsPDF('p', 'mm', 'a4');
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+//     const imgData = canvas.toDataURL('image/png');
+//     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+//     pdf.save(`${type}.pdf`);
+//     document.body.removeChild(tempElement);
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//   }
+// };
+
+
+// export const handleDownload = async ({ type, id }) => {
+//   try {
+//     const response = await API.get('/api/tenents/getdocument', { params: { type, id } });
+//     const htmlContent = response.data;
+
+//     const tempElement = document.createElement('div');
+//     tempElement.innerHTML = htmlContent;
+
+//     tempElement.style.width = '210mm'; // A4 width in mm
+//     tempElement.style.padding = '20px'; // Add padding
+//     tempElement.style.boxSizing = 'border-box'; // Include padding in width calculation
+//     document.body.appendChild(tempElement);
+
+//     // Ensure all images in the content are loaded
+//     const images = tempElement.querySelectorAll('img');
+
+//     await Promise.all(
+//       Array.from(images).map((img) => {
+//         return new Promise((resolve) => {
+//           if (img.complete) {
+//             resolve();
+//           } else {
+//             img.onload = resolve;
+//             img.onerror = resolve;
+//           }
+//         });
+//       })
+//     );
+
+//     const canvas = await html2canvas(tempElement, { scale: 2, useCORS: true });
+//     const totalHeight = canvas.height;
+//     const pdf = new jsPDF('p', 'mm', 'a4');
+
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = pdf.internal.pageSize.getHeight();
+
+//     const margin = 10; // 10mm margin on all sides
+//     const contentWidth = pdfWidth - 2 * margin;
+//     const contentHeight = pdfHeight - 2 * margin;
+
+//     const pageHeightInPx = (contentHeight * canvas.width) / contentWidth;
+//     let position = 0;
+
+//     while (position < totalHeight) {
+//       const canvasSlice = document.createElement('canvas');
+//       canvasSlice.width = canvas.width;
+//       canvasSlice.height = Math.min(pageHeightInPx, totalHeight - position);
+
+//       const context = canvasSlice.getContext('2d');
+//       context.drawImage(
+//         canvas,
+//         0,
+//         position,
+//         canvas.width,
+//         canvasSlice.height,
+//         0,
+//         0,
+//         canvas.width,
+//         canvasSlice.height
+//       );
+
+//       const imgData = canvasSlice.toDataURL('image/png');
+//       pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+
+//       position += pageHeightInPx;
+//       if (position < totalHeight) {
+//         pdf.addPage();
+//       }
+//     }
+
+//     pdf.save(`${type}.pdf`);
+//     document.body.removeChild(tempElement);
+//   } catch (error) {
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//   }
+// };
+// export const handleDownload = async ({ type, id }, dispatch) => {
+//   dispatch(setIsLoading({data:true}))
+//   let tempContainer 
+//   try {
+//     const response = await API.get('/api/tenents/getdocument', { params: { type, id } });
+//     const htmlContent = response.data;
+
+//     tempContainer = document.createElement('div');
+//     tempContainer.style.width = '210mm'; // A4 width in mm
+//     tempContainer.style.padding = '20px'; // Add padding
+//     tempContainer.style.boxSizing = 'border-box';
+//     tempContainer.innerHTML = htmlContent;
+//     document.body.appendChild(tempContainer);
+
+//     // Ensure all images are loaded (wait for iframes to load if any)
+//     const images = tempContainer.querySelectorAll('img');
+//     await Promise.all(
+//       Array.from(images).map((img) =>
+//         new Promise((resolve) => {
+//           if (img.complete) {
+//             resolve();
+//           } else {
+//             img.onload = resolve;
+//             img.onerror = resolve;
+//           }
+//         })
+//       )
+//     );
+
+//     // Check for iframe elements and ensure they're fully loaded
+//     const iframes = tempContainer.querySelectorAll('iframe');
+//     await Promise.all(
+//       Array.from(iframes).map((iframe) =>
+//         new Promise((resolve) => {
+//           iframe.onload = resolve; // Ensure iframe content is loaded
+//         })
+//       )
+//     );
+
+//     const pdf = new jsPDF('p', 'mm', 'a4');
+//     const pdfWidth = pdf.internal.pageSize.getWidth();
+//     const pdfHeight = pdf.internal.pageSize.getHeight();
+
+//     const margin = 10; // 10mm margin
+//     const contentWidth = pdfWidth - 2 * margin;
+//     const contentHeight = pdfHeight - 2 * margin;
+
+//     const pageHeightInPx = (contentHeight * window.devicePixelRatio * 96) / 25.4; // Convert mm to px
+
+//     let currentPosition = 0;
+
+//     while (currentPosition < tempContainer.scrollHeight) {
+//       // Slice the content for the current page
+//       const pageContent = document.createElement('div');
+//       pageContent.style.width = `${tempContainer.offsetWidth}px`;
+//       pageContent.style.height = `${Math.min(pageHeightInPx, tempContainer.scrollHeight - currentPosition)}px`;
+//       pageContent.style.overflow = 'hidden';
+//       pageContent.innerHTML = tempContainer.innerHTML;
+
+//       // Adjust content position
+//       tempContainer.style.position = 'relative';
+//       tempContainer.style.top = `-${currentPosition}px`;
+
+//       // Generate canvas for the current chunk
+//       const canvas = await html2canvas(pageContent, {
+//         scale: 2,
+//         useCORS: true,
+//       });
+
+//       const imgData = canvas.toDataURL('image/png');
+//       pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
+
+//       currentPosition += pageHeightInPx;
+
+//       if (currentPosition < tempContainer.scrollHeight) {
+//         pdf.addPage();
+//       }
+//     }
+
+//     pdf.save(`${type}.pdf`);
+//     document.body.removeChild(tempContainer);
+//   } catch (error) {
+//     document.body.removeChild(tempContainer);
+//     console.error('Error generating PDF:', error);
+//     alert('Failed to generate PDF. Please try again.');
+//   }
+//   dispatch(setIsLoading({data:false}))
+// };
+
+export const handleDownload = async ({ type, id }, dispatch) => {
   try {
-    // Fetch the HTML content from the server
-    const response = await API.get('/api/tenents/getdocument', { params: { type, id } })
-    const htmlContent = await response.data;
+    dispatch(setIsLoading({ data: true }))
+    const response = await API.get('/api/user/generate-pdf', { params: { type, id }, responseType: 'arraybuffer' });
+    // if (!response.ok) {
+    //   throw new Error('Failed to generate PDF');
+    // }
 
-    // Create a hidden element to render the HTML
-    const tempElement = document.createElement('div');
-    tempElement.innerHTML = htmlContent;
-    document.body.appendChild(tempElement);
+    // Get the response as a binary stream
+    // const blob = await response.arrayBuffer(); // Get the response as an ArrayBuffer
+    const pdfBlob = new Blob([response.data], { type: 'application/pdf' }); // Convert to Blob of PDF type
+    // Create a temporary URL for the Blob object
+    if (pdfBlob.size === 0) {
+      alert('Generated PDF is empty');
+    }
+    saveAs(pdfBlob, `${type}.pdf`);
+    dispatch(setIsLoading({ data: false }));
+    return
+    const url = window.URL.createObjectURL(pdfBlob);
+    // Create a link element to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}.pdf`; // Specify the PDF file name
 
-    // Use html2canvas to capture the element
-    const canvas = await html2canvas(tempElement, { scale: 2 });
+    // Append the link to the document body and trigger the download
+    document.body.appendChild(a);
+    a.click();
 
-    // Generate PDF from canvas
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    const imgData = canvas.toDataURL('image/png');
-
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('user-details.pdf');
-
-    // Clean up
-    document.body.removeChild(tempElement);
+    // Cleanup
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url); // Release the object URL
   } catch (error) {
     console.error('Error generating PDF:', error);
     alert('Failed to generate PDF. Please try again.');
+    dispatch(setIsLoading({ data: false }))
   }
-};
+}
+

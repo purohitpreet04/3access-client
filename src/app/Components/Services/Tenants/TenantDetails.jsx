@@ -677,7 +677,8 @@ function TenantDetails() {
                                                 }}
 
                                                 onClick={() => {
-                                                    handleDownload({ type: doc.type, id: tenantId })
+                                                    
+                                                    handleDownload({ type: doc.type, id: tenantId }, dispatch)
                                                 }}
                                             >
                                                 Download

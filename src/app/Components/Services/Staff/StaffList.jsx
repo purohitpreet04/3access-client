@@ -10,7 +10,7 @@ import API from 'Constance';
 import { debounce } from 'lodash';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import DynamicTitle from '@app/CommonComponents/DynamicTitle';
-
+import HistoryIcon from '@mui/icons-material/History';
 const mockStaffData = [
     { id: 1, name: 'John Doe', role: 'Doctor', department: 'Veterinary' },
     { id: 2, name: 'Jane Smith', role: 'Nurse', department: 'Surgery' },
@@ -142,6 +142,10 @@ const StaffList = () => {
             dispatch(showSnackbar({ message: 'error while deleting staff ', severity: 'error' }))
         }
     }
+
+    const openLogs = (id) => {
+        navigation(`/logs?user=${id}`)
+      }
     return (
         <>
             <DynamicTitle title={open ? 'Add Staff' : 'Staff Menagement'} />
@@ -201,6 +205,9 @@ const StaffList = () => {
                                 </IconButton>
                                 <IconButton onClick={() => { deleteStaff(cell?._id) }}>
                                     <Icon style={{ color: 'red' }} color='red'>delete</Icon>
+                                </IconButton>
+                                <IconButton onClick={() => { openLogs(cell?._id) }}>
+                                <HistoryIcon />
                                 </IconButton>
                             </>
                         )

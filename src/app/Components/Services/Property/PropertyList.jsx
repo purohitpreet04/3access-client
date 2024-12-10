@@ -170,7 +170,7 @@ function PropertyList() {
         try {
             dispatch(setIsLoading({ data: true }))
             try {
-                const res = await API.get('/api/property/deleteProperty', { params: { _id: id } });
+                const res = await API.get('/api/property/deleteProperty', { params: { _id: id  } });
                 if (res.data.message) {
                     dispatch(showSnackbar({ message: res.data.message, severity: "success" }));
                 }

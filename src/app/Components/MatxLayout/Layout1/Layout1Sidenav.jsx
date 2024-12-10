@@ -94,7 +94,7 @@ const Layout1Sidenav = () => {
         checked ? [...prevIds, option?._id] : prevIds.filter((id) => id !== option._id)
       );
     };
-   
+
 
     // console.log(selectedValues)
     return (
@@ -103,45 +103,75 @@ const Layout1Sidenav = () => {
         sx={{
           backgroundColor: 'transparent',
           borderRadius: 2,
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+          // boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
           maxWidth: 400,
+          // maxHeight: 300
           // margin: 'auto',
         }}
       >
         <Typography>{user.role !== 'company' ? "Companies" : "Agents"}</Typography>
-        <FormGroup sx={{ padding: 1 }}>
+        <FormGroup
+          sx={{
+            padding: 2,
+            overflowY: 'auto', // Enables scrolling vertically
+            maxHeight: 300, // Limits height for vertical scrolling
+            display: 'block',
+            flexDirection: 'column', // Align items in a vertical column
+            gap: 1, // Consistent spacing between checkboxes
+            backgroundColor: '#2c344b', // Background color
+            borderRadius: 2, // Adds rounded corners
+            // boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Adds subtle shadow
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#888', // Scrollbar thumb color
+              borderRadius: '8px',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              backgroundColor: '#555', // Hover effect on scrollbar thumb
+            },
+          }}
+        >
           {data.map((option) => (
-            <FormControlLabel
-              key={option?._id}
-              control={
-                <Checkbox
-                  checked={selectedIds.includes(option._id)}
-                  onChange={(e) => handleCheckboxChange(e, option)}
-                  name={option.lable}
-                  sx={{
-                    color: '#fff',
-                    '&.Mui-checked': {
+            <Box>
+
+
+              <FormControlLabel
+                key={option?._id}
+                control={
+                  <Checkbox
+                    checked={selectedIds.includes(option._id)}
+                    onChange={(e) => handleCheckboxChange(e, option)}
+                    name={option.lable}
+                    sx={{
                       color: '#fff',
-                    },
-                    '& .MuiSvgIcon-root': {
-                      backgroundColor: 'transparent',
-                      borderRadius: '4px',
-                    }
-                  }}
-                />
-              }
-              label={option.lable}
-              sx={{
-                marginBottom: 1,
-                '& .MuiFormControlLabel-label': {
-                  fontSize: '1rem',
-                  color: '',
-                  fontWeight: 400,
-                },
-              }}
-            />
+                      '&.Mui-checked': {
+                        color: '#fff',
+                      },
+                      '& .MuiSvgIcon-root': {
+                        backgroundColor: 'transparent',
+                        borderRadius: '4px',
+                      },
+                    }}
+                  />
+                }
+                label={option.lable}
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: '1rem',
+                    color: '#f1f1f1', // Improves text readability
+                    fontWeight: 400,
+                  },
+                }}
+              />
+            </Box>
           ))}
         </FormGroup>
+
+
+
+
         <Button variant="contained" type="button" onClick={() => { dispatch(addSelectedValue({ data: selectedIds, _id: user._id })) }}>save</Button>
       </Box>
     );

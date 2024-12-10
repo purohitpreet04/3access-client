@@ -25,21 +25,17 @@ import { themeShadows } from "@app/Components/MatxTheme/themeColors";
 import { topBarHeight } from "@app/Utils/constant";
 
 import {
-  Home,
   Menu,
   Person,
-  Settings,
-  WebAsset,
-  MailOutline,
-  StarOutline,
-  PowerSettingsNew
+  PowerSettingsNew,
 } from "@mui/icons-material";
 import API from "Constance";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@app/Redux/Sclice/AuthSclice";
 import { setComData, setData, setSelectedData } from "@app/Redux/Sclice/MultiSelectSlice";
 import { showSnackbar } from "@app/Redux/Sclice/SnaackBarSclice";
-import { setIsLoading } from "@app/Redux/Sclice/manageStateSclice";
+import { handleLogs, setIsLoading } from "@app/Redux/Sclice/manageStateSclice";
+import HistoryIcon from '@mui/icons-material/History';
 
 // STYLED COMPONENTS
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -223,7 +219,9 @@ const Layout1Topbar = () => {
     }
   }
 
-
+  const openLogs = () => {
+    navigate(`/logs?user=${user?._id}`)
+  }
 
 
   return (
@@ -233,6 +231,11 @@ const Layout1Topbar = () => {
           <StyledIconButton onClick={handleSidebarToggle}>
             <Menu />
           </StyledIconButton>
+          <IconBox>
+            <StyledIconButton onClick={openLogs}>
+              <HistoryIcon />
+            </StyledIconButton>
+          </IconBox>
         </Box>
 
         <Box display="flex" alignItems="center">

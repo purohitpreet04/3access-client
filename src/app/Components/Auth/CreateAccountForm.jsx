@@ -9,6 +9,8 @@ import { register } from '@app/Redux/Sclice/AuthSclice';
 import RoleSelector from '@app/CommonComponents/CustomSwitch';
 import { color } from 'framer-motion';
 import MatxLoading from '../MatxLoading';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+
 
 const SignupSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is Required'),
@@ -29,7 +31,12 @@ const SignupSchema = Yup.object().shape({
     .matches(/^[a-zA-Z]+$/, ' Last Name must contain only letters')
     .min(2, 'Last Name must be at least 2 characters long')
     .max(20, 'Last Name must be at most 20 characters long'),
-  phone: Yup.string().matches(/^[0-9]+$/, 'Must be only digits').required('Phone Number is Required'),
+  phone: Yup.string()
+    .matches(/^[0-9]+$/, 'Must be only digits')
+    .matches(
+      /^(?:\+44|0)(?:\d\s?){9,10}$/,
+      'Enter a valid phone number'
+    ).required('Phone Number is Required'),
 });
 
 const RegisterRoot = styled("div")({
@@ -67,8 +74,9 @@ const CreateAccountForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
+  const [showPassword, setShowPassword] = React.useState(false);
   const rolesEnum = [{ label: "Admin", val: 'admin' }, { label: "Docter", val: 'doctor' }, { label: "Nurse", val: 'nurse' }, { label: "Staff", val: 'staff' }]
-
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
   return (
     <Formik
       initialValues={{
@@ -96,7 +104,7 @@ const CreateAccountForm = () => {
             <Grid container>
               <Grid p={4} item spacing={2} lg={12} md={12} sm={12} xs={12}>
                 <Form>
-                  <Grid item lg={12} md={12} sm={12} xs={12}>
+                  {/* <Grid item lg={12} md={12} sm={12} xs={12}>
                     <FormControl fullWidth>
                       <InputLabel id="role-select-label">Role</InputLabel>
                       <Select
@@ -114,7 +122,7 @@ const CreateAccountForm = () => {
                         ))}
                       </Select>
                     </FormControl>
-                  </Grid>
+                  </Grid> */}
 
                   <Grid item xs={12} sm={12} lg={12} md={12}>
                     <TextField
@@ -176,12 +184,19 @@ const CreateAccountForm = () => {
                       id="password"
                       name="password"
                       label="Password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       variant="outlined"
                       onChange={(e) => handleChange(e)}
                       margin="normal"
                       error={Boolean(errors.password && touched.password)}
                       helperText={errors.password}
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton onClick={handleClickShowPassword} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        ),
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={12} lg={12} md={12}>
@@ -190,7 +205,7 @@ const CreateAccountForm = () => {
                       id="confirmPassword"
                       name="confirmPassword"
                       label="Confirm Password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       variant="outlined"
                       onChange={(e) => handleChange(e)}
                       margin="normal"
@@ -221,7 +236,7 @@ const CreateAccountForm = () => {
                       {"Already have an account?"}
                       <NavLink
                         to='/auth/login'
-                        style={{ color: theme.palette.primary.main, marginLeft: 5,cursor:'pointer' }}>
+                        style={{ color: theme.palette.primary.main, marginLeft: 5, cursor: 'pointer' }}>
                         {"Sign in"}
                       </NavLink>
                     </Paragraph>

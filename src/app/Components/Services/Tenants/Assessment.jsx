@@ -15,12 +15,28 @@ import {
     AppBar,
     Toolbar,
     IconButton,
+    TableContainer,
+    Paper,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    RadioGroup,
 } from '@mui/material';
 import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 import { useFormik } from 'formik';
 import DynamicTitle from '@app/CommonComponents/DynamicTitle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import moment from 'moment';
+import SignatureCanvas from '@app/CommonComponents/SignatureCanvas';
+import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
+import API from 'Constance';
+import { useDispatch } from 'react-redux';
+import RadioComponent from '@app/CommonComponents/RadioComponent';
+import { getDate } from '@app/Utils/utils';
+import { val } from '@app/test';
 
 const supportNeedsOptions = [
     { label: "Tenancy failure or losing short term accommodation", name: "tenancyFailure" },
@@ -91,6 +107,9 @@ const enjoyAndAchieveChoices = [
     { label: "Access volunteering", name: "accessVolunteering" },
     { label: "Move on", name: "moveOn" },
     { label: "Support with equality and diversity", name: "supportEqualityDiversity" },
+    { label: "To change offending behaviour", name: "change_offending_behaviour" },
+    { label: "To access Support Services", name: "access_support_services" },
+
 ];
 
 const makingContributionChoices = [
@@ -106,32 +125,140 @@ const staySafeChoices = [
 ];
 const riskCategories = [
     { label: "Violence / Aggression", name: "violenceAggression" },
-    { label: "Finance / Gambling / Debt", name: "financeGamblingDebt" },
-    { label: "Self-Harm / Injurious behaviour", name: "selfHarm" },
-    { label: "Self-neglect / lack of personal care", name: "selfNeglect" },
-    { label: "Alcohol misuse", name: "alcoholMisuse" },
-    { label: "Drug misuse", name: "drugMisuse" },
-    { label: "Offending behaviour", name: "offendingBehaviour" },
-    { label: "Arson", name: "arson" },
-    { label: "Damage to property", name: "damageToProperty" },
-    { label: "Anti-social behaviour", name: "antiSocialBehaviour" },
-    { label: "Physical health", name: "physicalHealth" },
-    { label: "Mental health", name: "mentalHealth" },
+    { label: "Known associates", name: "knownAssociates" }, // New
+    { label: "Hazards from others (friend/family/visitors)", name: "hazardsFromOthers" }, // New
+    { label: "Recent discontinuation of medication", name: "medicationDiscontinuation" }, // New
     { label: "Professional boundaries", name: "professionalBoundaries" },
+    { label: "Finance / Gambling / Debt", name: "financeGamblingDebt" },
+    { label: "Attempted suicide", name: "attemptedSuicide" }, // New
+    { label: "Arson", name: "arson" },
+    { label: "Violent ideas/acts", name: "violentIdeasActs" }, // New
+    { label: "Substance abuse/alcohol misuse", name: "substanceAbuse" },
+    { label: "Harm to self, others or from others/injurious behaviour", name: "harmToSelfOthers" }, // New
+    { label: "Criminal/police or court involvement", name: "criminalInvolvement" }, // New
+    { label: "Offending behaviour", name: "offendingBehaviour" },
+    { label: "Anti-social behaviour", name: "antiSocialBehaviour" },
+    { label: "Physical Health", name: "physicalHealth" },
+    { label: "Mental Health", name: "mentalHealth" },
+    { label: "Sex Offences", name: "sexOffences" }, // New
+    { label: "Domestic Abuse", name: "domesticAbuse" }, // New
+    { label: "Extreme anger and hostility", name: "extremeanger" }, // New
 ];
+
+const checklistData = [
+    { id: 1, description: "A Licence Agreement is in place and key points have been understood", date: "07-12-2024" },
+    { id: 2, description: "Ash-Shahada HA has been introduced as the landlord and corresponding contact details have been provided", date: "07-12-2024" },
+    { id: 3, description: "The role of TUK as a Managing Agent has been understood", date: "07-12-2024" },
+    { id: 4, description: "A copy of the rent settings has been made available to the tenant", date: "07-12-2024" },
+    { id: 5, description: "Tenant was offered a choice of accommodation", date: "07-12-2024" },
+    { id: 6, description: "Tenant has been formally introduced to other tenants at the property", date: "07-12-2024" },
+    { id: 7, description: "Tenant has been introduced to the support worker and has been informed that they have the right to ask for a different support worker if they are not comfortable.", date: "07-12-2024" },
+    { id: 8, description: "All facilities at the property have been shown and any operating instructions for appliances have been provided", date: "07-12-2024" },
+    { id: 9, description: "Code of Conduct has been understood by the tenant", date: "07-12-2024" },
+    { id: 10, description: "Tenant has been made aware of emergency contact details for the Support Provider, Managing Agent and RP", date: "07-12-2024" },
+    { id: 11, description: "Complaints procedure has been explained", date: "07-12-2024" },
+    { id: 12, description: "Health and safety aspects have been explained, for example fire exits, fire blankets etc", date: "07-12-2024" },
+    { id: 13, description: "Tenant is informed that they have a right to ask for property compliance certificates", date: "07-12-2024" },
+    { id: 14, description: "Requesting repairs and maintenance work", date: "07-12-2024" },
+    { id: 15, description: "Anti-social Behaviour Policy has been explained", date: "07-12-2024" },
+    { id: 16, description: "Information on notice board has been shown", date: "07-12-2024" },
+    { id: 17, description: "Brief introduction to the local area including relevant amenities", date: "07-12-2024" },
+    { id: 18, description: "The support provision and frequency has been explained", date: "07-12-2024" },
+    { id: 19, description: "Consequences of failure to engage with support provision have been communicated.", date: "07-12-2024" },
+    { id: 20, description: "Safeguarding procedures have been explained", date: "07-12-2024" },
+];
+
 const Assessment = ({ Field }) => {
-    const navigation = useNavigate()
+
+    const navigation = useNavigate();
+    const dispatch = useDispatch();
+    const { search } = useLocation();
+    const query = new URLSearchParams(search);
+    const sd = query.get('sd');
+    const tid = query.get('tid');
+    const today = new Date();
+    const oneYearFromToday = new Date(today);
+    oneYearFromToday.setFullYear(today.getFullYear() + 1);
+
+    const formatDate = (date) => date.toISOString().split("T")[0];
+    // console.log(val)
     const formik = useFormik({
-        initialValues: { supportNeeds: [], homeNo: false, workNo: false, communicationNeeds: false },
-        onSubmit: (values) => {
-            console.log(values)
+        initialValues: {
+            supportNeeds: [],
+            homeNo: false,
+            workNo: false,
+            communicationNeeds: false,
+            dateOfAssessment: sd.split('T')[0],
+            debt: false,
+            debts: false,
+            gamblingIssues: false,
+            criminalRecords: false,
+            fullcheck: false,
+            supportFromAgencies: false,
+            physicalHealthcon: false,
+            mentalHealthcon: false,
+            prescribedMedication: false,
+            selfHarmcon: false,
+            drug: false,
+            isotherRisk: false,
+            mentalHealthdig: false,
+            related_under_condition: false,
+            records: [{ natureOfOffence: '', date: '', sentence: '' }],
+            prison: false,
+            currentAssessmentDate: formatDate(today),
+            nextAssessmentDate: formatDate(oneYearFromToday),
+        },
+        onSubmit: async (values, { resetForm }) => {
+
+            // console.log(values)
+            // return
+            const { tenantSignature, supportWorkerSignature, ...restData } = values
+            try {
+                const modifyVal = {
+                    assesment: {
+                        ...restData,
+                        dateOfAssessment: moment(values?.dateOfAssessment).toISOString(),
+                        currentAssessmentDate: moment(values?.currentAssessmentDate).toISOString(),
+                        release_date: moment(values?.release_date).toISOString(),
+                        nextAssessmentDate: moment(values?.nextAssessmentDate).toISOString(),
+                    },
+                    _id: tid,
+                    supportWorkerSignature,
+                    tenantSignature
+                }
+                dispatch(setIsLoading({ data: true }))
+                const res = await API.post('/api/tenents/addtenants', modifyVal)
+                if (res.data.success == true) {
+                    resetForm()
+                }
+                if(res.data?.message){
+                    dispatch(showSnackbar({ message: res?.data?.message || "Assesment Added Succesfully", severity: "success" }))
+
+                }
+                navigation('/desh')
+                dispatch(setIsLoading({ data: false }))
+            } catch (error) {
+
+                dispatch(setIsLoading({ data: false }))
+                dispatch(showSnackbar({ message: error?.response?.data?.message || "error while add tenants details", severity: "error" }))
+            }
         }
 
     })
 
+
+
+
     const { setValues, values, handleChange, handleSubmit, setFieldValue } = formik;
 
+    const addRecord = () => {
+        setFieldValue('records', [...values.records, { natureOfOffence: '', date: '', sentence: '' }]);
+    };
 
+    const removeRecord = (index) => {
+        const newRecords = values.records.filter((_, i) => i !== index);
+        setFieldValue('records', newRecords);
+    };
     // console.log(values)
     return (
         <>
@@ -143,7 +270,7 @@ const Assessment = ({ Field }) => {
             </Toolbar>
             {/* </AppBar> */}
             <DynamicTitle title='Assessment' />
-            <Box px={3}>
+            <Box px={3} pb={3}>
                 <Box>
                     <Typography variant="h6">Assessment</Typography>
                     <Typography variant="p">Fill in the information below. The fields marked with * are required.</Typography>
@@ -156,8 +283,7 @@ const Assessment = ({ Field }) => {
                             label="Date of Assessment"
                             type="date"
                             fullWidth
-                            value={values?.dateOfAssessment || values?.signInDate}
-                            onChange={(e) => { handleChange(e) }}
+                            value={values?.dateOfAssessment || sd.split('T')[0]}
                             InputLabelProps={{
                                 shrink: true,
                             }}
@@ -218,7 +344,7 @@ const Assessment = ({ Field }) => {
                                     label="Ethnic Origin"
                                     value={values.ethnicOrigin}
                                     onChange={(e) => { handleChange(e) }}
-                                    required
+                                // required
                                 >
                                     <MenuItem value="White: British">White: British</MenuItem>
                                     <MenuItem value="White: Irish">White: Irish</MenuItem>
@@ -251,7 +377,7 @@ const Assessment = ({ Field }) => {
                                     label="Religion"
                                     value={values.religion}
                                     onChange={(e) => { handleChange(e) }}
-                                    required
+                                // required
                                 >
                                     <MenuItem value="No religion/Atheist">No religion/Atheist</MenuItem>
                                     <MenuItem value="Muslim">Muslim</MenuItem>
@@ -348,7 +474,7 @@ const Assessment = ({ Field }) => {
                             />
                         </Grid>
                     </Grid>
-                    <Grid xs={9} marginTop={2} spacing={2} item flexDirection='column' flexWrap='wrap' container>
+                    <Grid xs={9} marginTop={2} spacing={2} item flexWrap='wrap' container>
                         {/* Do you have any debts? */}
                         <Grid item xs={12} sm={4}>
                             <Typography variant="subtitle1">Do you have any debts? If so, please provide details.</Typography>
@@ -372,6 +498,16 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.debt === true &&
+                                <FlotingLableInput
+                                    // placeholder='Details of Vehicles'
+                                    type='textarea'
+                                    name='debtdetails'
+                                    onChange={(e) => { handleChange(e) }}
+                                    fullWidth
+                                    value={values?.debtdetails}
+                                />
+                            }
                         </Grid>
 
                         {/* Do you have any issues with gambling? */}
@@ -387,6 +523,16 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.gamblingIssues === true &&
+                                <FlotingLableInput
+                                    // placeholder='Details of Vehicles'
+                                    type='textarea'
+                                    name='gamblingIssuesdetails'
+                                    onChange={(e) => { handleChange(e) }}
+                                    fullWidth
+                                    value={values?.gamblingIssuesdetails}
+                                />
+                            }
                         </Grid>
 
                         {/* Do you have any Criminal Records? */}
@@ -402,6 +548,73 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.criminalRecords === true && (
+                                <>
+                                    {values?.records.map((record, index) => (
+                                        <Grid
+                                            container
+                                            key={index}
+                                            spacing={2}
+                                            alignItems="center"
+                                            wrap="nowrap" // Prevents wrapping to a new line
+                                            sx={{ marginBottom: 2 }} // Adds spacing between rows
+                                        >
+                                            <Grid item xs={4}>
+                                                <TextField
+                                                    fullWidth
+                                                    name={`records[${index}].natureOfOffence`}
+                                                    label="Nature of Offence"
+                                                    value={record.natureOfOffence}
+                                                    onChange={handleChange}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={3}>
+                                                <TextField
+                                                    fullWidth
+                                                    name={`records[${index}].date`}
+                                                    label="Date"
+                                                    type="date"
+                                                    value={record.date}
+                                                    onChange={handleChange}
+                                                    InputLabelProps={{ shrink: true }} // Ensures the label stays above the date input
+                                                />
+                                            </Grid>
+                                            <Grid item xs={3}>
+                                                <TextField
+                                                    fullWidth
+                                                    name={`records[${index}].sentence`}
+                                                    label="Sentence"
+                                                    value={record.sentence}
+                                                    onChange={handleChange}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={3}>
+                                                <Button
+                                                    onClick={() => removeRecord(index)}
+                                                    color="error"
+                                                    variant="contained"
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    ))}
+                                    <Grid container>
+
+                                        <Grid item xs={3}>
+                                            <Button
+                                                onClick={addRecord}
+                                                color="primary"
+                                                variant="contained"
+                                            // sx={{ marginTop: 2 }}
+                                            >
+                                                Add Record
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </>
+
+                            )}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -493,9 +706,10 @@ const Assessment = ({ Field }) => {
                         <Typography variant='p'>I confirm that all the information provided is true to my knowledge and agree to follow a program of support based on this assessment</Typography>
                     </Box>
                     <Box>
-                        <canvas id="client_signature" width="350" height="160" style={{ border: "1px solid rgb(221, 221, 221)", "touch-action": "none" }}></canvas>
+
+                        <SignatureCanvas name='tenantSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('tenantSignature', sign)} />
                     </Box>
-                    <Button variant='contained' color='error' >Clear</Button>
+
                 </Grid>
 
                 <Box>
@@ -514,8 +728,20 @@ const Assessment = ({ Field }) => {
                             />
                         </FormGroup>
                     </Grid>
-                </Box>
 
+                </Box>
+                {values?.fullcheck === true &&
+                    <Box width='50%'>
+                        <FlotingLableInput
+                            placeholder='Why? (Reason)'
+                            type='textarea'
+                            name='fullcheckreason'
+                            onChange={(e) => { handleChange(e) }}
+                            fullWidth
+                            value={values?.fullcheckreason}
+                        />
+                    </Box>
+                }
                 <Box width='50%'>
                     <Typography variant='p'>Referred From (Please state agency name or self-referral)</Typography>
                     <FlotingLableInput
@@ -532,9 +758,9 @@ const Assessment = ({ Field }) => {
                         <Typography variant='p'>Support Worker Signature</Typography>
                     </Box>
                     <Box>
-                        <canvas id="client_signature" width="350" height="160" style={{ border: "1px solid rgb(221, 221, 221)", "touch-action": "none" }}></canvas>
+                        <SignatureCanvas name='supportWorkerSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('supportWorkerSignature', sign)} />
                     </Box>
-                    <Button variant='contained' >Clear</Button>
+
                 </Grid>
 
                 <Grid>
@@ -550,25 +776,104 @@ const Assessment = ({ Field }) => {
                             label="No"
                         />
                     </FormGroup>
+                    {values?.supportFromAgencies === true &&
+                        (<>
+                            <Grid container spacing={3} sx={{ padding: 2 }}>
+                                {/* Row 1 */}
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="Social Worker"
+                                        type="text"
+                                        name="socialWorker"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.socialWorker}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="Probation Officer"
+                                        type="text"
+                                        name="probationOfficer"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.probationOfficer}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="Probation Officer Contact No."
+                                        type="text"
+                                        name="probationOfficerContactNo"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.probationOfficerContactNo}
+                                    />
+                                </Grid>
 
+                                {/* Row 2 */}
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="CPN"
+                                        type="text"
+                                        name="cpn"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.cpn}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="Probation Officer Address"
+                                        type="text"
+                                        name="probationOfficerAddress"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.probationOfficerAddress}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <FlotingLableInput
+                                        placeholder="Psychiatrist/Psychologist"
+                                        type="text"
+                                        name="psychiatristPsychologist"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.psychiatristPsychologist}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </>)}
                     <Divider sx={{ marginTop: 4 }} />
 
                     <Typography variant="h6" marginTop={4}>PHYSICAL AND MENTAL HEALTH</Typography>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={4} sm={4}>
                             <Typography variant="subtitle1">Do you have any physical health conditions?</Typography>
                             <FormGroup>
                                 <FormControlLabel
-                                    control={<Radio checked={values.physicalHealthcon === true} onChange={() => setValues((pre) => ({ ...pre, physicalHealth: true }))} name="physicalHealthcon" value={true} />}
+                                    control={<Radio checked={values.physicalHealthcon === true} onChange={() => setValues((pre) => ({ ...pre, physicalHealthcon: true }))} name="physicalHealthcon" value={true} />}
                                     label="Yes"
                                 />
                                 <FormControlLabel
-                                    control={<Radio checked={values.physicalHealthcon === false} onChange={() => setValues((pre) => ({ ...pre, physicalHealth: false }))} name="physicalHealthcon" value={false} />}
+                                    control={<Radio checked={values.physicalHealthcon === false} onChange={() => setValues((pre) => ({ ...pre, physicalHealthcon: false }))} name="physicalHealthcon" value={false} />}
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.physicalHealthcon && (
+                                <>
+                                    <FlotingLableInput
+                                        // placeholder="Psychiatrist/Psychologist"
+                                        type="text"
+                                        name="physicalHealthdetails"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.physicalHealthdetails}
+                                    />
+                                </>
+                            )}
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={4} sm={4}>
 
                             <Typography variant="subtitle1">Do you have any mental health conditions?</Typography>
                             <FormGroup>
@@ -581,6 +886,44 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.mentalHealthcon && (
+                                <>
+                                    <FlotingLableInput
+                                        // placeholder="Psychiatrist/Psychologist"
+                                        type="text"
+                                        name="mentalHealthdetails"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.mentalHealthdetails}
+                                    />
+                                </>
+                            )}
+                        </Grid>
+                        <Grid item xs={4} sm={4}>
+
+                            <Typography variant="subtitle1">Have you been diagnosed with any mental health condition?</Typography>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<Radio checked={values.mentalHealthdig === true} onChange={() => setValues((pre) => ({ ...pre, mentalHealthdig: true }))} name="mentalHealthdig" value={true} />}
+                                    label="Yes"
+                                />
+                                <FormControlLabel
+                                    control={<Radio checked={values.mentalHealthdig === false} onChange={() => setValues((pre) => ({ ...pre, mentalHealthdig: false }))} name="mentalHealthdig" value={false} />}
+                                    label="No"
+                                />
+                            </FormGroup>
+                            {values?.mentalHealthdig && (
+                                <>
+                                    <FlotingLableInput
+                                        // placeholder="Psychiatrist/Psychologist"
+                                        type="text"
+                                        name="mentalHealthdigdetails"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.mentalHealthdigdetails}
+                                    />
+                                </>
+                            )}
                         </Grid>
                     </Grid>
 
@@ -588,7 +931,21 @@ const Assessment = ({ Field }) => {
 
                     <Typography variant="h6" marginTop={4}>Legal Status</Typography>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
+                        <Grid item xs={12} sm={4}>
+                            <FlotingLableInput
+                                label='Have you been subject to any orders?'
+                                select
+                                menuItems={[{ val: "DRR", label: "DRR" },
+                                { val: "Yes", label: "Yes" },
+                                { val: "No", label: "No" },]}
+                                // type="text"
+                                name="subjecttoorder"
+                                onChange={handleChange}
+                                fullWidth
+                                value={values?.subjecttoorder}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
 
                             <Typography variant="subtitle1">Are you prescribed medication?</Typography>
                             <FormGroup>
@@ -601,8 +958,21 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values?.prescribedMedication && (
+                                <>
+                                    <FlotingLableInput
+                                        // placeholder="Psychiatrist/Psychologist"
+                                        type="text"
+                                        name="prescribedMedicationdetails"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.prescribedMedicationdetails}
+                                    />
+                                </>
+                            )}
                         </Grid>
-                        <Grid item xs={12} sm={6}>
+
+                        <Grid item xs={12} sm={4}>
 
                             <Typography variant="subtitle1">Have you ever self-harmed, had suicidal thoughts or attempted suicide?</Typography>
                             <FormGroup>
@@ -615,6 +985,170 @@ const Assessment = ({ Field }) => {
                                     label="No"
                                 />
                             </FormGroup>
+                            {values.selfHarmcon === true &&
+                                (<>
+                                    <Box sx={{ width: "100%", padding: 2 }}>
+                                        <Grid container spacing={2} direction="column">
+                                            <Grid item xs={12}>
+                                                <FlotingLableInput
+                                                    placeholder="Details"
+                                                    type="text"
+                                                    name="details"
+                                                    onChange={handleChange}
+                                                    fullWidth
+                                                    value={values?.details || ""}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <FlotingLableInput
+                                                    placeholder="When"
+                                                    type="text"
+                                                    name="when"
+                                                    onChange={handleChange}
+                                                    fullWidth
+                                                    value={values?.when || ""}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <FlotingLableInput
+                                                    placeholder="How"
+                                                    type="text"
+                                                    name="how"
+                                                    onChange={handleChange}
+                                                    fullWidth
+                                                    value={values?.how || ""}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <FlotingLableInput
+                                                    placeholder="Where"
+                                                    type="text"
+                                                    name="where"
+                                                    onChange={handleChange}
+                                                    fullWidth
+                                                    value={values?.where || ""}
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                    </Box>
+                                </>)
+
+
+                            }
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+
+                            <Typography variant="subtitle1">Have you been to prison?</Typography>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<Radio checked={values.prison === true} onChange={() => setValues((pre) => ({ ...pre, prison: true }))} name="prison" value={true} />}
+                                    label="Yes"
+                                />
+                                <FormControlLabel
+                                    control={<Radio checked={values.prison === false} onChange={() => setValues((pre) => ({ ...pre, prison: false }))} name="prison" value={false} />}
+                                    label="No"
+                                />
+                            </FormGroup>
+                            {values.prison === true && (
+                                <>
+                                    <Grid flexDirection='column' container spacing={3} sx={{ padding: 2 }}>
+                                        <Grid item xs={6}>
+                                            <FlotingLableInput
+                                                placeholder="when and which prison"
+                                                label="when and which prison"
+                                                type="text"
+                                                name="whenprison"
+                                                onChange={handleChange}
+                                                fullWidth
+                                                value={values?.whenprison}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <FlotingLableInput
+                                                type="text"
+                                                name="reason_for_prison"
+                                                placeholder="Reason for prison sentence"
+                                                label="Reason for prison sentence"
+                                                onChange={handleChange}
+                                                fullWidth
+                                                value={values?.reason_for_prison}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <FlotingLableInput
+                                                type="date"
+                                                name="release_date"
+                                                label="Last date of release:"
+                                                placeholder="Last date of release:"
+                                                onChange={handleChange}
+                                                fullWidth
+
+                                                value={values?.release_date}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </>
+                            )}
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <Typography variant="subtitle1">Related under any conditions</Typography>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={<Radio checked={values.related_under_condition === true} onChange={() => setValues((pre) => ({ ...pre, related_under_condition: true }))} name="related_under_condition" value={true} />}
+                                    label="Yes"
+                                />
+                                <FormControlLabel
+                                    control={<Radio checked={values.related_under_condition === false} onChange={() => setValues((pre) => ({ ...pre, related_under_condition: false }))} name="related_under_condition" value={false} />}
+                                    label="No"
+                                />
+                            </FormGroup>
+                            {values?.related_under_condition && (
+                                <>
+                                    <Grid flexDirection='column' container spacing={3} sx={{ padding: 2 }}>
+                                        <Grid item xs={6}>
+                                            <FlotingLableInput
+                                                type="text" name="related_under_condition_what"
+                                                placeholder="What?"
+                                                label="What?"
+                                                onChange={handleChange}
+                                                fullWidth
+                                                value={values?.related_under_condition_what}
+                                            />
+
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <FlotingLableInput
+                                                type="text" name="related_under_condition_date"
+                                                placeholder="Date"
+                                                label="Date"
+                                                onChange={handleChange}
+                                                fullWidth
+                                                value={values?.related_under_condition_date}
+                                            />
+
+                                        </Grid>
+                                    </Grid>
+                                </>
+                            )}
+
+
+                        </Grid>
+
+                        <Grid item xs={12} sm={4}>
+
+                            <FlotingLableInput
+                                menuItems={[{ val: "ESA", label: "ESA" },
+                                { val: "DLA", label: "DLA" },
+                                { val: "JSA", label: "JSA" },
+                                { val: "Housing Benefit", label: "Housing Benefit" }]}
+                                select
+                                name="claiming_benefits"
+                                placeholder="What benefits do you currently claim?"
+                                label="What benefits do you currently claim?"
+                                onChange={handleChange}
+                                fullWidth
+                                value={values?.claiming_benefits}
+                            />
                         </Grid>
                     </Grid>
                     <Divider sx={{ marginTop: 4 }} />
@@ -633,6 +1167,87 @@ const Assessment = ({ Field }) => {
                                 />
                             </FormGroup>
                         </Grid>
+                        {values?.drug === true && (
+                            <Grid container spacing={1} flexDirection='column'>
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        type="text"
+                                        name="drug_use"
+                                        placeholder="What drugs do you use?"
+                                        label="What drugs do you use?"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.drug_user}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        menuItems={[
+                                            { val: "Oral", label: "Oral" },
+                                            { val: "Smoking", label: "Smoking" },
+                                            { val: "Injection", label: "Injection" },
+                                            { val: "Snorting", label: "Snorting" },
+                                        ]}
+                                        select
+                                        name="method_of_administration"
+                                        placeholder="Method of administration"
+                                        label="Method of administration"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.method_of_administration}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        type="text"
+                                        name="injection_body_part"
+                                        placeholder="If injection, which part of the body is injected?"
+                                        label="If injection, which part of the body is injected?"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.injection_body_part}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        type="text"
+                                        name="administered"
+                                        placeholder="How is it administered? (e.g., snort, inject, smoke)"
+                                        label="How is it administered?"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.administered}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        type="text"
+                                        name="drug_worker"
+                                        placeholder="Details of drug worker (company, name, contact, prescription info)"
+                                        label="Do you have a drug worker? If so, provide details"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.drug_worker}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={12} sm={6}>
+                                    <FlotingLableInput
+                                        type="text"
+                                        name="drug_team"
+                                        placeholder="Location of drugs team"
+                                        label="Location of drugs team"
+                                        onChange={handleChange}
+                                        fullWidth
+                                        value={values?.drug_team}
+                                    />
+                                </Grid>
+                            </Grid>
+                        )}
                     </Grid>
                     <Divider sx={{ marginTop: 4 }} />
                     <Typography variant="h6" marginTop={4}>Support Plan Choice (ACHIEVE ECONOMIC WELLBEING)</Typography>
@@ -730,7 +1345,6 @@ const Assessment = ({ Field }) => {
                                 <Typography variant="subtitle1">{choice.label}</Typography>
                                 <TextField
                                     name={choice.name}
-                                    as={TextField}
                                     select
                                     fullWidth
                                     value={values[choice.name] || "No"}
@@ -738,7 +1352,6 @@ const Assessment = ({ Field }) => {
                                 >
                                     <MenuItem value="No">No</MenuItem>
                                     <MenuItem value="Yes">Yes</MenuItem>
-
                                 </TextField>
                             </Grid>
                         ))}
@@ -750,56 +1363,20 @@ const Assessment = ({ Field }) => {
                             <FormControlLabel
                                 control={
                                     <Checkbox
-                                        name={`is${category.name}`}
-                                        checked={values[`is${category.name}`]}
+                                        name={category.name}
+                                        checked={values[category.name]}
                                         onChange={(e) => {
-                                            // setValues((pre) => ({
-                                            //   ...pre,
-                                            //   [category.name]: e.target.checked,
-                                            // }));
                                             if (e.target.checked) {
-
-                                                setFieldValue(`is${category.name}`, true)
+                                                setFieldValue(category.name, true)
                                             } else {
-
-                                                setFieldValue(`is${category.name}`, false)
+                                                setFieldValue(category.name, false)
                                             }
                                         }}
                                     />
                                 }
                                 label={category.label}
                             />
-                            {values[`is${category.name}`] ? (
-                                <Box marginLeft={2}>
-                                    <TextField
-                                        name={`${category.name}.whoIsAtRisk`}
-                                        // as={TextField}
-                                        onChange={(e) => { handleChange(e) }}
-                                        label="Who is at risk?"
-                                        fullWidth
-                                        margin="normal"
-                                        value={values[`${category.name}`]?.whoIsAtRisk || ''}
-                                    />
-                                    <TextField
-                                        name={`${category.name}.howWillRiskBeManaged`}
-                                        // as={TextField}
-                                        label="How will the risk be managed?"
-                                        fullWidth
-                                        margin="normal"
-                                        onChange={(e) => { handleChange(e) }}
-                                        value={values[`${category.name}`]?.howWillRiskBeManaged || ''}
-                                    />
-                                    <TextField
-                                        name={`${category.name}.riskRating`}
-                                        // as={TextField}
-                                        onChange={(e) => { handleChange(e) }}
-                                        label="Risk rating – high/medium/low"
-                                        fullWidth
-                                        margin="normal"
-                                        value={values[`${category.name}`]?.riskRating || ''}
-                                    />
-                                </Box>
-                            ) : null}
+
                         </Box>
                     ))}
 
@@ -826,76 +1403,254 @@ const Assessment = ({ Field }) => {
                         label="No"
                     />
                     {values.isotherRisk && <>
-                        <TextField
-                            name="otherRisk"
-                            // as={TextField}
-                            label="Other"
-                            fullWidth
-                            margin="normal"
-                            value={values?.otherRisk || ''}
-                            onChange={(e) => { handleChange(e) }}
-                        />
-
-                        <FlotingLableInput
-                            name="whoIsAtRisk"
-                            // as={TextField}
-                            label="Who is at risk?"
-                            fullWidth
-                            value={values.whoIsAtRisk || ''}
-                            onChange={(e) => { handleChange(e) }}
-                            margin="normal"
-                        />
-                        <FlotingLableInput
-                            name="howWillRiskBeManaged"
-                            // as={TextField}
-                            label="How will the risk be managed?"
-                            fullWidth
-                            value={values.howWillRiskBeManaged || ''}
-                            onChange={(e) => { handleChange(e) }}
-                            margin="normal"
-                        />
-                        <FlotingLableInput
-                            name="riskRating"
-                            // as={TextField}
-                            label="Risk rating – high/medium/low"
-                            fullWidth
-                            margin="normal"
-                            value={values.riskRating || ''}
-                            onChange={(e) => { handleChange(e) }}
-                        />
+                        <Grid container>
+                            <Grid item xs={12} sm={4}>
+                                <TextField
+                                    name="otherRisk"
+                                    fullWidth
+                                    margin="normal"
+                                    value={values?.otherRisk || ''}
+                                    onChange={(e) => { handleChange(e) }}
+                                />
+                            </Grid>
+                        </Grid>
                     </>
                     }
+                    <Grid container flexDirection='column'>
+                        <Grid item xs={12} sm={4}>
+                            <FlotingLableInput
+                                type="textarea"
+                                name="interim_risk_review_details"
+                                placeholder="INTERIM RISK REVIEW DETAILS"
+                                label="INTERIM RISK REVIEW DETAILS"
+                                onChange={handleChange}
+                                fullWidth
+                                value={values?.interim_risk_review_details}
+                            />
+                        </Grid>
+                    </Grid>
+
+
+                    <Typography variant="h6" marginTop={4}>Risk Assessment</Typography>
+                    <Divider sx={{ marginTop: 1 }} />
+                    <Box sx={{ padding: 2 }}>
+                        <Typography variant="h6" marginBottom={2}>
+                            Family Support
+                        </Typography>
+
+                        <RadioGroup
+                            row
+                            value={values.family_support}
+                            onChange={(e) => setValues({ ...values, family_support: e.target.value })}
+                        >
+                            <FormControlLabel
+                                control={<Radio />}
+                                label="Yes"
+                                value="yes"
+                            />
+                            <FormControlLabel
+                                control={<Radio />}
+                                label="No"
+                                value="no"
+                            />
+                        </RadioGroup>
+
+                        {/* Conditional fields based on the selected radio button */}
+                        {values.family_support === "yes" && (
+                            <Box sx={{ marginTop: 2 }}>
+                                <Grid container flexDirection='column' spacing={2}>
+                                    {/* Who Supports Family */}
+                                    <Grid item xs={12} md={6}>
+                                        <FlotingLableInput
+                                            type="text"
+                                            name="family_support_who"
+                                            placeholder="Who?"
+                                            label="Who supports the family?"
+                                            value={values.family_support_who}
+                                            onChange={handleChange}
+                                            fullWidth
+                                        />
+                                    </Grid>
+
+                                    {/* Level of Family Support */}
+                                    <Grid item xs={12} md={6}>
+                                        <FlotingLableInput
+                                            select
+                                            name="family_support_level"
+                                            label="Level of family support"
+                                            placeholder="Select level"
+                                            menuItems={[
+                                                { val: "Daily", label: "Daily" },
+                                                { val: "Weekly", label: "Weekly" },
+                                                { val: "Monthly", label: "Monthly" },
+                                                { val: "Rarely", label: "Rarely" },
+                                            ]}
+                                            value={values.family_support_level}
+                                            onChange={handleChange}
+                                            fullWidth
+                                        />
+                                    </Grid>
+
+                                    {/* Why Family Support */}
+                                    <Grid item xs={12} md={6}>
+                                        <FlotingLableInput
+                                            type="text"
+                                            name="family_support_why"
+                                            placeholder="Why?"
+                                            label="Why is family support needed?"
+                                            value={values.family_support_why}
+                                            onChange={(e) => handleChange(e)}
+                                            fullWidth
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        )}
+                    </Box>
+
+
+
+
+                    <Box width={{ xs: "100%", md: "80%", lg: "50%" }} my={4}>
+                        <TableContainer
+                            component={Paper}
+                            sx={{
+                                borderRadius: 2,
+                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                            }}
+                        >
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{
+                                    padding: 2,
+                                    backgroundColor: "black",
+                                    color: "white",
+                                    borderTopLeftRadius: 8,
+                                    borderTopRightRadius: 8,
+                                }}
+                            >
+                                Tenant Induction Checklist
+                            </Typography>
+                            <Table>
+                                <TableHead>
+                                    <TableRow sx={{ backgroundColor: "grey.100" }}>
+                                        <TableCell
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color: "text.primary",
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            #
+                                        </TableCell>
+                                        <TableCell
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color: "text.primary",
+                                            }}
+                                        >
+                                            Description
+                                        </TableCell>
+                                        <TableCell
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color: "text.primary",
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            Date
+                                        </TableCell>
+                                        <TableCell
+                                            sx={{
+                                                fontWeight: "bold",
+                                                color: "text.primary",
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            Agree
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {checklistData.map((item) => (
+                                        <TableRow key={item.id} hover>
+                                            <TableCell
+                                                align="center"
+                                                sx={{ fontWeight: "bold", color: "text.secondary" }}
+                                            >
+                                                {item.id}
+                                            </TableCell>
+                                            <TableCell sx={{ wordBreak: 'break-word' }}>
+                                                {item.description}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {item.date}
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                <Checkbox
+                                                    checked={values?.checklist?.[item.id] || false} // Ensure proper default value
+                                                    onChange={(e) =>
+                                                        setValues((prev) => ({
+                                                            ...prev,
+                                                            checklist: {
+                                                                ...prev.checklist,
+                                                                [item.id]: e.target.checked, // Correct syntax for dynamic keys
+                                                            },
+                                                        }))
+                                                    }
+                                                    name={`checklist[${item.id}]`}
+                                                    sx={{
+                                                        "&.Mui-checked": {
+                                                            color: "primary.main",
+                                                        },
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
 
                     <Divider sx={{ marginTop: 4 }} />
                     <Typography variant="h5" marginTop={4}>Risk Assessment Reviews</Typography>
-                    <Box display="flex" width='70%' gap='5' flexDirection='row' justifyContent="space-between" marginTop={2}>
-
+                    <Box
+                        display="flex"
+                        width="50%"
+                        gap={2} // Use a numeric value for consistent spacing
+                        flexDirection={{ xs: "column", md: "row" }} // Responsive: column on small screens, row on larger screens
+                        justifyContent="space-between"
+                        marginTop={2}
+                    >
                         <FlotingLableInput
-                            style={{ marginBottom: 10 }}
+                            sx={{ flex: 1, marginBottom: { xs: 2, md: 0 } }} // Adjust margin for responsiveness
                             name="currentAssessmentDate"
                             label="Current Assessment Date"
                             type="date"
                             fullWidth
                             value={values.currentAssessmentDate}
-                            onChange={(e) => { handleChange(e) }}
+                            onChange={(e) => handleChange(e)}
                             InputLabelProps={{
                                 shrink: true,
                             }}
                         />
 
                         <FlotingLableInput
+                            sx={{ flex: 1 }}
                             name="nextAssessmentDate"
                             label="Next Assessment Date"
                             type="date"
                             fullWidth
                             value={values.nextAssessmentDate}
-                            onChange={(e) => { handleChange(e) }}
+                            onChange={(e) => handleChange(e)}
                             InputLabelProps={{
                                 shrink: true,
                             }}
-
                         />
                     </Box>
+
 
                     <Button type="button" onClick={() => { handleSubmit(); }} variant="contained" color="primary" sx={{ marginTop: 2 }}>
                         Add Tenant Assessment

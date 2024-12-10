@@ -79,15 +79,25 @@ const LoginForm = () => {
     city: Yup.string()
       .matches(/^[a-zA-Z\s]+$/, 'City cannot contain numbers or special characters')
       .required('City is required'),
-    pincode: Yup.string().required('Post Code is required').max(6, 'maximum 6 Characters allowed'),
+    pincode: Yup.string().test(
+      'exact-length',
+      'Postcode must have exactly 6 characters (excluding spaces)',
+      (value) => {
+        if (!value) return false;
+        const trimmedValue = value.replace(/\s+/g, ''); 
+        return trimmedValue.length === 6;
+      }
+    )
+    .required('Postcode is required'),    
     website: showPage == 2 && Yup.string()
-      .matches(urlRegex, 'Enter a valid URL, e.g., https://example.com')
-      .required('Website is required'),
+      .matches(urlRegex, 'Enter a valid URL, e.g., https://example.com'),
+      
     phonenumber: Yup.string()
-      .matches(
-        /^(\+\d{1,3}[- ]?)?\d{10}$/,
-        'Phone number is not valid'
-      ).required('Phone number is required'),
+    .matches(/^[0-9]+$/, 'Must be only digits')
+    .matches(
+      /^(?:\+44|0)(?:\d\s?){9,10}$/,
+      'Enter a valid UK phone number'
+    ).required('Phone Number is Required'),
     fname: Yup.string()
       .matches(/^[A-Za-z]+$/, 'First name can only contain letters')
       .min(2, 'First name must be at least 2 characters')
@@ -377,7 +387,13 @@ const LoginForm = () => {
                         onChange={handleChange}
                         error={touched.password && Boolean(errors.password)}
                         helperText={touched.password && errors.password}
-
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton onClick={handleClickShowPassword} edge="end">
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          ),
+                        }}
                       />
                     </Grid>
                   </Grid>
@@ -641,6 +657,13 @@ const LoginForm = () => {
                         onChange={handleChange}
                         error={touched.password && Boolean(errors.password)}
                         helperText={touched.password && errors.password}
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton onClick={handleClickShowPassword} edge="end">
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          ),
+                        }}
 
                       />
                     </Grid>
@@ -709,7 +732,7 @@ const LoginForm = () => {
                         name="city"
                         onChange={handleChange}
                         error={touched.city && Boolean(errors.city)}
-                        helperText={touched.city && errors.password}
+                        helperText={touched.city && errors.city}
 
                       />
                     </Grid>

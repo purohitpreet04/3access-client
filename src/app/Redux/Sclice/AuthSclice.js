@@ -44,7 +44,7 @@ export const register = createAsyncThunk(
     async (value, { rejectWithValue, dispatch }) => {
         const { data, navigate } = value
         try {
-           
+
             const res = await API.post('/api/auth/register', data)
             dispatch(setIsLoading({ data: true }));
             if (res.data.token) {
@@ -116,8 +116,12 @@ export const updateUser = createAsyncThunk(
 export const fetchUserDetails = createAsyncThunk('auth/fetchUserDetails', async (value, { rejectWithValue, dispatch }) => {
     const { navigate } = value
     try {
-        const { data, ...res } = await API.get('/api/auth/fetchuserdata')
+
+        let userdata = JSON.parse(localStorage.getItem('persist:root'))
+        let user = JSON.parse(userdata?.user)
+        const { data, ...res } = await API.get('/api/user/fetchuserdetails', { params: { _id: user?._id, role: user?.role } })
         if (data?.user?._id) {
+            // console.log(data)
             return { user: data.user, isAuthenticate: true }
         } else {
             navigate('/auth/login')

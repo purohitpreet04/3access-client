@@ -16,17 +16,25 @@ import { showSnackbar } from './Redux/Sclice/SnaackBarSclice.js';
 import { AddNewProperty, AddTenants, Assessment, DeshboardCom, LoginScreen, NotFound, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 import Document from './Components/Tenant-pdfs/Document.jsx';
+import { ActivityLogs } from './Components/index.js';
 // import { StaffList } from './Components/Services/StaffList.jsx';
 
 
 
 function App() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { user, isAuthenticate, token } = useSelector((state) => state.auth);
   const { isloading } = useSelector((state) => state.utils);
 
+  // useEffect(() => {
+  //   fetchUserData()
+  //   console.log(user, isAuthenticate)
+  // }, [])
 
-
+  // const fetchUserData = async () => {
+  //   dispatch(fetchUserDetails({ navigate }))
+  // }
 
 
   const routes = [
@@ -43,8 +51,10 @@ function App() {
         { path: "/services/tenetdetails/assesment", element: ["company", 'agent', 'staff', 'company-agent'].includes(user.role) ? <Assessment /> : <Navigate to="*" replace /> },
         { path: "/services/settings", element: ["company"].includes(user.role) ? <SettingEmails /> : <Navigate to="*" replace /> },
         { path: '/desh', element: isAuthenticate ? <DeshboardCom /> : <Navigate to="/auth/login" replace /> },
+        { path: '/logs', element: <ActivityLogs /> },
       ]
     },
+
     { path: '/document', element: <Document /> },
     { path: '*', element: <NotFound /> }
   ];
@@ -61,6 +71,7 @@ function App() {
       <LoadingOverlay loading={isloading}>
         <CustomSnackbar />
         {content}
+
       </LoadingOverlay>
     </MatxTheme>
   );
