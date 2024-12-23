@@ -1,0 +1,27 @@
+.accordion-content-enter {
+    opacity: 0;
+    max-height: 0; /* Start hidden */
+    transform: scaleY(0); /* Scale down */
+}
+
+.accordion-content-enter-active {
+    opacity: 1;
+    max-height: 100vh; /* Expand to full height */
+    transform: scaleY(1); /* Scale up */
+    transition: opacity 300ms ease, max-height 300ms ease, transform 300ms ease; /* Animation properties */
+}
+
+.accordion-content-exit {
+    opacity: 1;
+    max-height: 100vh; /* Start fully visible */
+    transform: scaleY(1); /* Scale up */
+}
+
+.accordion-content-exit-active {
+    opacity: 0;
+    max-height: 0; /* Collapse */
+    transform: scaleY(0); /* Scale down */
+    transition: opacity 300ms ease, max-height 300ms ease, transform 300ms ease; /* Animation properties */
+}
+
+
