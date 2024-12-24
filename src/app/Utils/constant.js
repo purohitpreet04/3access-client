@@ -16,7 +16,6 @@ export const nextDates = [
 ]
 
 
-import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 
 export const supportNeedsOptions = [
     { label: "Tenancy failure or losing short term accommodation", name: "tenancyFailure" },
@@ -129,7 +128,7 @@ export const signaturearray = [
     { label: "Support Agreement", name: "supportAgreement" },
     { label: "Complaints Procedure Declaration", name: "complaintsProcedureDeclaration" },
     { label: "Confidentiality Waiver Form", name: "confidentialityWaiverForm" },
-    { label: "NI Income Form", name: "niIncomeForm" },
+    { label: "Nill Income Form", name: "niIncomeForm" },
     { label: "Authorization Form", name: "authorizationForm" },
     { label: "Support Services", name: "supportServices" },
 ]

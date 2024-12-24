@@ -43,7 +43,6 @@ const AddRsl = ({ open, onClose }) => {
         website: Yup.string()
             .matches(urlRegex, 'Enter a valid URL, e.g., https://example.com'),
         phonenumber: Yup.string()
-            .required('Phone Number is Required')
             .matches(/^[0-9]+$/, 'Must be only digits')
             .matches(
                 /^(?:\+44|0)(?:\d\s?){9,10}$/,
@@ -220,21 +219,7 @@ const AddRsl = ({ open, onClose }) => {
                                                 </Box>
 
                                             </Box>
-                                            // <FlotingLableInput
-                                            //     label='Upload RSL logo'
-                                            //     // accept={accept}
-                                            //     accept="image/*"
-                                            //     name='rslLogo'
-                                            //     // allowedExtensions={allowedExtensions}
-                                            //     allowedExtensions={['jpg', 'jpeg', 'png']}
-                                            //     maxSize={5} // 10MB
-                                            //     value={values?.rslLogo}
-                                            //     showPreview={true}
-                                            //     onChange={(file) => { console.log(file); setFieldValue('rslLogo', file) }}
-                                            //     error={errors}
-                                            //     helperText={errors}
-                                            //     type='file'
-                                            // />
+                                            
                                         )
                                     }
 
@@ -291,7 +276,7 @@ const AddRsl = ({ open, onClose }) => {
                                         variant="outlined"
                                         fullWidth
                                         margin="normal"
-                                        // required
+                                        required
                                         name="email"
                                         value={values.email}
                                         onChange={handleChange}

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, TextField, Select, MenuItem, Typography, Card, CardContent, Grid, Button, styled, TableHead, TableRow, TableCell, TableBody, TablePagination, Table, IconButton, Icon } from '@mui/material';
+import { Box, TextField, Select, MenuItem, Typography, Card, CardContent, Grid, Button, styled, TableHead, TableRow, TableCell, TableBody, TablePagination, Table, IconButton, Icon, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import AddStaffModal from './AddStaffModal';
 import PaginationTable from '@app/CommonComponents/TableComponent';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +11,7 @@ import { debounce } from 'lodash';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import DynamicTitle from '@app/CommonComponents/DynamicTitle';
 import HistoryIcon from '@mui/icons-material/History';
+import When from '@app/CommonComponents/When';
 const mockStaffData = [
     { id: 1, name: 'John Doe', role: 'Doctor', department: 'Veterinary' },
     { id: 2, name: 'Jane Smith', role: 'Nurse', department: 'Surgery' },
@@ -46,6 +47,8 @@ const StaffList = () => {
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
     const [editData, setEditData] = useState({})
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState({})
+    const [confirmDelete, setConfirmDelete] = useState(false)
     const { user } = useSelector(state => state.auth)
 
     const dispatch = useDispatch()
@@ -117,34 +120,70 @@ const StaffList = () => {
                 }
             }
         } catch (error) {
-            console.log(error)
             dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
         }
     }
 
-    const deleteStaff = async (id) => {
+    const deleteStaff = async (id, granted = 0) => {
         dispatch(setIsLoading({ data: true }))
-
         try {
             const res = await API.get('/api/staff/deleteStaff', {
                 params: {
-                    staffId: id
+                    granted,
+                    staffId: id,
                 }
             });
+
+            if (res?.data?.property > 0) {
+                setConfirmDeleteOpen({ data: true, id })
+                dispatch(setIsLoading({ data: false }))
+            }
+
             if (res.data.success == true) {
+                setConfirmDeleteOpen({})
                 fetchStaff()
             }
             dispatch(setIsLoading({ data: false }))
         } catch (error) {
-            console.log(error)
+           
             dispatch(setIsLoading({ data: false }))
             dispatch(showSnackbar({ message: 'error while deleting staff ', severity: 'error' }))
         }
     }
 
+
+    const ConfirmDelete = () => {
+        return (
+            <Dialog
+                open={confirmDeleteOpen?.data}
+                onClose={() => setConfirmDeleteOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {`This Staff has access for some property, are you sure to perform this action`}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setConfirmDeleteOpen({})} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={() => deleteStaff(confirmDeleteOpen?.id, 1)} color="primary" autoFocus>
+                        Yes, I am sure
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        )
+    }
+
+
+
+
     const openLogs = (id) => {
         navigation(`/logs?user=${id}`)
-      }
+    }
     return (
         <>
             <DynamicTitle title={open ? 'Add Staff' : 'Staff Menagement'} />
@@ -206,7 +245,7 @@ const StaffList = () => {
                                     <Icon style={{ color: 'red' }} color='red'>delete</Icon>
                                 </IconButton>
                                 <IconButton onClick={() => { openLogs(cell?._id) }}>
-                                <HistoryIcon />
+                                    <HistoryIcon />
                                 </IconButton>
                             </>
                         )
@@ -228,6 +267,7 @@ const StaffList = () => {
                     nextIconButtonProps={{ "aria-label": "Next Page" }}
                     backIconButtonProps={{ "aria-label": "Previous Page" }}
                 />
+                <When when={confirmDeleteOpen?.data} component={<ConfirmDelete />} />
             </Box>
         </>
 

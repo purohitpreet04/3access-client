@@ -170,7 +170,7 @@ function PropertyList() {
         try {
             dispatch(setIsLoading({ data: true }))
             try {
-                const res = await API.get('/api/property/deleteProperty', { params: { _id: id  } });
+                const res = await API.get('/api/property/deleteProperty', { params: { _id: id } });
                 if (res.data.message) {
                     dispatch(showSnackbar({ message: res.data.message, severity: "success" }));
                 }
@@ -246,9 +246,9 @@ function PropertyList() {
                             <IconButton onClick={() => { setOpen(true); getpropertydetails(cell?._id); }}>
                                 <Icon style={{ color: 'blue' }}>edit</Icon>
                             </IconButton>
-                            <IconButton onClick={() => { setOpen(true); deleteProperty(cell?._id) }}>
+                            {cell?.tenants == 0 && <IconButton onClick={() => { setOpen(true); deleteProperty(cell?._id) }}>
                                 <Icon style={{ color: 'red' }} color='red'>delete</Icon>
-                            </IconButton>
+                            </IconButton>}
                         </>
                     )
                     }

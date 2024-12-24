@@ -41,7 +41,7 @@ import moment from 'moment';
 import FileUpload from '@app/CommonComponents/FileUploas';
 
 const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
-
+    const dispatch = useDispatch();
     const validationSchema = Yup.object({
         nationalInsuranceNumber: Yup.string()
             .matches(/^[JNYS]/, "Must start with J, N, Y, or S") // First character must be J, N, Y, or S
@@ -95,14 +95,38 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                 return errors;
             }}
             onSubmit={(values, { setSubmitting }) => {
-                setPreValues((pre) => ({...pre, ...values}))
+                setPreValues((pre) => ({ ...pre, ...values }))
                 nextStep()
             }}
             validateOnChange={false}
             validateOnBlur={false}
             enableReinitialize={true}
         >
-            {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors }) => {
+            {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors, setErrors }) => {
+
+
+                const checkNINO = useCallback(
+                    debounce((value) => {
+                        if (value) {
+                            API.get('/api/tenents/check-nino', { params: { nino: value } })
+                                .then((res) => {
+                                    if (res.data.exists) {
+                                        setFieldValue('nationalInsuranceNumber', '');
+                                        setErrors({ nationalInsuranceNumber: 'National Insurance Number already exists' });
+                                    }else{
+                                        setErrors({ nationalInsuranceNumber: '' });
+                                    }
+                                })
+                                .catch((err) => {
+                                    dispatch(showSnackbar({
+                                        message: err?.response?.data?.message || 'Error while checking NINO',
+                                        severity: 'error'
+                                    }));
+                                });
+                        }
+                    }, 500),
+                    [dispatch]
+                );
                 return (
                     <Form>
 
@@ -255,7 +279,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 errors={errors}
                                                 helperText={errors}
                                                 value={values.nationalInsuranceNumber}
-                                                onChange={(e) => { handleChange(e) }}
+                                                onChange={(e) => { handleChange(e); checkNINO(e?.target?.value) }}
                                             />
                                         </Grid>
                                         <Grid

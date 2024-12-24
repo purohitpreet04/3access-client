@@ -29,7 +29,7 @@ const propertySlice = createSlice({
             .addCase(fetchProperties.fulfilled, (state, action) => {
                 const { result, ...PageData } = action.payload
                 state.loading = false;
-                state.properties = result;
+                state.properties = [...result];
                 state.restData = PageData;
             })
             .addCase(fetchProperties.rejected, (state, action) => {

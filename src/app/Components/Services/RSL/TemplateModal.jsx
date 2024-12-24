@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box, Grid, Chip, Typography } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box, Grid, Chip, Typography, Autocomplete, styled } from '@mui/material';
 import TextEditor from '@app/CommonComponents/TextEditor';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,8 +8,12 @@ import API from 'Constance';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
 import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 import { debounce } from 'lodash';
+import { signaturearray } from '@app/Utils/constant';
 
-const TemplateModal = ({ open, handleClose, onSubmit, editdata , refetch}) => {
+
+const AutoComplete = styled(Autocomplete)(() => ({ marginBottom: "16px" }))
+
+const TemplateModal = ({ open, handleClose, onSubmit, editdata, refetch }) => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const rslId = queryParams.get('rsl');
@@ -65,23 +69,18 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata , refetch}) => {
     }, 500), [])
 
     const handleSubmit = async () => {
-
-
-        // console.log(template.body);
-
-        // return
+        
         try {
             dispatch(setIsLoading({ data: true }))
             const res = await API.post('/api/rsl/addnewtemplate', { ...template, rsl: rslId, addedBy: user?._id })
             if (res.data.message) {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
-            if(refetch){
+            if (refetch) {
                 refetch()
             }
             handleClose()
             setTemplate({})
-            // console.log(res?.data?.data)
             dispatch(setIsLoading({ data: false }))
         } catch (error) {
             dispatch(showSnackbar({ message: error.response?.data?.error || 'Error while Add new RSL!', severity: 'error' }))
@@ -114,7 +113,7 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata , refetch}) => {
                                 }}
                             >
                                 {/* Template Name */}
-                                <TextField
+                                {/* <TextField
                                     label="Template Name"
                                     variant="outlined"
                                     fullWidth
@@ -122,8 +121,18 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata , refetch}) => {
                                     onChange={(e) =>
                                         setTemplate((prev) => ({ ...prev, name: e.target.value }))
                                     }
+                                /> */}
+                                <AutoComplete
+                                    fullWidth
+                                    options={signaturearray}
+                                    getOptionKey={(option) => option.name}
+                                    getOptionLabel={(option) => option.label}
+                                    renderInput={(params) => (
+                                        <TextField {...params} label="Select Template Name" variant="outlined" fullWidth />
+                                    )}
+                                    value={template?.key ? { name: template?.key, label: template?.name } : null}
+                                    onChange={(e, val) => { setTemplate((prev) => ({ ...prev, name: val?.label, key:val?.name })) }}
                                 />
-
                                 {/* Subject */}
                                 <TextField
                                     label="Subject"

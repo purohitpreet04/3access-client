@@ -2,6 +2,7 @@ import Loadable from "../Loadable";
 import { lazy } from "react";
 
 export const LoginScreen = Loadable(lazy(() => import("../Auth/LoginScreen.jsx")))
+export const OtpInput = Loadable(lazy(() => import("../Auth/OTPInput.jsx")))
 export const NotFound = Loadable(lazy(() => import("../NotFound.jsx")))
 export const DeshboardCom = Loadable(lazy(() => import("../Deshboard/DeshboardCom.jsx")))
 // const StaffList = Loadable(lazy(() => import("./Components/Services/Staff/StaffList.jsx")))

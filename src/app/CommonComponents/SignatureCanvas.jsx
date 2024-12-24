@@ -1,6 +1,7 @@
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
 import { Box, Button } from '@mui/material';
-import React, { useRef, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValue, value }) => {
@@ -36,24 +37,23 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
     const startDrawing = (e) => {
         setIsDrawing(true);
         const { x, y } = getCursorPosition(e);
-        setLastPoint({ x, y }); // Store the starting point
+        setLastPoint({ x, y }); 
     };
 
     const stopDrawing = () => {
         setIsDrawing(false);
-        ctxRef.current.closePath(); // Close the path when drawing stops
-        setLastPoint(null); // Reset the last point
+        ctxRef.current.closePath(); 
+        setLastPoint(null); 
+        saveSignature(); 
     };
 
     const draw = (e) => {
         if (!isDrawing) return;
         const { x, y } = getCursorPosition(e);
 
-        // If we have a last point, smooth the line using linear interpolation
         if (lastPoint) {
             const { x: lastX, y: lastY } = lastPoint;
 
-            // Draw a smooth line using quadraticCurveTo
             ctxRef.current.beginPath();
             ctxRef.current.moveTo(lastX, lastY);
             ctxRef.current.quadraticCurveTo(lastX, lastY, x, y);
@@ -72,7 +72,7 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
         setSignature('');
     };
 
-    const saveSignature = () => {
+    const saveSignature = useCallback(debounce(() => {
         const dataURL = canvasRef.current.toDataURL();
         setSignature(dataURL);
         setFieldValue(name, dataURL);
@@ -85,7 +85,7 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
                 severity: 'info',
             })
         );
-    };
+    }, 500), [setFieldValue, name, onSave, dispatch]);
 
     const loadSignature = (dataURL) => {
         const image = new Image();
@@ -115,14 +115,15 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
                 onTouchStart={startDrawing}
                 onTouchEnd={stopDrawing}
                 onTouchMove={draw}
+                onChange={()=>{console.log('change');}}
             />
             <Box gap={3} display="flex" flexDirection="row">
                 <Button variant="contained" color="error" onClick={clearCanvas}>
                     Clear
                 </Button>
-                <Button variant="contained" color="success" onClick={saveSignature}>
+                {/* <Button variant="contained" color="success" onClick={saveSignature}>
                     Save Signature
-                </Button>
+                </Button> */}
             </Box>
         </Box>
     );

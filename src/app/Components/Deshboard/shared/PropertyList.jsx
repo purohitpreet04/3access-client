@@ -157,7 +157,7 @@ const PropertyList = () => {
                     <StyledTable>
                         <TableHead>
                             <TableRow>
-                                <TableCellstyle align='center'>Sno.</TableCellstyle>
+                                <TableCellstyle width='5%' align='center'>Sr no.</TableCellstyle>
                                 <TableCellstyle align='center'>RSL</TableCellstyle>
                                 <TableCellstyle align='center'>Houses</TableCellstyle>
                                 <TableCellstyle align='center'>Room 1</TableCellstyle>
@@ -172,7 +172,6 @@ const PropertyList = () => {
                         </TableHead>
                         <TableBody>
                             {listData.length !== 0 ? (
-
                                 <>
                                     {listData.map((property, index) => (
                                         <TableRow key={property._id}>

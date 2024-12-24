@@ -205,3 +205,30 @@ export const handleFileUpload = async (file, options = {}) => {
     };
   }
 };
+
+
+export const getDeviceType = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  
+  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+  
+  if (mobileRegex.test(userAgent)) {
+    return 'mobile';
+  }
+  
+  return 'desktop';
+};
+
+export const isMobile = () => getDeviceType() === 'mobile';
+export const isDesktop = () => getDeviceType() === 'desktop';
+
+export const getDeviceInfo = () => {
+  return {
+    deviceType: getDeviceType(),
+    userAgent: navigator.userAgent,
+    platform: navigator.platform,
+    screenWidth: window.screen.width,
+    screenHeight: window.screen.height,
+    orientation: window.screen.orientation?.type || 'unknown'
+  };
+};

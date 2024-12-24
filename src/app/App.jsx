@@ -9,7 +9,7 @@ import CustomSnackbar from './CommonComponents/CustomSnackbar.jsx';
 import LoadingOverlay from './Components/LoadingOverlay.jsx';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 
-import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ListRsl, LoginScreen, NotFound, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ListRsl, LoginScreen, NotFound, OtpInput, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import { ActivityLogs, DocumentCom, MatxLoading } from './Components/index.js';
 
 
@@ -31,6 +31,8 @@ function App() {
   const authRoutes = [
     { path: '/', element: <Navigate to={isAuthenticate ? '/desh' : '/auth/login'} replace /> },
     { path: '/auth/login', element: !isAuthenticate ? <LoginScreen /> : <Navigate to="/desh" /> },
+    { path: '/auth/verify-user/:id/:token', element: !isAuthenticate ? <OtpInput /> : <Navigate to="/desh" /> },
+
   ];
 
   const appRoutes = [

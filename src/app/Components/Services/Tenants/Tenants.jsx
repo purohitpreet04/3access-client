@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import EditTenantModal from './EditTenatns';
 import { logout } from '@app/Redux/Sclice/AuthSclice';
 import { mainuser, staffuser } from '@app/Utils/constant';
-import { signOutTenant } from '@app/API/Tenant';
+import { CheckHasOneStaff, signOutTenant } from '@app/API/Tenant';
 
 const TableCellstyle = styled(TableCell)(() => ({
     fontSize: 15,
@@ -172,31 +172,10 @@ const Tenants = () => {
         if (staffuser.includes(user?.role)) {
             navigation('/services/addtenants')
         } else {
-            try {
-                dispatch(setIsLoading({ data: true }))
-                const res = await API.get('/api/user/checkhasstaff')
-                if (res.data.success && res.data.hasStaffOrAgent) {
-                    dispatch(showSnackbar({
-                        message: "You already have staff or agent. Please add tenants.",
-                        severity: "info"
-                    }));
-                    navigation('/services/addtenants')
-                    dispatch(setIsLoading({ data: false }))
-                } else {
-                    dispatch(showSnackbar({
-                        message: "You don't have any staff or agent. Please add staff first.",
-                        severity: "info"
-                    }));
-                    navigation('/services/staff?open=true')
-                    dispatch(setIsLoading({ data: false }))
-                }
-            } catch (error) {
-                dispatch(setIsLoading({ data: false }))
-                dispatch(showSnackbar({
-                    message: error.response?.data?.message || "An error occurred",
-                    severity: "error"
-                }));
-            }
+
+
+            dispatch(CheckHasOneStaff({ navigation: navigation }))
+
         }
     }
 

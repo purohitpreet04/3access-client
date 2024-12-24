@@ -89,6 +89,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
         permission: [],
         Property_per: [],
         addedBy: user?._id,
+        coruspondingEmail:['agent'].includes(user?.role) ? user?.coruspondingEmail : '',
         allCheck: false
     };
 
@@ -284,7 +285,19 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                 margin="normal"
                                                 type="email"
                                             />
-                                            {!editData?._id && <Field
+                                            <Field
+                                                as={TextField}
+                                                fullWidth
+                                                disabled
+                                                label="Corusponding Email"
+                                                name="coruspondingEmail"
+                                                onChange={handleChange}
+                                                error={touched.coruspondingEmail && Boolean(errors.coruspondingEmail)}
+                                                helperText={touched.coruspondingEmail && errors.coruspondingEmail}
+                                                margin="normal"
+                                                type="email"
+                                            />
+                                             <Field
                                                 as={TextField}
                                                 fullWidth
                                                 label="Password"
@@ -294,7 +307,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                 helperText={touched.password && errors.password}
                                                 margin="normal"
                                                 type="password"
-                                            />}
+                                            />
                                             {['company'].includes(user?.role) && <Field
                                                 as={TextField}
                                                 fullWidth
@@ -427,11 +440,9 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                                         <input
                                                                             id={`permissions_${permission?._id}`}
                                                                             type="checkbox"
-
                                                                             checked={values?.Property_per?.includes(permission?._id)}
                                                                             onChange={(e) => {
                                                                                 handleChange(e)
-
                                                                                 const willBeChecked = e.target.checked;
                                                                                 const newPropertyPer = willBeChecked
                                                                                     ? [...values.Property_per, permission._id]

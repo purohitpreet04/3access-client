@@ -19,6 +19,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { values } from 'lodash';
+import DynamicTitle from '@app/CommonComponents/DynamicTitle';
 
 
 const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
@@ -79,20 +80,20 @@ const LoginForm = () => {
       'Postcode must have exactly 6 characters (excluding spaces)',
       (value) => {
         if (!value) return false;
-        const trimmedValue = value.replace(/\s+/g, ''); 
+        const trimmedValue = value.replace(/\s+/g, '');
         return trimmedValue.length === 6;
       }
     )
-    .required('Postcode is required'),    
+      .required('Postcode is required'),
     website: showPage == 2 && Yup.string()
       .matches(urlRegex, 'Enter a valid URL, e.g., https://example.com'),
-      
+
     phonenumber: Yup.string()
-    .matches(/^[0-9]+$/, 'Must be only digits')
-    .matches(
-      /^(?:\+44|0)(?:\d\s?){9,10}$/,
-      'Enter a valid UK phone number'
-    ).required('Phone Number is Required'),
+      .matches(/^[0-9]+$/, 'Must be only digits')
+      .matches(
+        /^(?:\+44|0)(?:\d\s?){9,10}$/,
+        'Enter a valid UK phone number'
+      ).required('Phone Number is Required'),
     fname: Yup.string()
       .matches(/^[A-Za-z\s]+$/, 'First name can only contain letters')
       .min(2, 'First name must be at least 2 characters')
@@ -117,8 +118,11 @@ const LoginForm = () => {
   };
 
   return (
+    <>
+    <DynamicTitle title={showPage === 1 ? 'Login' : 'New Registration'} />
     <Formik
       initialValues={{
+        coruspondingEmail: '',
         email: '',
         password: '',
         companyname: '',
@@ -246,13 +250,13 @@ const LoginForm = () => {
                     {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
                       Get New Company Account?
                     </Link> */}
-                    <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }}  underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }} >
+                    <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 , cursor:'pointer'}} >
                       Get New Managing Agent Account?
                     </Link>
                   </Box>
                 </Grid>
               )}
-
+              {/* company registretion starts here */}
               {showPage == 2 &&
                 (<Grid
                   item
@@ -362,7 +366,7 @@ const LoginForm = () => {
                     <Grid
                       item
                       xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
+                      md={6}
                     >
                       <TextField
                         label="Password"
@@ -387,13 +391,14 @@ const LoginForm = () => {
                     </Grid>
                   </Grid>
 
+
                   <Grid
                     item
                     xs={12}
-                    md={12} // Adjust to take up the remaining half width in md
+                    md={12}
                   >
                     <TextField
-                      label="Address Line 1 "
+                      label="Address Line 1"
                       variant="standard"
                       fullWidth
                       margin="normal"
@@ -425,7 +430,6 @@ const LoginForm = () => {
                         fullWidth
                         margin="normal"
                         value={values.area}
-                        required
                         type='text'
                         name="area"
                         onChange={handleChange}
@@ -473,7 +477,6 @@ const LoginForm = () => {
                         margin="normal"
                         required
                         name="pincode"
-                        
                         onChange={handleChange}
                         error={touched.pincode && Boolean(errors.pincode)}
                         helperText={touched.pincode && errors.pincode}
@@ -541,6 +544,8 @@ const LoginForm = () => {
                 </Grid>
                 )
               }
+              {/* company registretion ends here */}
+
               {showPage == 3 &&
                 (<Grid
                   item
@@ -555,8 +560,6 @@ const LoginForm = () => {
                     backgroundColor: '#ffffff',
                   }}
                 >
-
-
                   <Grid
                     item
                     xs={12}
@@ -607,7 +610,7 @@ const LoginForm = () => {
                     item
                     xs={12}
                     container
-                    spacing={2} // Add spacing at the container level for consistent gap
+                    spacing={2} 
                   >
                     <Grid
                       item
@@ -631,7 +634,7 @@ const LoginForm = () => {
                     <Grid
                       item
                       xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
+                      md={6}
                     >
                       <TextField
                         label="Password"
@@ -655,6 +658,28 @@ const LoginForm = () => {
 
                       />
                     </Grid>
+                  </Grid>
+
+
+                  <Grid
+                    item
+                    xs={12}
+                    md={12} // Adjust to take up the remaining half width in md
+                  >
+                    <TextField
+                      label="Currosponding Email"
+                      variant="standard"
+                      fullWidth
+                      margin="normal"
+                      required
+                      value={values.coruspondingEmail}
+                      type='text'
+                      name="coruspondingEmail"
+                      onChange={handleChange}
+                      error={touched.coruspondingEmail && Boolean(errors.coruspondingEmail)}
+                      helperText={touched.coruspondingEmail && errors.coruspondingEmail}
+
+                    />
                   </Grid>
 
                   <Grid
@@ -782,7 +807,7 @@ const LoginForm = () => {
                     Create Account
                   </Button>
                   <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Link  onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor:'pointer' }}>
+                    <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor: 'pointer' }}>
                       Already have an Account?
                     </Link>
                     {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1,cursor:'pointer' }}>
@@ -797,7 +822,7 @@ const LoginForm = () => {
         </RegisterRoot>
       )}
     </Formik>
-
+    </>
   );
 };
 
