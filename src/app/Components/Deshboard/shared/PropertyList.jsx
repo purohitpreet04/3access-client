@@ -1,20 +1,26 @@
 import PaginationTable from '@app/CommonComponents/TableComponent';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-import { Box, Icon, IconButton, Paper, styled, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
+import { Box, Icon, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography, useTheme } from '@mui/material';
+import { styled } from '@mui/system';
+// import { makeStyles } from '@mui/styles';
 import API from 'Constance';
 import { debounce } from 'lodash';
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { mainuser, staffuser } from '@app/Utils/constant';
 import { StackCards } from '.';
 import { Bed, Group, House, Room } from '@mui/icons-material';
-import { signOutTenant } from '@app/API/Tenant';
+import { CheckHasOneStaff, signOutTenant } from '@app/API/Tenant';
 import { getDate } from '@app/Utils/utils';
+import clsx from 'clsx';
+import When from '@app/CommonComponents/When';
+import SignOutModal from '@app/Components/Services/Tenants/SignOutModal';
 
 const PropertyList = () => {
+    const theme = useTheme();
     let stacklist = [
         { name: 'Total Property', Icon: Room, count: 0, key: 'totalProperty' },
         { name: 'Total Rooms', Icon: House, count: 0, key: 'totalRooms' },
@@ -28,14 +34,15 @@ const PropertyList = () => {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalcount, setTotalCount] = useState(0);
-
+    const [signout, setSignOut] = useState({});
     const [listData, setListData] = useState([])
     const [stackData, setStackList] = useState([...stacklist])
     const [editData, setEditData] = useState({})
     const { user } = useSelector(state => state.auth)
-
+    const location = useLocation();
     const dispatch = useDispatch()
     const navigation = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const handleChangePage = (_, newPage) => {
         if (newPage > 0) {
@@ -123,9 +130,7 @@ const PropertyList = () => {
 
 
 
-    const handleNavigate = () => {
-        navigate('/services/addtenants');
-    };
+
     const rooms = [
         { key: 'room1', roomNumber: 1 },
         { key: 'room2', roomNumber: 2 },
@@ -138,26 +143,117 @@ const PropertyList = () => {
     ];
 
     const handleSignOut = async (id, propertyid) => {
+
+        setSignOut({ isOpen: true, id, propertyid: propertyid, userId: user?._id, })
+        return
         dispatch(
             signOutTenant({
                 id,
                 propertyid,
                 userId: user?._id,
+                isPresent,
+                withOutMail,
                 navigate: navigation,
             })
         ).then(() => {
             fetchStaff(); // Trigger a refresh of tenant data
         });
     }
+
+
+    const checkHasOneStaff = async (pro_id, room) => {
+
+
+        if (staffuser.includes(user?.role)) {
+            navigation(`/services/addtenants?p=${pro_id}&r=${room}`)
+        } else {
+            dispatch(CheckHasOneStaff({ navigation: navigation, p: pro_id, r: room }))
+        }
+    }
+
+
     return (
         <>
             <Box width="100%" overflow="auto">
                 <StackCards cardList={stackData} />
-                <TableContainer component={Paper}>
-                    <StyledTable>
+                <TableContainer
+                    sx={{
+                        padding: 1,
+                        width: "100%",
+                        overflowX: "auto",
+                        boxShadow: theme.shadows[1],
+                        // border:'5px solid gray 0.5',
+                        // borderRadius: theme.shape.borderRadius,
+                        "&::-webkit-scrollbar": {
+                            width: 8,
+                            height: 8,
+                        },
+                        "&::-webkit-scrollbar-thumb": {
+                            backgroundColor: theme.palette.grey[500],
+                            borderRadius: 8,
+                        },
+                        "&::-webkit-scrollbar-thumb:hover": {
+                            backgroundColor: theme.palette.grey[700],
+                        },
+
+                        "& css-1w9byxw-MuiTableContainer-roo": {
+                            width: "max-content"
+                        },
+
+                        "& span.MuiButtonBase-root.MuiTableSortLabel-root.css-1q574bi-MuiButtonBase-root-MuiTableSortLabel-root": {
+                            // display: "block",
+                            width: "max-content"
+                        },
+
+                        "& td.MuiTableCell-root.MuiTableCell-body.MuiTableCell-alignCenter.MuiTableCell-sizeMedium.css-1htgh2s-MuiTableCell-root": {
+                            // width: "100%",
+                            minWidth: "181px"
+                        },
+
+                        '& table.css-1ieb10p-MuiTable-root': {
+                            tableLayout: 'auto',
+                        }
+
+                    }}
+                    component={Paper}
+                >
+                    <StyledTable
+                        sx={{
+                            width: "100%",
+                            borderCollapse: "collapse", // Ensure proper border spacing
+                            "& thead": {
+                                backgroundColor: theme.palette?.primary?.light,
+                                "& th": {
+                                    color: theme.palette.common.white,
+                                    padding: theme.spacing(1),
+                                    fontSize: 17,
+                                    fontWeight: "bold",
+                                    border: `1px solid ${theme.palette.divider}`
+                                }
+                            },
+                            "& tbody": {
+                                "& td": {
+                                    padding: theme.spacing(1),
+                                    textTransform: "capitalize",
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    wordBreak: "break-word",
+                                },
+                                "& tr:hover": {
+                                    backgroundColor: theme.palette.action.hover
+                                }
+                            },
+
+                            "& table": {
+                                tableLayout: "auto",
+                            },
+
+                        }}
+                    >
                         <TableHead>
                             <TableRow>
-                                <TableCellstyle width='5%' align='center'>Sr no.</TableCellstyle>
+                                <TableCellstyle
+                                    width='5%'
+                                    align='center'>Sr no.</TableCellstyle>
                                 <TableCellstyle align='center'>RSL</TableCellstyle>
                                 <TableCellstyle align='center'>Houses</TableCellstyle>
                                 <TableCellstyle align='center'>Room 1</TableCellstyle>
@@ -221,9 +317,13 @@ const PropertyList = () => {
                                                             </Box>
                                                         ) : (
                                                             <Box flexDirection='column' display='flex' justifyContent='center' alignItems='center'>
-                                                                <Clickablelink to={`/services/addtenants?p=${property._id}&r=${room.roomNumber}`}>
+                                                                {mainuser.includes(user.role) ? (<Clickablelink onClick={() => { checkHasOneStaff(property._id, room.roomNumber) }}>
                                                                     Add new Tenant
-                                                                </Clickablelink>
+                                                                </Clickablelink>) : (<>
+                                                                    {user?.permmission.includes(7) ? <Clickablelink to={`/services/addtenants?p=${property._id}&r=${room.roomNumber}`} >
+                                                                        Add new Tenant
+                                                                    </Clickablelink> : <Clickablelink>---</Clickablelink>}
+                                                                </>)}
                                                                 {property[room.key]?.lastsignoutdate && (
                                                                     <>
                                                                         <Typography>
@@ -275,21 +375,30 @@ const PropertyList = () => {
 
                         </TableBody>
                     </StyledTable>
-                    <TablePagination
-                        sx={{ px: 2 }}
-                        page={page - 1}
-                        component="div"
-                        rowsPerPage={rowsPerPage}
-                        count={totalcount}
-                        onPageChange={handleChangePage}
-                        rowsPerPageOptions={[10, 20, 35]}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        nextIconButtonProps={{ "aria-label": "Next Page" }}
-                        backIconButtonProps={{ "aria-label": "Previous Page" }}
-                    />
                 </TableContainer>
+                <TablePagination
+                    sx={{ px: 2 }}
+                    page={page - 1}
+                    component="div"
+                    rowsPerPage={rowsPerPage}
+                    count={totalcount}
+                    onPageChange={handleChangePage}
+                    rowsPerPageOptions={[10, 20, 35]}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    nextIconButtonProps={{ "aria-label": "Next Page" }}
+                    backIconButtonProps={{ "aria-label": "Previous Page" }}
+                />
             </Box>
-
+            <When
+                when={signout?.isOpen === true}
+                component={<SignOutModal
+                    handleClose={() => { setSignOut({ isOpen: false }) }}
+                    open={signout?.isOpen}
+                    data={{ ...signout }}
+                    signOut={{ ...signout }}
+                    refetch={fetchStaff}
+                />}
+            />
         </>
     )
 }

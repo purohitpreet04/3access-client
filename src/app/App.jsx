@@ -9,11 +9,15 @@ import CustomSnackbar from './CommonComponents/CustomSnackbar.jsx';
 import LoadingOverlay from './Components/LoadingOverlay.jsx';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 
-import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ListRsl, LoginScreen, NotFound, OtpInput, PropertyList, SettingEmails, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ListRsl, LoginScreen, NotFound, OtpInput, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import { ActivityLogs, DocumentCom, MatxLoading } from './Components/index.js';
 
 
 function App() {
+
+
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, isAuthenticate, token } = useSelector((state) => state.auth);
@@ -26,7 +30,15 @@ function App() {
   // Fetch user details on app load
   useEffect(() => {
     dispatch(fetchUserDetails({ navigate }));
-  }, [user?._id, navigate, dispatch]);
+  }, [navigate]);
+
+
+  useEffect(() => {
+    if (document.visibilityState === "visible") {
+      dispatch(fetchUserDetails({ navigate }));
+    }
+  }, [document.visibilityState])
+
 
   const authRoutes = [
     { path: '/', element: <Navigate to={isAuthenticate ? '/desh' : '/auth/login'} replace /> },
@@ -41,21 +53,24 @@ function App() {
       element: isAuthenticate ? <MatxLayout /> : <Navigate to="/auth/login" replace />,
       children: [
         { path: '/desh', element: <DeshboardCom /> },
-        { path: '/services/staff', element: user?.role === 'company' || user?.role === 'agent' ? <StaffList /> : <Navigate to="*" /> },
+        { path: '/services/staff', element:  ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <StaffList /> : <Navigate to="*" /> },
         { path: '/services/property', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <PropertyList /> : <Navigate to="*" /> },
         { path: '/services/tenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <Tenants /> : <Navigate to="*" /> },
+        { path: '/services/sign-out-tenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <SignOutTenants /> : <Navigate to="*" /> },
         { path: '/services/addtenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <AddTenants /> : <Navigate to="*" /> },
         { path: '/services/addproperty', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <AddNewProperty /> : <Navigate to="*" /> },
         { path: '/services/tenetdetails', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <TenantDetails /> : <Navigate to="*" /> },
         { path: '/services/tenetdetails/assesment', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <Assessment /> : <Navigate to="*" /> },
-        // { path: '/services/settings', element: ['company', 'agent'].includes(user?.role) ? <SettingEmails /> : <Navigate to="*" /> },
+        { path: '/services/settings', element: ['company', 'agent'].includes(user?.role) ? <SettingEmails /> : <Navigate to="*" /> },
         { path: '/services/agents', element: ['agent'].includes(user?.role) ? <Agents /> : <Navigate to="*" /> },
         { path: '/services/agents/permission', element: ['agent'].includes(user?.role) ? <AgentPermmision /> : <Navigate to="*" /> },
         { path: '/services/listrsl', element: ['company', 'agent'].includes(user?.role) ? <ListRsl /> : <Navigate to="*" /> },
         { path: '/services/listrsl/add-new-rsl', element: ['company', 'agent'].includes(user?.role) ? <AddRsl /> : <Navigate to="*" /> },
         { path: '/logs', element: <ActivityLogs /> },
+        { path: "/user/profile", element: <Profile /> },
       ],
     },
+
     { path: '/document', element: <DocumentCom /> },
     { path: '*', element: <NotFound /> },
   ];
@@ -68,7 +83,7 @@ function App() {
       <LoadingOverlay loading={isloading}>
         <CustomSnackbar />
         {/* <PrivateRoute> */}
-          {(!user?._id && isAuthenticate) ? <MatxLoading /> : content}
+        {(!user?._id && isAuthenticate) ? <MatxLoading /> : content}
         {/* </PrivateRoute> */}
       </LoadingOverlay>
     </MatxTheme>

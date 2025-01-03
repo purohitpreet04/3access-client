@@ -28,7 +28,7 @@ const Email = () => {
 
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const rslId = queryParams.get('rsl');
+    const rslId = queryParams.get('user');
 
     useEffect(() => {
         if (rslId != '') {
@@ -37,8 +37,8 @@ const Email = () => {
     }, [rslId])
 
     const { user, isAuthenticate, token } = useSelector((state) => state.auth);
-    const [editData, setEditData] = useState({ emailcc: '' })
-    const [companyEmails, setCompanyEmails] = useState([])
+    const [editData, setEditData] = useState({ emailto: user?.emailto, })
+    const [companyEmails, setCompanyEmails] = useState([...user?.emailcc.split(',')])
     const [companyEmailsLogs, setCompanyEmailLogs] = useState([])
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
@@ -46,7 +46,7 @@ const Email = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalcount, setTotalCount] = useState(0);
     useEffect(() => {
-        if (rslId) {
+        if (user?._id) {
             FetchEmailLogsData()
         }
     }, [page, searchQuery, rowsPerPage])
@@ -59,15 +59,14 @@ const Email = () => {
         enableReinitialize: true,
         validateOnChange: true,
         initialValues: {
-            emailcc: '',
-            emailto: editData?.emailto || ''
+            ...editData
         },
         validationSchema: Yup.object({
             emailto: Yup.string().email('Invalid email address').required('Required'),
             emailcc: Yup.string().email('Invalid email address')
         }),
         onSubmit: async (values) => {
-            const modifyVal = { ...values, emailcc: companyEmails.toString(), _id: rslId, role: user?.role }
+            const modifyVal = { ...values, emailcc: companyEmails.toString(), _id: user?._id, role: user?.role }
             try {
                 dispatch(setIsLoading({ data: true }))
                 const res = await API.post('/api/user/addemail', modifyVal)
@@ -89,7 +88,7 @@ const Email = () => {
             dispatch(setIsLoading({ data: true }))
             const res = await API.get('/api/user/getemaillogs', {
                 params: {
-                    userId: rslId,
+                    userId: user?._id,
                     page: page,
                     limit: rowsPerPage,
                     search: searchQuery,
@@ -112,7 +111,7 @@ const Email = () => {
     const FetchEmailData = async () => {
         try {
             dispatch(setIsLoading({ data: true }))
-            const res = await API.get('/api/user/emails', { params: { _id: rslId, role: user?.role } })
+            const res = await API.get('/api/user/emails', { params: { _id: user?._id, role: user?.role } })
             // if (res.data?.message) {
             //     dispatch(showSnackbar({ message: res.data?.message, severity: 'success' }))
             // }
@@ -159,24 +158,24 @@ const Email = () => {
                         Production Environment
                     </Typography>
 
-                    <form >
-                        {/* <Box sx={{ mb: 3 }}>
+                    <form>
+                        <Box sx={{ mb: 3 }}>
                             <Typography variant="subtitle1" gutterBottom>
-                                Emails To (BCC Council)
+                                Email To
                             </Typography>
                             <TextField
                                 fullWidth
                                 name="emailto"
-                                value={formik.values.emailto || editData?.emailto}
+                                value={formik.values.emailto}
                                 onChange={formik.handleChange}
                                 error={formik.touched.emailto && Boolean(formik.errors.emailto)}
                                 helperText={formik.touched.emailto && formik.errors.emailto}
                             />
-                        </Box> */}
+                        </Box>
 
                         <Box sx={{ mb: 3 }}>
                             <Typography variant="subtitle1" gutterBottom>
-                                Emails to Maneging Agent
+                                Emails CC
                             </Typography>
                             <Grid >
                                 <Stack display='flex' flexDirection='row' flexWrap='wrap' width='100%' gap={1} direction="row" spacing={1} sx={{ mb: 2 }}>
@@ -294,11 +293,11 @@ const Email = () => {
                             headCells={[
                                 // { label: 'ID', key: 'id' },
                                 { label: 'Email (To)', key: 'emailTo' },
-                                { label: 'Subject', key: 'subject', html: true },
-                                { label: 'Message', key: 'body' },
+                                { label: 'Subject', key: 'subject'},
+                                { label: 'Message', key: 'body', html: true },
                                 { label: 'Attechment', key: 'attachments' },
                                 { label: 'CC', key: 'emailCC' },
-                                { label: 'Time (Uk timezone)', key: 'createdAt' },
+                                { label: 'Time (Uk timezone)', key: 'createdAt', formate:"DD-MM-YYYY hh:mm A" },
                             ]} />
                         <TablePagination
                             sx={{ px: 2 }}

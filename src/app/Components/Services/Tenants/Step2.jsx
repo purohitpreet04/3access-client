@@ -33,12 +33,7 @@ import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 import { beHealthyChoices, enjoyAndAchieveChoices, makingContributionChoices, riskCategories, signaturearray, staffuser, staySafeChoices, supportNeedsOptions, supportPlanChoices } from '@app/Utils/constant';
 import RadioComponent from '@app/CommonComponents/RadioComponent';
 import * as Yup from 'yup'
-import { TenantDetails } from '..';
-import SignatureCanvas from '@app/CommonComponents/SignatureCanvas';
-import DynamicTitle from '@app/CommonComponents/DynamicTitle';
-import { CheckBox } from '@mui/icons-material';
-import moment from 'moment';
-import FileUpload from '@app/CommonComponents/FileUploas';
+
 
 const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
     const dispatch = useDispatch();
@@ -52,7 +47,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
         lastName: Yup.string().required("Last Name is required"),
         firstName: Yup.string().required("First Name is required"),
         height: Yup.string()
-            .matches(/^\d+(\.\d+)?$/, "Height must be a valid number")
+            .matches(/^[\d'"]+(\.\d+)?$/, "Height must be a valid number")
             .required("Height is required"),
         shoeSize: Yup.string()
             .matches(/^\d+(\.\d+)?$/, "Shoe size must be a valid number")
@@ -77,7 +72,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
         placeOfBirth: Yup.string()
             .matches(/^[a-zA-Z\s]+$/, "Place of birth must contain only letters and spaces")
             .required("Place of birth is required"),
-        tenantEmail: Yup.string().email('Invalid email address').required('Required'),
+        tenantEmail: Yup.string().email('Invalid email address')
     });
 
 
@@ -113,7 +108,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                     if (res.data.exists) {
                                         setFieldValue('nationalInsuranceNumber', '');
                                         setErrors({ nationalInsuranceNumber: 'National Insurance Number already exists' });
-                                    }else{
+                                    } else {
                                         setErrors({ nationalInsuranceNumber: '' });
                                     }
                                 })
@@ -196,6 +191,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         >
                                             <FlotingLableInput
                                                 name="title_before_name"
+                                                placeholder="E.g. Mr, Mrs, Miss"
                                                 select
                                                 fullWidth
                                                 onChange={(e) => { handleChange(e) }}
@@ -221,6 +217,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="firstName"
                                                 fullWidth
+                                                placeholder='E.g. John'
                                                 type='text'
                                                 onChange={(e) => { handleChange(e) }}
                                                 value={values?.firstName}
@@ -238,6 +235,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         >
                                             <FlotingLableInput
                                                 name="middleName"
+                                                placeholder='E.g. Doe'
                                                 type='text'
                                                 fullWidth
                                                 onChange={(e) => { handleChange(e) }}
@@ -254,6 +252,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         >
                                             <FlotingLableInput
                                                 name="lastName"
+                                                placeholder='E.g. Doe'
                                                 type='text'
                                                 fullWidth
                                                 onChange={(e) => { handleChange(e) }}
@@ -271,6 +270,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             md={12}
                                         >
                                             <FlotingLableInput
+                                                placeholder='E.g. Js345678j'
                                                 name="nationalInsuranceNumber"
                                                 label="National Insurance Number"
                                                 type="text"
@@ -322,6 +322,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         </Grid>
                                         <Grid item xs={12} sm={12} md={12}>
                                             <FlotingLableInput
+                                                placeholder="E.g. 5'5"
                                                 errors={errors}
                                                 helperText={errors}
                                                 name="height"
@@ -339,6 +340,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 helperText={errors}
                                                 name="shoeSize"
                                                 label="Shoe Size"
+                                                placeholder="E.g. 8"
                                                 type="text"
                                                 required
                                                 fullWidth
@@ -352,6 +354,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 helperText={errors}
                                                 name="clothingSize"
                                                 label="Clothing Size"
+                                                placeholder='E.g. Medium'
                                                 type="text"
                                                 required
                                                 fullWidth
@@ -365,6 +368,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 helperText={errors}
                                                 name="eyeColor"
                                                 label="Eye Color"
+                                                placeholder='E.g. Brown'
                                                 type="text"
                                                 required
                                                 fullWidth
@@ -397,6 +401,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="tenantContactNumber"
                                                 label="Tenant Contact Number"
+                                                placeholder="E.g. 07123456789"
                                                 type="text"
                                                 required
                                                 errors={errors}
@@ -410,6 +415,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="tenantEmail"
                                                 label="Tenant Email"
+                                                placeholder="E.g.example@gmail.com"
                                                 // type="email"
                                                 type='text'
                                                 errors={errors}
@@ -440,6 +446,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="claimReferenceNumber"
                                                 label="Claim Reference Number (If Known)"
+                                                placeholder="E.g. 01234567"
                                                 type="text"
                                                 fullWidth
                                                 value={values?.claimReferenceNumber}
@@ -451,6 +458,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="skinTone"
                                                 label="Skin Tone"
+                                                placeholder='E.g. Fair'
                                                 type="text"
                                                 required
                                                 fullWidth
@@ -464,6 +472,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="hairColor"
                                                 label="Hair Color"
+                                                placeholder='E.g. Black'
                                                 type="text"
                                                 required
                                                 fullWidth
@@ -476,6 +485,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         <Grid item xs={12} sm={12} md={12}>
                                             <FlotingLableInput
                                                 name="dateOfBirth"
+                                                placeholder='E.g. 01/01/2000'
                                                 label="Date of Birth (Use Calendar Only)"
                                                 type="date"
                                                 errors={errors}
@@ -495,6 +505,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         <Grid item xs={12} sm={12} md={12}>
                                             <FlotingLableInput
                                                 name="placeOfBirth"
+                                                placeholder='E.g. London'
                                                 errors={errors}
                                                 helperText={errors}
                                                 label="Place of Birth"
@@ -522,6 +533,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             spacing={2}
                                         >
                                             <FlotingLableInput
+                                                
                                                 label='Current Situation/Reason for Homelessness'
                                                 type='textarea'
                                                 name='reasonforhomelessness'

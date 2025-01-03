@@ -1,7 +1,8 @@
 import PaginationTable from '@app/CommonComponents/TableComponent';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
+import { handeAgentCount } from '@app/Redux/Sclice/MultiSelectSlice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-import { Box, Icon, IconButton, Switch, TextField } from '@mui/material'
+import { Box, Icon, IconButton, Switch, TablePagination, TextField } from '@mui/material'
 import API from 'Constance';
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react'
@@ -14,7 +15,7 @@ const Agents = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [Page, setPage] = useState(1);
+    const [page, setPage] = useState(1);
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
     const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +28,7 @@ const Agents = () => {
         if (user?.isMainMA == 1) {
             fetchAllRSL()
         }
-    }, [user?._id, searchQuery])
+    }, [searchQuery, page, rowsPerPage])
 
     const fetchAllRSL = async () => {
         try {
@@ -37,8 +38,15 @@ const Agents = () => {
             if (res.data.message) {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
-            setListData(res.data.data)
             dispatch(setIsLoading({ data: false }))
+            setListData(res.data.data)
+            setTotalCount(res.data?.total)
+            setTotalPage(res.data?.page)
+            const agentCount = { active: 0, inactive: 0 }
+            res?.data?.data.forEach(element => {
+                element.status === 1 ? agentCount.active = agentCount.active + 1 : agentCount.inactive = agentCount.inactive + 1
+            });
+            dispatch(handeAgentCount({ ...agentCount }))
             dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
 
         } catch (error) {
@@ -57,14 +65,24 @@ const Agents = () => {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
             setListData(res.data.data)
+           
             fetchAllRSL()
             dispatch(setIsLoading({ data: false }))
-            dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
 
         } catch (error) {
             dispatch(showSnackbar({ message: error.response?.data.error || 'Error while Add new RSL!', severity: 'error' }))
             dispatch(setIsLoading({ data: false }))
         }
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(event.target.value);
+        // setPage(1);
+    };
+    const handleChangePage = (_, newPage) => {
+        // if (newPage > 0) {
+        setPage(newPage + 1);
+        // }
     };
 
 
@@ -86,6 +104,8 @@ const Agents = () => {
                 <PaginationTable
                     data={listData}
                     headCells={[
+
+                        { label: 'Company Name', key: 'companyname' },
                         { label: 'First Name', key: 'fname' },
                         { label: 'Last Name', key: 'lname' },
                         { label: 'Email', key: 'email' },
@@ -111,6 +131,19 @@ const Agents = () => {
                         </>
                     )
                     }
+                />
+
+                <TablePagination
+                    sx={{ px: 2 }}
+                    page={page - 1}
+                    component="div"
+                    rowsPerPage={rowsPerPage}
+                    count={totalcount}
+                    onPageChange={handleChangePage}
+                    rowsPerPageOptions={[10, 20, 35]}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    nextIconButtonProps={{ "aria-label": "Next Page" }}
+                    backIconButtonProps={{ "aria-label": "Previous Page" }}
                 />
             </Box>
         </Box>

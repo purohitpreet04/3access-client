@@ -12,38 +12,83 @@ import {
     Typography,
     TableSortLabel,
     Paper,
-    TableContainer
+    TableContainer,
+    colors
 } from "@mui/material";
 import { getDate } from "@app/Utils/utils";
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import DOMPurify from 'dompurify';
+import clsx from 'clsx';
+import '../App.css';
 
-// STYLED COMPONENTS
-const StyledTable = styled(Table)(() => ({
-    whiteSpace: "pre",
-    tableLayout: "fixed", // Ensures columns adjust evenly
-    width: "100%", // Ensures the table spans the full width
+const StyledTable = styled(Table)(({ theme }) => ({
+    width: "100%",
+    borderCollapse: "collapse", // Ensure proper border spacing
     "& thead": {
-        "& tr": { "& th": { padding: "8px", fontSize: 17 } }
+        backgroundColor: theme.palette?.primary?.light,
+        "& th": {
+            color: theme.palette.common.white,
+            padding: theme.spacing(1),
+            fontSize: 17,
+            fontWeight: "bold",
+            border: `1px solid ${theme.palette.divider}`
+        }
     },
     "& tbody": {
-        "& tr": { "& td": { padding: "8px", textTransform: "capitalize" } }
+        "& td": {
+            padding: theme.spacing(1),
+            textTransform: "capitalize",
+            border: `1px solid ${theme.palette.divider}`,
+            wordBreak: "break-word",
+        },
+        "& tr:hover": {
+            backgroundColor: theme.palette.action.hover
+        }
     },
+
+    "& table": {
+        tableLayout: "auto",
+    },
+
 }));
 
-const StyledTableContainer = styled(TableContainer)(() => ({
-    width: "100%", // Ensure the container spans the full page width
+
+const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
+    width: "190%",
     overflowX: "auto",
-    '&::-webkit-scrollbar': {
-        width: '8px',
+    boxShadow: theme.shadows[1],
+    borderRadius: theme.shape.borderRadius,
+    "&::-webkit-scrollbar": {
+        width: 8,
+        height: 8,
     },
-    '&::-webkit-scrollbar-thumb': {
-        backgroundColor: '#888',
-        borderRadius: '8px',
+    "&::-webkit-scrollbar-thumb": {
+        backgroundColor: theme.palette.grey[500],
+        borderRadius: 8,
     },
-    '&::-webkit-scrollbar-thumb:hover': {
-        backgroundColor: '#555',
+    "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: theme.palette.grey[700],
     },
+
+    "& css-1w9byxw-MuiTableContainer-roo": {
+        width: "max-content"
+    },
+
+    "& span.MuiButtonBase-root.MuiTableSortLabel-root.css-1q574bi-MuiButtonBase-root-MuiTableSortLabel-root": {
+        // display: "block",
+        width: "max-content"
+    },
+
+    "& td.MuiTableCell-root.MuiTableCell-body.MuiTableCell-alignCenter.MuiTableCell-sizeMedium.css-1htgh2s-MuiTableCell-root": {
+        // width: "100%",
+        maxWidth: "181px"
+    },
+
+    '& .css-167e5dj':{
+        width: "150%"
+    }
+
+
 }));
 
 export default function PaginationTable({ headCells = [], data = [], actionBtn, style }) {
@@ -65,29 +110,41 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
     });
 
     return (
-        <Box sx={{
-            width: '100%', // Ensure the box spans the full width of the page
-            ...style
-        }}>
-            <StyledTableContainer>
-                <StyledTable>
-                    <TableHead>
-                        <TableRow>
-                            {headCells.length > 0 && headCells.map(({ label, key, align, isCheckbox }, i) => {
-                                if (label == 'ID') {
-                                    return (<TableCell key={i} style={{ fontWeight: 'bold', width: "100%",display:'block' }} align={align || 'center'}>
+
+        <StyledTableContainer sx={{ width: '100%', ...style }} overflowX="auto">
+            <StyledTable sx={{ tableLayout: 'auto' }} aria-label="data table">
+                <TableHead width="100%">
+                    <TableRow>
+                        {headCells.length > 0 && headCells.map(({ label, key, align, isCheckbox }, i) => {
+                            if (label == 'ID') {
+                                return (<TableCell key={i} style={{ fontWeight: 'bold', fontSize: 20 }} >
+                                    <TableSortLabel
+                                        align={align || 'center'}
+                                        active={orderBy === key}
+                                        direction={orderBy === key ? order : 'asc'}
+                                        onClick={() => handleSortRequest(key)}
+                                    >
+                                        ID
+                                    </TableSortLabel>
+                                </TableCell>)
+                            } else if (isCheckbox) {
+                                <TableCell key={i} style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }} align={align || 'center'}>
+                                    <TableSortLabel
+                                        align={align || 'center'}
+                                        active={orderBy === key}
+                                        direction={orderBy === key ? order : 'asc'}
+                                        onClick={() => handleSortRequest(key)}
+                                    >
+                                        {label}
+                                    </TableSortLabel>
+                                </TableCell>
+                            } else {
+                                return (
+                                    <TableCell key={i}
+                                        style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }}
+                                        align={align || 'center'}>
                                         <TableSortLabel
-                                            active={orderBy === key}
-                                            direction={orderBy === key ? order : 'asc'}
-                                            onClick={() => handleSortRequest(key)}
-                                        >
-                                            ID
-                                        </TableSortLabel>
-                                    </TableCell>)
-                                } else if (isCheckbox) {
-                                    <TableCell key={i} style={{ fontWeight: 'bold', width: "100%",display:'block' }} align={align || 'center'}>
-                                        <TableSortLabel
-                                            style={{width: "100%",display:'block'}}
+                                            align={align || 'center'}
                                             active={orderBy === key}
                                             direction={orderBy === key ? order : 'asc'}
                                             onClick={() => handleSortRequest(key)}
@@ -95,29 +152,17 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                             {label}
                                         </TableSortLabel>
                                     </TableCell>
-                                } else {
-                                    return (
-                                        <TableCell key={i} style={{ fontWeight: 'bold', width: "50%", }} align={align || 'center'}>
-                                            <TableSortLabel
-                                                style={{ wordBreak: 'break-word' }}
-                                                active={orderBy === key}
-                                                direction={orderBy === key ? order : 'asc'}
-                                                onClick={() => handleSortRequest(key)}
-                                            >
-                                                {label}
-                                            </TableSortLabel>
-                                        </TableCell>
-                                    )
-                                }
-                            })}
-                            {actionBtn && <TableCell style={{ position: 'sticky', top: 0, fontWeight: 'bold', width: "40%", wordBreak: 'break-word' }} align="center">Actions</TableCell>}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {sortedRows.length > 0 ? (
-                            sortedRows.map((subscriber, index) => (
-                                <TableRow key={index}>
-                                    {/* {headCells.map(({ key, date, html }) => (
+                                )
+                            }
+                        })}
+                        {actionBtn && <TableCell style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'keep-all' }} align="center">Actions</TableCell>}
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {sortedRows.length > 0 ? (
+                        sortedRows.map((subscriber, index) => (
+                            <TableRow key={index}>
+                                {/* {headCells.map(({ key, date, html }) => (
                                         <TableCell style={{ wordBreak: 'break-word' }} key={key} align="center">
                                             {date || key === 'createdAt'
                                                 ? getDate(subscriber[key], "DD-MM-YYYY")
@@ -130,52 +175,89 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                                     : subscriber[key]}
                                         </TableCell>
                                     ))} */}
-                                    {headCells.map(({ key, date, html, isCheckbox, CheckBoxCom }, i) => (
+                                {headCells.map(({ key, date, html, isCheckbox, CheckBoxCom, formate }, i) => {
+
+                                    let testhtml = '<p>hbhjvghv</p>'
+                                    let senizedData = DOMPurify.sanitize(subscriber[key], {
+                                        ALLOWED_TAGS: ['table', 'tr', 'td', 'strong', 'br'],
+                                        ALLOWED_ATTR: ['style']
+                                    });
+
+                                    // console.log(senizedData);
+
+                                    return (
                                         <>
                                             {(CheckBoxCom && isCheckbox) ? <TableCell key={i} style={{ wordBreak: 'break-word' }} align="center">{CheckBoxCom}</TableCell> :
 
-                                                <TableCell style={{ wordBreak: 'break-word' }} key={key} align="center">
+                                                <TableCell style={{ wordBreak: 'break-word', fontSize: 18 }} key={key} align="center">
                                                     {date || key === 'createdAt' ? (
-                                                        getDate(subscriber[key], "DD-MM-YYYY")
+                                                        getDate(subscriber[key], formate ? formate : "DD-MM-YYYY")
                                                     ) : html ? (
-                                                        <div
-                                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(subscriber[key]) }}
-                                                        />
+                                                        <Box sx={{
+                                                            '& table': {
+                                                                width: '100%',
+                                                                borderCollapse: 'separate !important',
+                                                                borderSpacing: '0',
+                                                                margin: '0 !important',
+                                                                border: 'none',
+                                                            },
+                                                            '& td': {
+                                                                // padding: '4px 8px',
+                                                                border: 'none',
+                                                                verticalAlign: 'top',
+                                                                fontSize: '0.875rem',
+                                                                lineHeight: '1.5',
+                                                            },
+                                                            '& tr': {
+                                                                background: 'transparent !important',
+                                                            },
+                                                            '& strong': {
+                                                                fontWeight: 600,
+                                                                color: 'inherit',
+                                                            }
+                                                        }} dangerouslySetInnerHTML={{ __html: senizedData }} >
+                                                            {/* <div
+
+                                                                
+                                                                dangerouslySetInnerHTML={{ __html: senizedData }}
+                                                            // dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(subscriber[key]) }}
+                                                            /> */}
+                                                        </Box>
                                                     ) : (
                                                         subscriber[key]
                                                     )}
                                                 </TableCell>}
                                         </>
-                                    ))}
+                                    )
+                                })}
 
-                                    {actionBtn && <TableCell  style={{ wordBreak: 'break-word' }} align="center">{actionBtn(subscriber)}</TableCell>}
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={headCells.length + (actionBtn ? 1 : 0)} align="center">
-                                    <Paper elevation={0} sx={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        height: 300,
-                                    }}>
-                                        <SearchOffIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                                        <Typography variant="h6" gutterBottom>
-                                            No data available
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Try adjusting your search or filter to find what you're looking for.
-                                        </Typography>
-                                    </Paper>
-                                </TableCell>
+                                {actionBtn && <TableCell style={{ wordBreak: 'break-word', fontSize: 18 }} align="center">{actionBtn(subscriber)}</TableCell>}
                             </TableRow>
-                        )}
-                    </TableBody>
-                </StyledTable>
-            </StyledTableContainer>
-        </Box>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={headCells.length + (actionBtn ? 1 : 0)} align="center">
+                                <Paper elevation={0} sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: 300,
+                                }}>
+                                    <SearchOffIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+                                    <Typography variant="h6" gutterBottom>
+                                        No data available
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Try adjusting your search or filter to find what you're looking for.
+                                    </Typography>
+                                </Paper>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </StyledTable>
+        </StyledTableContainer>
     );
 }
 

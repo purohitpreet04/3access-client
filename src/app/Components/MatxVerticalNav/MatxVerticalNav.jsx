@@ -5,7 +5,8 @@ import { Box, ButtonBase, Icon, IconButton, styled } from "@mui/material";
 import useSettings from "../../hooks/useSettings";
 import { Paragraph, Span } from "../Typography";
 import MatxVerticalNavExpansionPanel from "./MatxVerticalNavExpansionPanel";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { mainuser } from "@app/Utils/constant";
 
 // STYLED COMPONENTS
 const ListLabel = styled(Paragraph)(({ theme, mode }) => ({
@@ -71,7 +72,7 @@ const BulletIcon = styled("div")(({ theme }) => ({
 }));
 
 const BadgeValue = styled("div")(() => ({
-  padding: "1px 8px",
+  padding: "1px 10px",
   overflow: "hidden",
   borderRadius: "300px"
 }));
@@ -79,13 +80,10 @@ const BadgeValue = styled("div")(() => ({
 export default function MatxVerticalNav({ items }) {
   const { settings } = useSettings();
   const { mode } = settings.layout1Settings.leftSidebar;
-  
-  useEffect(() => {
-      // getUser()
-      // console.log('hbfjdshhfs')
-    }, [])
-  
-  
+  const { agentCount } = useSelector(state => state.sideselect)
+  const { user } = useSelector(state => state?.auth)
+
+
 
   const renderLevels = (data) => {
     return data.map((item, index) => {
@@ -97,11 +95,40 @@ export default function MatxVerticalNav({ items }) {
         );
 
       if (item.children) {
-        return (
-          <MatxVerticalNavExpansionPanel mode={mode} item={item} key={index}>
-            {renderLevels(item.children)}
-          </MatxVerticalNavExpansionPanel>
+
+        let filteredChildren = [];
+
+        if (mainuser.includes(user?.role)) {
+          filteredChildren = item.children;
+        } else {
+          if (user?.permmission.includes(3)) {
+            filteredChildren = [
+              ...filteredChildren,
+              ...item.children.filter((child) => child.nav === 0),
+            ];
+          }
+          if (user?.permmission.includes(5)) {
+            filteredChildren = [
+              ...filteredChildren,
+              ...item.children.filter((child) => child.nav === 1),
+            ];
+          }
+        }
+
+        filteredChildren = filteredChildren.filter(
+          (child, index, self) =>
+            index === self.findIndex((c) => c.path === child.path)
         );
+
+
+        if (filteredChildren.length > 0) {
+          return (
+            <MatxVerticalNavExpansionPanel mode={mode} item={item} key={index}>
+              {renderLevels(filteredChildren)}
+            </MatxVerticalNavExpansionPanel>
+          );
+        }
+
       } else if (item.type === "extLink") {
         return (
           <ExternalLink
@@ -127,49 +154,177 @@ export default function MatxVerticalNav({ items }) {
           </ExternalLink>
         );
       } else {
-        return (
-          <InternalLink key={index}>
-            <NavLink
-              to={item.path}
-              className={({ isActive }) =>
-                isActive
-                  ? `navItemActive ${mode === "compact" && "compactNavItem"}`
-                  : `${mode === "compact" && "compactNavItem"}`
-              }>
-              <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
-                {item?.icon ? (
-                  <Icon className="icon" sx={{ width: 36 }}>
-                    {item.icon}
-                  </Icon>
-                ) : (
-                  <Fragment>
-                    <BulletIcon
-                      className={`nav-bullet`}
-                      sx={{ display: mode === "compact" && "none" }}
-                    />
-                    <IconButton
-                      className="nav-bullet-text"
-                      sx={{
-                        ml: "20px",
-                        fontSize: "11px",
-                        display: mode !== "compact" && "none"
-                      }}>
-                      {/* {item.iconText} */}
-                      <Icon className="icon">{item.iconText}</Icon>
-                    </IconButton>
-                  </Fragment>
-                )}
-                <StyledText mode={mode} className="sidenavHoverShow">
-                  {item.name}
-                </StyledText>
-                <Box mx="auto" />
-                {item.badge && (
-                  <BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>
-                )}
-              </ButtonBase>
-            </NavLink>
-          </InternalLink>
-        );
+
+
+        if (mainuser.includes(user?.role) && !['newstaff'].includes(item?.nav)) {
+          return (
+            <InternalLink key={index}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  isActive
+                    ? `navItemActive ${mode === "compact" && "compactNavItem"}`
+                    : `${mode === "compact" && "compactNavItem"}`
+                }>
+                <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
+                  {item?.icon ? (
+                    <Icon className="icon" sx={{ width: 36 }}>
+                      {item.icon}
+                    </Icon>
+                  ) : (
+                    <Fragment>
+                      <BulletIcon
+                        className={`nav-bullet`}
+                        sx={{ display: mode === "compact" && "none" }}
+                      />
+                      <IconButton
+                        className="nav-bullet-text"
+                        sx={{
+                          ml: "20px",
+                          fontSize: "11px",
+                          display: mode !== "compact" && "none"
+                        }}>
+                        {/* {item.iconText} */}
+                        <Icon className="icon">{item.iconText}</Icon>
+                      </IconButton>
+                    </Fragment>
+                  )}
+                  <StyledText mode={mode} display='flex' className="sidenavHoverShow">
+                    {item.name}
+
+                  </StyledText>
+                  <Box mx="auto" />
+                  {item.name === "Agents" && (
+                    <Box display="flex" alignItems="center" m={2}>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "green", marginRight: "6px" }}>
+                        {agentCount?.active}
+                      </BadgeValue>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "red" }}>
+                        {agentCount.inactive}
+                      </BadgeValue>
+                    </Box>
+                  )}
+                  {item.badge && (
+                    <BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>
+                  )}
+                </ButtonBase>
+              </NavLink>
+            </InternalLink>
+          );
+        }else if(!['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role)){
+          return (
+            <InternalLink key={index}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  isActive
+                    ? `navItemActive ${mode === "compact" && "compactNavItem"}`
+                    : `${mode === "compact" && "compactNavItem"}`
+                }>
+                <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
+                  {item?.icon ? (
+                    <Icon className="icon" sx={{ width: 36 }}>
+                      {item.icon}
+                    </Icon>
+                  ) : (
+                    <Fragment>
+                      <BulletIcon
+                        className={`nav-bullet`}
+                        sx={{ display: mode === "compact" && "none" }}
+                      />
+                      <IconButton
+                        className="nav-bullet-text"
+                        sx={{
+                          ml: "20px",
+                          fontSize: "11px",
+                          display: mode !== "compact" && "none"
+                        }}>
+                        {/* {item.iconText} */}
+                        <Icon className="icon">{item.iconText}</Icon>
+                      </IconButton>
+                    </Fragment>
+                  )}
+                  <StyledText mode={mode} display='flex' className="sidenavHoverShow">
+                    {item.name}
+
+                  </StyledText>
+                  <Box mx="auto" />
+                  {item.name === "Agents" && (
+                    <Box display="flex" alignItems="center" m={2}>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "green", marginRight: "6px" }}>
+                        {agentCount?.active}
+                      </BadgeValue>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "red" }}>
+                        {agentCount.inactive}
+                      </BadgeValue>
+                    </Box>
+                  )}
+                  {item.badge && (
+                    <BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>
+                  )}
+                </ButtonBase>
+              </NavLink>
+            </InternalLink>
+          );
+        }else if(['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role) && user?.permmission.includes(8)){
+          return (
+            <InternalLink key={index}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  isActive
+                    ? `navItemActive ${mode === "compact" && "compactNavItem"}`
+                    : `${mode === "compact" && "compactNavItem"}`
+                }>
+                <ButtonBase key={item.name} name="child" sx={{ width: "100%" }}>
+                  {item?.icon ? (
+                    <Icon className="icon" sx={{ width: 36 }}>
+                      {item.icon}
+                    </Icon>
+                  ) : (
+                    <Fragment>
+                      <BulletIcon
+                        className={`nav-bullet`}
+                        sx={{ display: mode === "compact" && "none" }}
+                      />
+                      <IconButton
+                        className="nav-bullet-text"
+                        sx={{
+                          ml: "20px",
+                          fontSize: "11px",
+                          display: mode !== "compact" && "none"
+                        }}>
+                        {/* {item.iconText} */}
+                        <Icon className="icon">{item.iconText}</Icon>
+                      </IconButton>
+                    </Fragment>
+                  )}
+                  <StyledText mode={mode} display='flex' className="sidenavHoverShow">
+                    {item.name}
+
+                  </StyledText>
+                  <Box mx="auto" />
+                  {item.name === "Agents" && (
+                    <Box display="flex" alignItems="center" m={2}>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "green", marginRight: "6px" }}>
+                        {agentCount?.active}
+                      </BadgeValue>
+                      <BadgeValue className="sidenavHoverShow" sx={{ backgroundColor: "red" }}>
+                        {agentCount.inactive}
+                      </BadgeValue>
+                    </Box>
+                  )}
+                  {item.badge && (
+                    <BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>
+                  )}
+                </ButtonBase>
+              </NavLink>
+            </InternalLink>
+          );
+        }
+
+
+
       }
     });
   };

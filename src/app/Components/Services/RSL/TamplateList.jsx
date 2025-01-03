@@ -91,7 +91,10 @@ const TemplateList = () => {
         }
 
     }
-
+    const filteredTemplates = templates.filter(template => {
+        const matchesSearch = template?.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesSearch
+    });
 
     return (
         <Box
@@ -121,16 +124,7 @@ const TemplateList = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <FlotingLableInput
-                    type='date'
-                    placeholder="Search templates..."
-                    variant="outlined"
-                    size="small"
-                    sx={{ width: '60%' }}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-
+              
                 <Button variant="contained" color="primary" onClick={handleOpen}>
                     Add New Template
                 </Button>
@@ -150,7 +144,7 @@ const TemplateList = () => {
                     },
                 }}
             >
-                {templates.map(template => (
+                {filteredTemplates.map(template => (
                     <Grid
                         item xs={12} sm={12} md={12}
                         sx={{

@@ -2,7 +2,7 @@ import { Box, Button, MenuItem, Select, styled, TextField, Typography } from '@m
 import React from 'react'
 import FileUpload from './FileUploas'
 
-const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, select, events, name, label, type, placeholder, className, onChange, value, errors, fullWidth, InputLabelProps, required, inputProps }) => {
+const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems = [{ val: '', label: '' }], select, events, name, label, type, placeholder, className, onChange, value, errors, fullWidth, InputLabelProps, required, inputProps }) => {
 
     const handleFileChange = (e) => {
         console.log(e.target.files[0])
@@ -23,10 +23,10 @@ const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, 
                     className={className}
                     {...events}
                     variant='outlined'
-                    value={value}
+                    value={value || ''}
                     error={errors && errors[name]}
                     helperText={errors && errors[name]}
-                    InputLabelProps={{ ...InputLabelProps, shrink: type === "date"  || 'text' && true  }}
+                    InputLabelProps={{ ...InputLabelProps, shrink: type === "date" || 'text' ? true : false }}
                     inputProps={inputProps}
                 />
             </>
@@ -103,9 +103,9 @@ const FlotingLableInput = ({ allowedExtensions, showPreview, accept, menuItems, 
             className={className}
             {...events}
             variant='outlined'
-            value={value}
-            error={errors && errors[name]}
-            helperText={errors && errors[name]}
+            value={value || ''}
+            error={errors && errors[name] || false}
+            helperText={errors && errors[name] || ''}
             InputLabelProps={{
                 ...InputLabelProps
             }}

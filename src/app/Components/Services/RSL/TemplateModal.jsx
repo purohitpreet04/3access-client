@@ -21,8 +21,10 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata, refetch }) => {
     const { user } = useSelector(state => state.auth)
     const [template, setTemplate] = useState({ ...editdata });
     const [suggetions, setSuggetions] = useState({ RslArray: [] });
+    const [signArray, setSignArray] = useState([...signaturearray]);
     const [feild, setFeild] = useState('RslArray');
     const [search, setSearch] = useState('');
+    const [inputValue, setInputValue] = useState("");
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const handleSave = () => {
@@ -60,7 +62,6 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata, refetch }) => {
     }
     const filteredTemplates = suggetions[feild].filter(template => {
         const matchesSearch = template?.label.toLowerCase().includes(search.toLowerCase());
-
         return matchesSearch
     });
 
@@ -69,7 +70,6 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata, refetch }) => {
     }, 500), [])
 
     const handleSubmit = async () => {
-        
         try {
             dispatch(setIsLoading({ data: true }))
             const res = await API.post('/api/rsl/addnewtemplate', { ...template, rsl: rslId, addedBy: user?._id })
@@ -124,14 +124,39 @@ const TemplateModal = ({ open, handleClose, onSubmit, editdata, refetch }) => {
                                 /> */}
                                 <AutoComplete
                                     fullWidth
-                                    options={signaturearray}
+                                    options={signArray}
                                     getOptionKey={(option) => option.name}
                                     getOptionLabel={(option) => option.label}
                                     renderInput={(params) => (
                                         <TextField {...params} label="Select Template Name" variant="outlined" fullWidth />
                                     )}
+                                    filterOptions={(options, state) => {
+                                        const filtered = options.filter((option) =>
+                                            option.label.toLowerCase().includes(state.inputValue.toLowerCase())
+                                        );
+
+                                        if (state.inputValue !== "" && !filtered.some((option) => option.label.toLowerCase() === state.inputValue.toLowerCase())) {
+                                            filtered.push({
+                                                name: state.inputValue,
+                                                label: `${state.inputValue}`,
+                                                isNew: true, // Flag for a new option
+                                            });
+                                        }
+
+                                        return filtered;
+                                    }}
+                                    onInputChange={(e, newValue) => setInputValue(newValue)}
+                                    onChange={(e, val) => {
+
+                                        if (val?.isNew) {
+                                            const cleanedName = inputValue.replace(/\s+/g, "")
+                                            setSignArray((pre) => ([...pre, { name: cleanedName, label: inputValue }]))
+                                            setTemplate((pre) => ({ ...pre, key: cleanedName, name: inputValue, newAdd: true }));
+                                        } else {
+                                            setTemplate((prev) => ({ ...prev, name: val?.label, key: val?.name }))
+                                        }
+                                    }}
                                     value={template?.key ? { name: template?.key, label: template?.name } : null}
-                                    onChange={(e, val) => { setTemplate((prev) => ({ ...prev, name: val?.label, key:val?.name })) }}
                                 />
                                 {/* Subject */}
                                 <TextField

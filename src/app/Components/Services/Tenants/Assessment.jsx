@@ -109,7 +109,6 @@ const enjoyAndAchieveChoices = [
     { label: "Support with equality and diversity", name: "supportEqualityDiversity" },
     { label: "To change offending behaviour", name: "change_offending_behaviour" },
     { label: "To access Support Services", name: "access_support_services" },
-
 ];
 
 const makingContributionChoices = [
@@ -123,6 +122,7 @@ const staySafeChoices = [
     { label: "Maintain accommodation", name: "maintainAccommodation" },
     { label: "Minimize risk of harm", name: "minimizeRiskOfHarm" },
 ];
+
 const riskCategories = [
     { label: "Violence / Aggression", name: "violenceAggression" },
     { label: "Known associates", name: "knownAssociates" }, // New
@@ -177,8 +177,8 @@ const Assessment = ({ Field }) => {
     const sd = query.get('sd');
     const tid = query.get('tid');
     const today = new Date();
-    const oneYearFromToday = new Date(today);
-    oneYearFromToday.setFullYear(today.getFullYear() + 1);
+    const threeMonthsFromToday = new Date(today.setMonth(today.getMonth() + 3));
+
 
     const formatDate = (date) => date.toISOString().split("T")[0];
     const formik = useFormik({
@@ -205,7 +205,7 @@ const Assessment = ({ Field }) => {
             records: [{ natureOfOffence: '', date: '', sentence: '' }],
             prison: false,
             currentAssessmentDate: formatDate(today),
-            nextAssessmentDate: formatDate(oneYearFromToday),
+            nextAssessmentDate: formatDate(threeMonthsFromToday),
         },
         onSubmit: async (values, { resetForm }) => {
 
@@ -220,13 +220,13 @@ const Assessment = ({ Field }) => {
                         currentAssessmentDate: moment(values?.currentAssessmentDate).toISOString(),
                         release_date: moment(values?.release_date).toISOString(),
                         nextAssessmentDate: moment(values?.nextAssessmentDate).toISOString(),
+                        tenantSignature,
+                        supportWorkerSignature,
                     },
                     _id: tid,
-                    supportWorkerSignature,
-                    tenantSignature
                 }
                 dispatch(setIsLoading({ data: true }))
-                const res = await API.post('/api/tenents/addtenants', modifyVal)
+                const res = await API.post('/api/tenents/update-assessment', modifyVal)
                 if (res.data.success == true) {
                     resetForm()
                     navigation('/desh')
@@ -1633,7 +1633,11 @@ const Assessment = ({ Field }) => {
                             type="date"
                             fullWidth
                             value={values.currentAssessmentDate}
-                            onChange={(e) => handleChange(e)}
+                            onChange={(e) => {
+                                handleChange(e);
+                                const result = moment(e.target.value).add(3, 'months');
+                                setFieldValue('nextAssessmentDate', result.format('YYYY-MM-DD'))
+                            }}
                             InputLabelProps={{
                                 shrink: true,
                             }}

@@ -2,13 +2,23 @@ import { setIsLoading } from "@app/Redux/Sclice/manageStateSclice";
 import { showSnackbar } from "@app/Redux/Sclice/SnaackBarSclice";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import API from "Constance";
+import { confirm } from "react-confirm-box";
 
 export const signOutTenant = createAsyncThunk(
   'tenants/signOutTenant',
-  async ({ id, propertyid, userId, navigate }, { dispatch, rejectWithValue }) => {
+  async ({ id, propertyid, userId, navigate, withOutMail, signOutDate, signature, isPresent }, { dispatch, rejectWithValue }) => {
+
+    // if (await confirm('Are you sure you want to sign out this tenant?')) {
     try {
+      dispatch(setIsLoading({ data: true }))
       const res = await API.post(
-        `api/tenents/signouttenants?_id=${id}&addedby=${userId}&propertyid=${propertyid}`
+        `api/tenents/signouttenants?_id=${id}&addedby=${userId}&propertyid=${propertyid}`,
+        {
+          withOutMail,
+          signOutDate,
+          signature,
+          isPresent
+        }
       );
 
       dispatch(showSnackbar({
@@ -16,8 +26,10 @@ export const signOutTenant = createAsyncThunk(
         severity: "success",
       }));
 
+      dispatch(setIsLoading({ data: false }))
       return res.data;
     } catch (error) {
+      dispatch(setIsLoading({ data: false }))
       if (error.response?.status === 409) {
         dispatch(logout());
         navigate('/auth/login');
@@ -30,11 +42,12 @@ export const signOutTenant = createAsyncThunk(
       return rejectWithValue(error.response?.data?.message || 'An error occurred');
     }
   }
+  // }
 );
 
 export const CheckHasOneStaff = createAsyncThunk(
   'tenants/CheckHasOneStaff',
-  async ({ navigation }, { dispatch, rejectWithValue }) => {
+  async ({ navigation, p, r }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(setIsLoading({ data: true }))
       const res = await API.get('/api/user/checkhasstaff')
@@ -43,7 +56,11 @@ export const CheckHasOneStaff = createAsyncThunk(
           message: "You already have staff or agent. Please add tenants.",
           severity: "info"
         }));
-        navigation('/services/addtenants')
+        if (p && r) {
+          navigation(`/services/addtenants?p=${p}&r=${r}`)
+        } else {
+          navigation('/services/addtenants')
+        }
         dispatch(setIsLoading({ data: false }))
       } else {
         dispatch(showSnackbar({

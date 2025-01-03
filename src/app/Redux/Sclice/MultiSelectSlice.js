@@ -30,7 +30,8 @@ const sideselectSlice = createSlice({
         data: [],
         selectedValues: [],
         comData: [],
-        propertydata: {}
+        propertydata: {},
+        agentCount: { active: 0, inactive: 0 }
     },
     reducers: {
         setData: (state, action) => {
@@ -49,6 +50,10 @@ const sideselectSlice = createSlice({
         },
         setPropertyData: (state, action) => {
             state.propertydata = action.payload;
+        },
+        handeAgentCount: (state, action) => {
+           
+            state.agentCount = { ...action.payload }
         }
     },
     extraReducers: (builder) => {
@@ -68,5 +73,5 @@ const sideselectSlice = createSlice({
 
 });
 
-export const { setData, removeSelectedValue, setComData, setPropertyData, setSelectedData } = sideselectSlice.actions;
+export const { setData, removeSelectedValue, setComData, setPropertyData, setSelectedData, handeAgentCount } = sideselectSlice.actions;
 export default sideselectSlice.reducer;

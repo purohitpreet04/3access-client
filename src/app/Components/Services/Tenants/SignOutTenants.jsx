@@ -1,29 +1,19 @@
-import PaginationTable from '@app/CommonComponents/TableComponent';
+import { logout } from '@app/Redux/Sclice/AuthSclice';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-import { getDate } from '@app/Utils/utils';
-import { Edit, EditNotifications } from '@mui/icons-material';
-import { Box, Button, Icon, IconButton, MenuItem, Paper, Select, styled, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
 import API from 'Constance';
 import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import EditTenantModal from './EditTenatns';
-import { logout } from '@app/Redux/Sclice/AuthSclice';
+import { Edit, EditNotifications } from '@mui/icons-material';
+import { Box, Button, Icon, IconButton, MenuItem, Paper, Select, styled, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
 import { mainuser, staffuser } from '@app/Utils/constant';
-import { CheckHasOneStaff, signOutTenant } from '@app/API/Tenant';
-import { confirm } from 'react-confirm-box';
-import When from '@app/CommonComponents/When';
-import SignOutModal from './SignOutModal';
+import PaginationTable from '@app/CommonComponents/TableComponent';
 
-const TableCellstyle = styled(TableCell)(() => ({
-    fontSize: 15,
-    fontWeight: 'bold'
+const SignOutTenants = () => {
 
-}));
 
-const Tenants = () => {
     const dispatch = useDispatch()
     const navigation = useNavigate();
     const [fromdate, setFromDate] = useState('');
@@ -39,58 +29,23 @@ const Tenants = () => {
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
     const { user } = useSelector(state => state.auth)
-    const [signout, setSignOut] = useState({});
+
     const handleSearchChange = useCallback(debounce((val) => {
         setSearchQuery(val.target.value.trim());
     }, 500), [])
 
 
 
-
-    const handleeditdata = async (id) => {
-        dispatch(setIsLoading({ data: true }))
-        try {
-            try {
-                const res = await API.get('api/tenents/edittenatns', {
-                    params: {
-                        _id: id,
-                    }
-                });
-
-                setEditData({ ...res?.data?.data })
-                setOpen(true)
-                dispatch(setIsLoading({ data: false }))
-                // console.log(res);
-            } catch (error) {
-                dispatch(setIsLoading({ data: false }))
-                if (error.response?.status === 409) {
-                    dispatch(logout());
-                    navigation('/auth/login');
-                } else {
-                    dispatch(showSnackbar({
-                        message: error.response?.data?.message || "An error occurred",
-                        severity: "error"
-                    }));
-                }
-            }
-        } catch (error) {
-            console.log(error)
-            dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
-        }
-    }
-
-
     useEffect(() => {
-        fetchSignOutTenants()
+        fetchStaff()
     }, [rowsPerPage, page, searchQuery, todate])
 
-
-    const fetchSignOutTenants = async () => {
+    const fetchStaff = async () => {
         dispatch(setIsLoading({ data: true }))
         setListData([])
         try {
             try {
-                const res = await API.get('api/tenents/ListTenents', {
+                const res = await API.get('api/tenents/signouttenantlist', {
                     params: {
                         addedBy: user?._id,
                         page: page,
@@ -134,41 +89,14 @@ const Tenants = () => {
         // setPage(1);
     };
 
-
-    const handleSignOut = async (id, propertyid) => {
-
-        setSignOut({ isOpen: true, id, propertyid: propertyid, userId: user?._id, })
-        return
-        dispatch(
-            signOutTenant({
-                id,
-                propertyid,
-                userId: user?._id,
-                isPresent,
-                withOutMail,
-                navigate: navigation,
-            })
-        ).then(() => {
-            fetchSignOutTenants(); // Trigger a refresh of tenant data
-        });
+    const navigateToTenantsDetails = (ten_id, pro_id) => {
+        navigation(`/services/tenetdetails?t=${ten_id}&p=${pro_id}}`)
     }
 
-    const checkHasOneStaff = async () => {
-        if (staffuser.includes(user?.role)) {
-            navigation('/services/addtenants')
-        } else {
-            dispatch(CheckHasOneStaff({ navigation: navigation }))
-        }
-    }
-
-
-    const navigateToTenantsDetails = (t_id, p_id) => {
-        navigation(`/services/tenetdetails?t=${t_id}&p=${p_id}`)
-    }
 
     return (
         <Box p={2}>
-            {
+            {/* {
                 mainuser.includes(user.role) ? (
                     <>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -184,7 +112,7 @@ const Tenants = () => {
                             </Button>
                         </Box>}
                     </>)
-            }
+            } */}
 
             <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={3}>
                 {/* Search Bar */}
@@ -198,7 +126,7 @@ const Tenants = () => {
 
                 {/* Role Filter */}
                 <TextField
-                    name="signInDate"
+                    name="fromDate"
                     label="Date From"
                     type="date"
                     fullWidth
@@ -212,7 +140,7 @@ const Tenants = () => {
                     }}
                 />
                 <TextField
-                    name="signInDate"
+                    name="toDate"
                     label="Date To"
                     type="date"
                     fullWidth
@@ -220,6 +148,9 @@ const Tenants = () => {
                     // onChange={(e) => { setTodate(e.target.value) }}
                     onChange={(val) => {
                         setTodate(val.target.value)
+                    }}
+                    inputProps={{
+                        min: fromdate
                     }}
                     InputLabelProps={{
                         shrink: true,
@@ -232,33 +163,16 @@ const Tenants = () => {
                     actionBtn={(item) => {
                         return (
                             <>
-                                {mainuser.includes(user?.role) ?
-                                    <IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
+                                {mainuser.includes(user?.role) ? (
+                                    <IconButton onClick={() => {navigateToTenantsDetails(item?._id, item?.propertyDetails?._id)}}>
                                         <Icon>info</Icon>
-                                    </IconButton> : (
-                                        <>
-                                            {
-                                                user?.permmission.includes(4) && <IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
-                                                    <Icon>info</Icon>
-                                                </IconButton>
-                                            }
-                                        </>
-                                    )}
-                                {mainuser.includes(user?.role) ?
-                                    <IconButton onClick={() => { handleeditdata(item?._id) }}>
-                                        <Edit />
-                                    </IconButton>
-                                    : user?.permmission.includes(4) && <IconButton onClick={() => { handleeditdata(item?._id) }}>
-                                        <Edit />
-                                    </IconButton>}
-                                {mainuser.includes(user?.role) ? <IconButton onClick={() => { handleSignOut(item._id, item?.propertyDetails?._id) }}>
-                                    <Icon>logout</Icon>
-                                </IconButton> : (
+                                    </IconButton>) : (
                                     <>
                                         {
-                                            user?.permmission.includes(2) && <IconButton onClick={() => { handleSignOut(item._id, item?.propertyDetails?._id) }}>
-                                                <Icon>logout</Icon>
-                                            </IconButton>
+                                            user?.permmission.includes(4) &&
+                                            (<IconButton onClick={() => {navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
+                                                <Icon>info</Icon>
+                                            </IconButton>)
                                         }
                                     </>
                                 )}
@@ -276,7 +190,7 @@ const Tenants = () => {
                         { label: "NINO", key: "nationalInsuranceNumber" },
                         { label: "Claim Reference No", key: "claimReferenceNumber" },
                         { label: "Sign In Date", key: "signInDate", date: true },
-                        { label: "Sign Out Date", key: "endDate", date: true },
+                        { label: "Sign Out Date", key: "signOutDate", date: true },
                         { label: "Added By", key: "addedByusername" },
                         { label: "Role", key: "addedbyrole" },
                         { label: "Created Date", key: "createdAt" },
@@ -295,19 +209,9 @@ const Tenants = () => {
                     backIconButtonProps={{ "aria-label": "Previous Page" }}
                 />
             </Box>
-            <EditTenantModal open={open} setOpen={setOpen} editdata={editdata} />
-            <When
-                when={signout?.isOpen === true}
-                component={<SignOutModal
-                    handleClose={() => { setSignOut({ isOpen: false }) }}
-                    open={signout?.isOpen}
-                    data={{ ...signout }}
-                    signOut={{ ...signout }}
-                    refetch={fetchSignOutTenants}
-                />}
-            />
+            {/* <EditTenantModal open={open} setOpen={setOpen} editdata={editdata} /> */}
         </Box>
-    )
+    );
 }
 
-export default Tenants
+export default SignOutTenants;

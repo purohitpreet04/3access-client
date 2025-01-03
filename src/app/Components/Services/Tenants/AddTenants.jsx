@@ -124,6 +124,7 @@ function AddTenantForm() {
             .required('Sign In Date is required'),
     });
 
+    const handleCheckSigns = (values, setErrors) => { }
 
     return (
         <Formik
@@ -173,9 +174,24 @@ function AddTenantForm() {
 
             validate={(val) => {
                 let errors = {}
+                for (const item of signaturearray) {
+                    if (!val[item.name]) {
+                        errors[item.name] = 'Please fill all signature' ;
+                        dispatch(showSnackbar({ message: `Please fill all signature`, severity: 'error' }));
+                    }
+
+                    if(!val[`${item.name}_terms`]){
+                        errors[`${item.name}_terms`] = 'Please check terms and condition';
+                        dispatch(showSnackbar({ message: `Please check terms and condition`, severity: 'error' }));
+
+                    }
+                }
+                // return errors;
                 // if (!val.signInDate || val.signInDate === '') {
                 //     errors.signInDate = "Please  Select sign in Date"
                 // }
+               
+                
                 if (checkroom && (val?.endDate.length === 0)) {
                     errors.endDate = "Please Select sign out Date"
                 }
@@ -183,10 +199,17 @@ function AddTenantForm() {
             }}
             onSubmit={async (values, { resetForm }) => {
 
-                if (values.terms === false) {
-                    window.alert('Please check all terms and condition')
-                    return false
-                }
+                // if (signaturearray.some((com) => values[com] === '' || !values[com])) {
+                //     dispatch(showSnackbar({ message: 'Please check all terms and condition', severity: 'error' }))
+                //     // window.alert('Please check all terms and condition')
+                //     return false
+                // }
+
+                // if (signaturearray.some((com) => values[com] === '' || !values[com])) {
+                //     dispatch(showSnackbar({ message: 'Please check all terms and condition', severity: 'error' }))
+                //     // window.alert('Please Fill all signatures')
+                //     return false
+                // }
 
                 const modifyVal = {
                     ...values,
@@ -195,9 +218,9 @@ function AddTenantForm() {
                     signInDate: moment(values.signInDate).toISOString(),
                     endDate: (values.endDate && checkroom) ? moment(values.endDate).toISOString() : '',
                     isSignOut: 0,
-                    addedByRole:user?.role
+                    addedByRole: user?.role
                 }
-
+               
                 try {
                     dispatch(setIsLoading({ data: true }))
                     const res = await API.post('/api/tenents/addtenants', modifyVal)
@@ -207,7 +230,7 @@ function AddTenantForm() {
                     navigation('/desh')
                     dispatch(setIsLoading({ data: false }))
                 } catch (error) {
-                    console.log(error)
+                    
                     dispatch(setIsLoading({ data: false }))
                     dispatch(showSnackbar({ message: error?.response?.data?.message || "error while add tenants details", severity: "error" }))
                 }
@@ -221,6 +244,12 @@ function AddTenantForm() {
                 //         dispatch(showSnackbar({ message: val, severity: 'error' }))
                 //     })
                 // }
+
+
+              
+
+
+
 
                 const handlePropertyChange = (event) => {
 
@@ -318,9 +347,8 @@ function AddTenantForm() {
                                                     fullWidth
                                                     label="Property"
                                                     variant="outlined"
-                                                    value={selectedProperty ? selectedProperty._id : values.property || p}
+                                                    value={selectedProperty ? selectedProperty._id : values.property || p || ''} 
                                                     onChange={(e) => { handlePropertyChange(e); handleRoomCheck(values.room, e.target.value) }}
-
                                                 >
                                                     {conpanies.map((pro) => (<MenuItem onClick={() => { setRooms(pro.rooms) }} key={pro?._id} value={pro?._id} >{pro?.address}</MenuItem>))}
                                                 </TextField>
@@ -359,7 +387,7 @@ function AddTenantForm() {
                                                     InputLabelProps={{
                                                         shrink: true,
                                                     }}
-                                                    error={errors.signInDate}
+                                                    error={errors && errors.signInDate}
                                                     helperText={errors.signInDate}
                                                     inputProps={{
                                                         // min: minDate,
@@ -494,7 +522,7 @@ function AddTenantForm() {
                                                         label="Staff Agree"
                                                     // labelPlacement="end"
                                                     />
-                                                    <SignatureCanvas name='staffSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('staffSignature', sign)} />
+                                                    <SignatureCanvas name='staffSignature' value={values?.staffSignature} setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('staffSignature', sign)} />
                                                 </Grid>
                                             </Grid>
 
@@ -527,16 +555,12 @@ function AddTenantForm() {
                                     </>
 
                                 )}
-
-
                             </Box>
-
-
                         </Box>
                     </form>
                 )
             }}
-        </Formik >
+        </Formik>
     );
 }
 

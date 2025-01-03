@@ -4,6 +4,7 @@ import { json, Navigate } from 'react-router-dom';
 import { showSnackbar } from './SnaackBarSclice'
 import { useDispatch } from 'react-redux';
 import { setIsLoading } from './manageStateSclice';
+import { handeAgentCount } from './MultiSelectSlice';
 
 
 export const login = createAsyncThunk(
@@ -118,41 +119,44 @@ export const updateUser = createAsyncThunk(
 export const fetchUserDetails = createAsyncThunk(
     "auth/fetchUserDetails",
     async (value, { rejectWithValue, dispatch }) => {
-      const { navigate } = value;
-  
-      try {
-        let userdata = JSON.parse(localStorage.getItem("user"));
-        let user = userdata;
-  
-        if (!userdata?._id) {
-          return { user: {}, isAuthenticate: false };
+        const { navigate } = value;
+
+        try {
+            let userdata = JSON.parse(localStorage.getItem("user"));
+            let user = userdata;
+
+            if (!userdata?._id) {
+                return { user: {}, isAuthenticate: false };
+            }
+
+            const { data, ...res } = await API.get("/api/user/fetchuserdetails", {
+                params: { _id: user?._id, role: user?.role },
+            });
+
+            if (data?.user?._id) {
+                if (data.user.isMainMA == 1) {
+                    dispatch(handeAgentCount({ active: data.user.active, inactive: data.user.inactive }))
+                }
+                return { user: data.user, isAuthenticate: true };
+            } else {
+                dispatch(
+                    showSnackbar({ message: "Access Denied", severity: "error" })
+                );
+                return { user: {}, isAuthenticate: false };
+            }
+        } catch (error) {
+            if (error.response?.status === 401 || 404 || 409 ) {
+                // Dispatch the logout action here
+                dispatch(logout({ navigate }));
+
+                return { user: {}, isAuthenticate: false };
+            }
+            // Handle other errors
+            return rejectWithValue(error.message);
         }
-  
-        const { data, ...res } = await API.get("/api/user/fetchuserdetails", {
-          params: { _id: user?._id, role: user?.role },
-        });
-  
-        if (data?.user?._id) {
-          return { user: data.user, isAuthenticate: true };
-        } else {
-          dispatch(
-            showSnackbar({ message: "Access Denied", severity: "error" })
-          );
-          return { user: {}, isAuthenticate: false };
-        }
-      } catch (error) {
-        if (error.response?.status === 401) {
-          // Dispatch the logout action here
-          dispatch(logout({ navigate }));
-  
-          return { user: {}, isAuthenticate: false };
-        }
-        // Handle other errors
-        return rejectWithValue(error.message);
-      }
     }
-  );
-  
+);
+
 
 export const logout = createAsyncThunk('auth/logout', async ({ navigate }) => {
     localStorage.clear()

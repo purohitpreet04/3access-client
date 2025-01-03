@@ -121,7 +121,7 @@ const Layout1Topbar = () => {
 
   useEffect(() => {
     // getAllComapny()
-    if (['agent', 'staff'].includes(user.role)) {
+    if (['agent'].includes(user.role) && [1].includes(user?.isMainMA)) {
       getSelectedData()
     }
   }, [user])
@@ -255,7 +255,7 @@ const Layout1Topbar = () => {
 
 
             <StyledItem>
-              <Link to="/user/profile">
+              <Link to={`/user/profile?user=${user?._id}`}>
                 <Person />
                 <Span>Profile</Span>
               </Link>

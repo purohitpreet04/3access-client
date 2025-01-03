@@ -119,70 +119,52 @@ const LoginForm = () => {
 
   return (
     <>
-    <DynamicTitle title={showPage === 1 ? 'Login' : 'New Registration'} />
-    <Formik
-      initialValues={{
-        coruspondingEmail: '',
-        email: '',
-        password: '',
-        companyname: '',
-        fname: '',
-        lname: '',
-        address: '',
-        area: '',
-        city: '',
-        pincode: '',
-        website: '',
-        phonenumber: '',
-      }}
-      validationSchema={showPage != 1 ? RegisterSchema : loginschma}
-      onSubmit={(values) => {
-        const modifyValues = {
-          ...values,
-        }
-        if (showPage == 2) {
-          modifyValues['role'] = 'company'
-          dispatch(register({ data: modifyValues, navigate: navigate }));
-        }
-        if (showPage == 3) {
-          modifyValues['role'] = 'agent'
-          delete modifyValues?.companyname
-          delete modifyValues?.website
-          dispatch(register({ data: modifyValues, navigate }));
-        }
-        if (showPage == 1) {
-          const { email, password } = modifyValues
-          dispatch(login({ data: { email, password }, navigate }));
-        }
-      }}
-      enableReinitialize
-      validateOnChange
-      validateOnBlur={false}
-      validateOnMount={false}
-    >
-      {({ errors, touched, handleChange, handleSubmit, values }) => (
-        <RegisterRoot>
-          <Card sx={{ width: { xs: '90%', md: '60%' }, borderRadius: 2 }}>
-            <Grid container>
-              {/* Left Panel */}
-              <Grid
-                item
-                xs={12}
-                md={6}
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#0a0758',
-                  padding: '40px',
-                }}
-              >
-                <Logo src="/assets/images/logos/logo.png" alt="3access Logo" />
-              </Grid>
-
-              {/* Right Panel */}
-              {showPage == 1 && (
+      <DynamicTitle title={showPage === 1 ? 'Login' : 'New Registration'} />
+      <Formik
+        initialValues={{
+          companyname: '',
+          coruspondingEmail: '',
+          email: '',
+          password: '',
+          fname: '',
+          lname: '',
+          address: '',
+          area: '',
+          city: '',
+          pincode: '',
+          website: '',
+          phonenumber: '',
+        }}
+        validationSchema={showPage != 1 ? RegisterSchema : loginschma}
+        onSubmit={(values) => {
+          const modifyValues = {
+            ...values,
+          }
+          if (showPage == 2) {
+            modifyValues['role'] = 'company'
+            dispatch(register({ data: modifyValues, navigate: navigate }));
+          }
+          if (showPage == 3) {
+            modifyValues['role'] = 'agent'
+            delete modifyValues?.companyname
+            delete modifyValues?.website
+            dispatch(register({ data: modifyValues, navigate }));
+          }
+          if (showPage == 1) {
+            const { email, password } = modifyValues
+            dispatch(login({ data: { email, password }, navigate }));
+          }
+        }}
+        enableReinitialize
+        validateOnChange
+        validateOnBlur={false}
+        validateOnMount={false}
+      >
+        {({ errors, touched, handleChange, handleSubmit, values }) => (
+          <RegisterRoot>
+            <Card sx={{ width: { xs: '90%', md: '60%' }, borderRadius: 2 }}>
+              <Grid container>
+                {/* Left Panel */}
                 <Grid
                   item
                   xs={12}
@@ -192,592 +174,340 @@ const LoginForm = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    backgroundColor: '#0a0758',
                     padding: '40px',
-                    backgroundColor: '#ffffff',
                   }}
                 >
-                  <Logo src="/assets/images/logos/logo-blue.png" alt="3access Logo" />
+                  <Logo src="/assets/images/logos/logo.png" alt="3access Logo" />
+                </Grid>
 
-                  {/* Form Fields for Login */}
-                  <TextField
-                    label="Email"
-                    variant="standard"
-                    fullWidth
-                    margin="normal"
-                    required
-                    name="email"
-                    value={values.email}
-                    onChange={handleChange}
-                    error={touched.email && Boolean(errors.email)}
-                    helperText={touched.email && errors.email}
-                  />
-
-                  <TextField
-                    label="Password"
-                    variant="standard"
-                    fullWidth
-                    margin="normal"
-                    required
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={values.password}
-                    onChange={handleChange}
-                    error={touched.password && Boolean(errors.password)}
-                    helperText={touched.password && errors.password}
-                    InputProps={{
-                      endAdornment: (
-                        <IconButton onClick={handleClickShowPassword} edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      ),
+                {/* Right Panel */}
+                {showPage == 1 && (
+                  <Grid
+                    item
+                    xs={12}
+                    md={6}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '40px',
+                      backgroundColor: '#ffffff',
                     }}
-                  />
-
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2, fontWeight: 'bold' }}
-                    onClick={() => handleSubmit()}
                   >
-                    Login
-                  </Button>
+                    <Logo src="/assets/images/logos/logo-blue.png" alt="3access Logo" />
 
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Link href="#" underline="hover" color="primary">
-                      Forget Password?
-                    </Link>
-                    {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                    {/* Form Fields for Login */}
+                    <TextField
+                      label="Email"
+                      variant="standard"
+                      fullWidth
+                      margin="normal"
+                      required
+                      name="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email}
+                    />
+
+                    <TextField
+                      label="Password"
+                      variant="standard"
+                      fullWidth
+                      margin="normal"
+                      required
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
+                      InputProps={{
+                        endAdornment: (
+                          <IconButton onClick={handleClickShowPassword} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        ),
+                      }}
+                    />
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{ mt: 2, fontWeight: 'bold' }}
+                      onClick={() => handleSubmit()}
+                    >
+                      Login
+                    </Button>
+
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
+                      <Link href="#" underline="hover" color="primary">
+                        Forget Password?
+                      </Link>
+                      {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
                       Get New Company Account?
                     </Link> */}
-                    <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 , cursor:'pointer'}} >
-                      Get New Managing Agent Account?
-                    </Link>
-                  </Box>
-                </Grid>
-              )}
-              {/* company registretion starts here */}
-              {showPage == 2 &&
-                (<Grid
-                  item
-                  xs={12}
-                  md={6}
-                  sx={{
-                    // display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px',
-                    backgroundColor: '#ffffff',
-                  }}
-                >
-
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                  >
-                    <TextField
-                      label="Company name"
-                      variant="standard"
-                      fullWidth
-                      margin="normal"
-                      required
-                      value={values.companyname}
-                      name="companyname"
-                      onChange={handleChange}
-                      error={touched.companyname && Boolean(errors.companyname)}
-                      helperText={touched.companyname && errors.companyname}
-                    />
+                      <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor: 'pointer' }} >
+                        Get New Managing Agent Account?
+                      </Link>
+                    </Box>
                   </Grid>
-
-
-                  <Grid
+                )}
+                {/* company registretion starts here */}
+                {showPage == 2 &&
+                  (<Grid
                     item
                     xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
+                    md={6}
+                    sx={{
+                      // display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '40px',
+                      backgroundColor: '#ffffff',
+                    }}
                   >
+
                     <Grid
                       item
                       xs={12}
-                      md={6}
+                      md={12}
                     >
                       <TextField
-                        label="First name"
+                        label="Company name"
                         variant="standard"
                         fullWidth
                         margin="normal"
                         required
-                        name="fname"
-                        value={values.fname}
+                        value={values.companyname}
+                        name="companyname"
                         onChange={handleChange}
-                        error={touched.fname && Boolean(errors.fname)}
-                        helperText={touched.fname && errors.fname}
+                        error={touched.companyname && Boolean(errors.companyname)}
+                        helperText={touched.companyname && errors.companyname}
                       />
                     </Grid>
 
+
                     <Grid
                       item
                       xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="First name"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          name="fname"
+                          value={values.fname}
+                          onChange={handleChange}
+                          error={touched.fname && Boolean(errors.fname)}
+                          helperText={touched.fname && errors.fname}
+                        />
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={6} // Adjust to take up the remaining half width in md
+                      >
+                        <TextField
+                          label="Last name"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.lname}
+                          type='text'
+                          name="lname"
+                          onChange={handleChange}
+                          error={touched.lname && Boolean(errors.lname)}
+                          helperText={touched.lname && errors.lname}
+
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Email"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          name="email"
+                          value={values.email}
+                          onChange={handleChange}
+                          error={touched.email && Boolean(errors.email)}
+                          helperText={touched.email && errors.email}
+                        />
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Password"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.password}
+                          type={showPassword ? 'text' : 'password'}
+                          name="password"
+                          onChange={handleChange}
+                          error={touched.password && Boolean(errors.password)}
+                          helperText={touched.password && errors.password}
+                          InputProps={{
+                            endAdornment: (
+                              <IconButton onClick={handleClickShowPassword} edge="end">
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={12}
                     >
                       <TextField
-                        label="Last name"
+                        label="Address Line 1"
                         variant="standard"
                         fullWidth
                         margin="normal"
                         required
-                        value={values.lname}
+                        value={values.address}
                         type='text'
-                        name="lname"
+                        name="address"
                         onChange={handleChange}
-                        error={touched.lname && Boolean(errors.lname)}
-                        helperText={touched.lname && errors.lname}
+                        error={touched.address && Boolean(errors.address)}
+                        helperText={touched.address && errors.address}
 
                       />
                     </Grid>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
+
                     <Grid
                       item
                       xs={12}
-                      md={6}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
                     >
-                      <TextField
-                        label="Email"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        name="email"
-                        value={values.email}
-                        onChange={handleChange}
-                        error={touched.email && Boolean(errors.email)}
-                        helperText={touched.email && errors.email}
-                      />
-                    </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Area"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          value={values.area}
+                          type='text'
+                          name="area"
+                          onChange={handleChange}
+                          error={touched.area && Boolean(errors.area)}
+                          helperText={touched.area && errors.area}
+                        />
+                      </Grid>
 
+                      <Grid
+                        item
+                        xs={12}
+                        md={6} // Adjust to take up the remaining half width in md
+                      >
+                        <TextField
+                          label="City"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          type='text'
+                          value={values.city}
+                          name="city"
+                          onChange={handleChange}
+                          error={touched.city && Boolean(errors.city)}
+                          helperText={touched.city && errors.city}
+                        />
+                      </Grid>
+                    </Grid>
                     <Grid
                       item
                       xs={12}
-                      md={6}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
                     >
-                      <TextField
-                        label="Password"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        value={values.password}
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        onChange={handleChange}
-                        error={touched.password && Boolean(errors.password)}
-                        helperText={touched.password && errors.password}
-                        InputProps={{
-                          endAdornment: (
-                            <IconButton onClick={handleClickShowPassword} edge="end">
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Post Code"
+                          variant="standard"
+                          fullWidth
+                          value={values.pincode}
+                          margin="normal"
+                          required
+                          name="pincode"
+                          onChange={handleChange}
+                          error={touched.pincode && Boolean(errors.pincode)}
+                          helperText={touched.pincode && errors.pincode}
+                        />
+                      </Grid>
 
+                      <Grid
+                        item
+                        xs={12}
+                        md={6} // Adjust to take up the remaining half width in md
+                      >
+                        <TextField
+                          label="Web Site"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          value={values.website}
+                          type='text'
+                          name="website"
+                          onChange={handleChange}
+                          error={touched.website && Boolean(errors.website)}
+                          helperText={touched.website && errors.website}
 
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                  >
-                    <TextField
-                      label="Address Line 1"
-                      variant="standard"
-                      fullWidth
-                      margin="normal"
-                      required
-                      value={values.address}
-                      type='text'
-                      name="address"
-                      onChange={handleChange}
-                      error={touched.address && Boolean(errors.address)}
-                      helperText={touched.address && errors.address}
-
-                    />
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Area"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        value={values.area}
-                        type='text'
-                        name="area"
-                        onChange={handleChange}
-                        error={touched.area && Boolean(errors.area)}
-                        helperText={touched.area && errors.area}
-                      />
+                        />
+                      </Grid>
                     </Grid>
 
                     <Grid
                       item
                       xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
-                    >
-                      <TextField
-                        label="City"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        type='text'
-                        value={values.city}
-                        name="city"
-                        onChange={handleChange}
-                        error={touched.city && Boolean(errors.city)}
-                        helperText={touched.city && errors.city}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Post Code"
-                        variant="standard"
-                        fullWidth
-                        value={values.pincode}
-                        margin="normal"
-                        required
-                        name="pincode"
-                        onChange={handleChange}
-                        error={touched.pincode && Boolean(errors.pincode)}
-                        helperText={touched.pincode && errors.pincode}
-                      />
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
-                    >
-                      <TextField
-                        label="Web Site"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        value={values.website}
-                        type='text'
-                        name="website"
-                        onChange={handleChange}
-                        error={touched.website && Boolean(errors.website)}
-                        helperText={touched.website && errors.website}
-
-                      />
-                    </Grid>
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={12}
-                    md={12}
-                  >
-                    <TextField
-                      label="Phone Number"
-                      variant="standard"
-                      fullWidth
-                      margin="normal"
-                      required
-                      value={values.phonenumber}
-                      name="phonenumber"
-                      onChange={handleChange}
-                      error={touched.phonenumber && Boolean(errors.phonenumber)}
-                      helperText={touched.phonenumber && errors.phonenumber}
-                    />
-                  </Grid>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2, fontWeight: 'bold' }}
-                    type="button"
-                    onClick={() => { handleSubmit() }}
-                  >
-                    Create Account
-                  </Button>
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-
-                    <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
-                      Already have an Account?
-                    </Link>
-                    <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
-                      Get New Managing Agent Account?
-                    </Link>
-                  </Box>
-                </Grid>
-                )
-              }
-              {/* company registretion ends here */}
-
-              {showPage == 3 &&
-                (<Grid
-                  item
-                  xs={12}
-                  md={6}
-                  sx={{
-                    // display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px',
-                    backgroundColor: '#ffffff',
-                  }}
-                >
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="First name"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        name="fname"
-                        value={values.fname}
-                        onChange={handleChange}
-                        error={touched.fname && Boolean(errors.fname)}
-                        helperText={touched.fname && errors.fname}
-                      />
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
-                    >
-                      <TextField
-                        label="Last name"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        value={values.lname}
-                        type='text'
-                        name="lname"
-                        onChange={handleChange}
-                        error={touched.lname && Boolean(errors.lname)}
-                        helperText={touched.lname && errors.lname}
-
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} 
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Email"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        name="email"
-                        value={values.email}
-                        onChange={handleChange}
-                        error={touched.email && Boolean(errors.email)}
-                        helperText={touched.email && errors.email}
-                      />
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Password"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        value={values.password}
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        onChange={handleChange}
-                        error={touched.password && Boolean(errors.password)}
-                        helperText={touched.password && errors.password}
-                        InputProps={{
-                          endAdornment: (
-                            <IconButton onClick={handleClickShowPassword} edge="end">
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          ),
-                        }}
-
-                      />
-                    </Grid>
-                  </Grid>
-
-
-                  <Grid
-                    item
-                    xs={12}
-                    md={12} // Adjust to take up the remaining half width in md
-                  >
-                    <TextField
-                      label="Currosponding Email"
-                      variant="standard"
-                      fullWidth
-                      margin="normal"
-                      required
-                      value={values.coruspondingEmail}
-                      type='text'
-                      name="coruspondingEmail"
-                      onChange={handleChange}
-                      error={touched.coruspondingEmail && Boolean(errors.coruspondingEmail)}
-                      helperText={touched.coruspondingEmail && errors.coruspondingEmail}
-
-                    />
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={12}
-                    md={12} // Adjust to take up the remaining half width in md
-                  >
-                    <TextField
-                      label="Address Line 1 "
-                      variant="standard"
-                      fullWidth
-                      margin="normal"
-                      required
-                      value={values.address}
-                      type='text'
-                      name="address"
-                      onChange={handleChange}
-                      error={touched.address && Boolean(errors.address)}
-                      helperText={touched.address && errors.address}
-
-                    />
-                  </Grid>
-
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Area"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        value={values.area}
-                        required
-                        type='text'
-                        name="area"
-                        onChange={handleChange}
-                        error={touched.area && Boolean(errors.area)}
-                        helperText={touched.area && errors.area}
-                      />
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      md={6} // Adjust to take up the remaining half width in md
-                    >
-                      <TextField
-                        label="City"
-                        variant="standard"
-                        fullWidth
-                        margin="normal"
-                        required
-                        type='text'
-                        value={values.city}
-                        name="city"
-                        onChange={handleChange}
-                        error={touched.city && Boolean(errors.city)}
-                        helperText={touched.city && errors.city}
-
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    spacing={2} // Add spacing at the container level for consistent gap
-                  >
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
-                    >
-                      <TextField
-                        label="Post Code"
-                        variant="standard"
-                        fullWidth
-                        value={values.pincode}
-                        margin="normal"
-                        required
-                        name="pincode"
-                        onChange={handleChange}
-                        error={touched.pincode && Boolean(errors.pincode)}
-                        helperText={touched.pincode && errors.pincode}
-                      />
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={6}
+                      md={12}
                     >
                       <TextField
                         label="Phone Number"
@@ -792,36 +522,325 @@ const LoginForm = () => {
                         helperText={touched.phonenumber && errors.phonenumber}
                       />
                     </Grid>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{ mt: 2, fontWeight: 'bold' }}
+                      type="button"
+                      onClick={() => { handleSubmit() }}
+                    >
+                      Create Account
+                    </Button>
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
 
+                      <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                        Already have an Account?
+                      </Link>
+                      <Link onClick={() => { setShowPage(3); setSearchParams({ page: 3 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                        Get New Managing Agent Account?
+                      </Link>
+                    </Box>
                   </Grid>
+                  )
+                }
+                {/* company registretion ends here */}
 
-
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    sx={{ mt: 2, fontWeight: 'bold' }}
-                    type="button"
-                    onClick={() => { handleSubmit() }}
+                {showPage == 3 &&
+                  (<Grid
+                    item
+                    xs={12}
+                    md={6}
+                    sx={{
+                      // display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '40px',
+                      backgroundColor: '#ffffff',
+                    }}
                   >
-                    Create Account
-                  </Button>
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor: 'pointer' }}>
-                      Already have an Account?
-                    </Link>
-                    {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1,cursor:'pointer' }}>
+                    <Grid
+                      item
+                      xs={12}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
+                    >
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={12}
+                      >
+                        <TextField
+                          label="Company name"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.companyname}
+                          name="companyname"
+                          onChange={handleChange}
+                          error={touched.companyname && Boolean(errors.companyname)}
+                          helperText={touched.companyname && errors.companyname}
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="First name"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          name="fname"
+                          value={values.fname}
+                          onChange={handleChange}
+                          error={touched.fname && Boolean(errors.fname)}
+                          helperText={touched.fname && errors.fname}
+                        />
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={6} // Adjust to take up the remaining half width in md
+                      >
+                        <TextField
+                          label="Last name"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.lname}
+                          type='text'
+                          name="lname"
+                          onChange={handleChange}
+                          error={touched.lname && Boolean(errors.lname)}
+                          helperText={touched.lname && errors.lname}
+
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      container
+                      spacing={2}
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Email"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          name="email"
+                          value={values.email}
+                          onChange={handleChange}
+                          error={touched.email && Boolean(errors.email)}
+                          helperText={touched.email && errors.email}
+                        />
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Password"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.password}
+                          type={showPassword ? 'text' : 'password'}
+                          name="password"
+                          onChange={handleChange}
+                          error={touched.password && Boolean(errors.password)}
+                          helperText={touched.password && errors.password}
+                          InputProps={{
+                            endAdornment: (
+                              <IconButton onClick={handleClickShowPassword} edge="end">
+                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              </IconButton>
+                            ),
+                          }}
+
+                        />
+                      </Grid>
+                    </Grid>
+
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={12} // Adjust to take up the remaining half width in md
+                    >
+                      <TextField
+                        label="Currosponding Email"
+                        variant="standard"
+                        fullWidth
+                        margin="normal"
+                        required
+                        value={values.coruspondingEmail}
+                        type='text'
+                        name="coruspondingEmail"
+                        onChange={handleChange}
+                        error={touched.coruspondingEmail && Boolean(errors.coruspondingEmail)}
+                        helperText={touched.coruspondingEmail && errors.coruspondingEmail}
+
+                      />
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={12} // Adjust to take up the remaining half width in md
+                    >
+                      <TextField
+                        label="Address Line 1 "
+                        variant="standard"
+                        fullWidth
+                        margin="normal"
+                        required
+                        value={values.address}
+                        type='text'
+                        name="address"
+                        onChange={handleChange}
+                        error={touched.address && Boolean(errors.address)}
+                        helperText={touched.address && errors.address}
+
+                      />
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Area"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          value={values.area}
+                          required
+                          type='text'
+                          name="area"
+                          onChange={handleChange}
+                          error={touched.area && Boolean(errors.area)}
+                          helperText={touched.area && errors.area}
+                        />
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={6} // Adjust to take up the remaining half width in md
+                      >
+                        <TextField
+                          label="City"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          type='text'
+                          value={values.city}
+                          name="city"
+                          onChange={handleChange}
+                          error={touched.city && Boolean(errors.city)}
+                          helperText={touched.city && errors.city}
+
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      container
+                      spacing={2} // Add spacing at the container level for consistent gap
+                    >
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Post Code"
+                          variant="standard"
+                          fullWidth
+                          value={values.pincode}
+                          margin="normal"
+                          required
+                          name="pincode"
+                          onChange={handleChange}
+                          error={touched.pincode && Boolean(errors.pincode)}
+                          helperText={touched.pincode && errors.pincode}
+                        />
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
+                      >
+                        <TextField
+                          label="Phone Number"
+                          variant="standard"
+                          fullWidth
+                          margin="normal"
+                          required
+                          value={values.phonenumber}
+                          name="phonenumber"
+                          onChange={handleChange}
+                          error={touched.phonenumber && Boolean(errors.phonenumber)}
+                          helperText={touched.phonenumber && errors.phonenumber}
+                        />
+                      </Grid>
+
+                    </Grid>
+
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      sx={{ mt: 2, fontWeight: 'bold' }}
+                      type="button"
+                      onClick={() => { handleSubmit() }}
+                    >
+                      Create Account
+                    </Button>
+                    <Box sx={{ mt: 2, textAlign: 'center' }}>
+                      <Link onClick={() => { setShowPage(1); setSearchParams({ page: 1 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1, cursor: 'pointer' }}>
+                        Already have an Account?
+                      </Link>
+                      {/* <Link onClick={() => { setShowPage(2); setSearchParams({ page: 2 }) }} underline="hover" color="textSecondary" sx={{ display: 'block', mt: 1,cursor:'pointer' }}>
                       Get New Company Account?
                     </Link> */}
-                  </Box>
-                </Grid>
-                )
-              }
-            </Grid>
-          </Card>
-        </RegisterRoot>
-      )}
-    </Formik>
+                    </Box>
+                  </Grid>
+                  )
+                }
+              </Grid>
+            </Card>
+          </RegisterRoot>
+        )}
+      </Formik>
     </>
   );
 };

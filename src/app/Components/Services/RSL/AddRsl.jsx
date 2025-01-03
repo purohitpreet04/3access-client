@@ -407,9 +407,9 @@ const AddRsl = ({ open, onClose }) => {
                     }
                     />
                 </Box>
-                <Box>
+                {/*<Box>
                     <SettingEmails />
-                </Box>
+                </Box>*/}
 
             </>
         )

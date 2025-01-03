@@ -495,7 +495,7 @@ export const handleDownload = async ({ type, id, tempname }, dispatch) => {
     const url = window.URL.createObjectURL(pdfBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `document.pdf`;
+    link.download = `${tempname}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

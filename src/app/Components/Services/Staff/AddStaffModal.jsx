@@ -74,7 +74,9 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
     const initialValues = editData?._id ? {
         ...editData,
         Property_per: checked,
-        allCheck: allChecked
+        allCheck: allChecked,
+        // coruspondingEmail: user?.coruspondingEmail 
+        coruspondingEmail: ['agent'].includes(user?.role) ? user?.coruspondingEmail : ['staff'].includes(user?.role) && user?.coruspondingEmail
     } : {
         jobTitle: '',
         fname: '',
@@ -89,7 +91,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
         permission: [],
         Property_per: [],
         addedBy: user?._id,
-        coruspondingEmail:['agent'].includes(user?.role) ? user?.coruspondingEmail : '',
+        coruspondingEmail: ['agent'].includes(user?.role) ? user?.coruspondingEmail : ['staff'].includes(user?.role) && user?.coruspondingEmail,
         allCheck: false
     };
 
@@ -105,7 +107,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
             ).required('Phone Number is Required'),
         gender: Yup.string(),
         username: Yup.string().required('Username is required'),
-        email: Yup.string().email('Invalid email').required('Email is required'),
+        email: Yup.string().email('Invalid email'),
         password: !editData._id && Yup.string().required('Password is required'),
         companyEmail: Yup.string().email('Invalid company email').required('Company Email is required'),
     });
@@ -117,14 +119,13 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
         { lable: 'View Active Tenants', val: 5 },
         { lable: 'View Profile', val: 6 },
         { lable: 'Add/Signup Tenant', val: 7 },
+        // { lable: 'Add new Staff', val: 8 },
     ];
 
 
     useEffect(() => {
         fetchStaff()
     }, [])
-
-
 
     const fetchStaff = async () => {
         try {
@@ -297,7 +298,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                 margin="normal"
                                                 type="email"
                                             />
-                                             <Field
+                                            <Field
                                                 as={TextField}
                                                 fullWidth
                                                 label="Password"
@@ -343,7 +344,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                             </Field>
 
                                         </Grid>
-
+                                        {['agent'].includes(user?.role) &&
                                         <Box p={3}>
                                             <Box mb={3}>
                                                 <Typography variant="h6">Allowed Permissions</Typography>
@@ -389,9 +390,9 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                     </TableBody>
                                                 </Table>
                                             </TableContainer>
-                                        </Box>
+                                        </Box>}
 
-                                        <Box p={3}>
+                                        { ['agent'].includes(user?.role) && <Box p={3}>
                                             <Box mb={3}>
                                                 <Typography variant="h6">Allowed Properties</Typography>
                                                 <Typography variant="body2" color="textSecondary">
@@ -485,7 +486,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                     </TableBody>
                                                 </Table>
                                             </TableContainer>
-                                        </Box>
+                                        </Box>}
                                     </Grid>
                                 </DialogContent>
                                 <DialogActions >

@@ -4,7 +4,7 @@ import { debounce } from 'lodash';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValue, value }) => {
+const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValue, value, errors }) => {
     const canvasRef = useRef(null);
     const ctxRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -37,14 +37,14 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
     const startDrawing = (e) => {
         setIsDrawing(true);
         const { x, y } = getCursorPosition(e);
-        setLastPoint({ x, y }); 
+        setLastPoint({ x, y });
     };
 
     const stopDrawing = () => {
         setIsDrawing(false);
-        ctxRef.current.closePath(); 
-        setLastPoint(null); 
-        saveSignature(); 
+        ctxRef.current.closePath();
+        setLastPoint(null);
+        saveSignature();
     };
 
     const draw = (e) => {
@@ -73,6 +73,7 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
     };
 
     const saveSignature = useCallback(debounce(() => {
+        if (errors && errors[name]) return
         const dataURL = canvasRef.current.toDataURL();
         setSignature(dataURL);
         setFieldValue(name, dataURL);
@@ -115,8 +116,9 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
                 onTouchStart={startDrawing}
                 onTouchEnd={stopDrawing}
                 onTouchMove={draw}
-                onChange={()=>{console.log('change');}}
+                onChange={() => { console.log('change'); }}
             />
+            {errors && errors[name] && <div style={{ color: 'red' }}>{errors[name]}</div>}
             <Box gap={3} display="flex" flexDirection="row">
                 <Button variant="contained" color="error" onClick={clearCanvas}>
                     Clear

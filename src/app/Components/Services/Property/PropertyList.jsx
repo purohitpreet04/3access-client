@@ -12,6 +12,7 @@ import AddProperty from './AddProperty';
 import { setComData, setPropertyData } from '@app/Redux/Sclice/MultiSelectSlice';
 import { mainuser } from '@app/Utils/constant';
 import { fetchProperties } from '@app/API/Property';
+import { confirm } from 'react-confirm-box';
 
 function PropertyList() {
 
@@ -167,35 +168,38 @@ function PropertyList() {
 
 
     const deleteProperty = async (id) => {
-        try {
-            dispatch(setIsLoading({ data: true }))
+        if (await confirm("Are you sure?")) {
             try {
-                const res = await API.get('/api/property/deleteProperty', { params: { _id: id } });
-                if (res.data.message) {
-                    dispatch(showSnackbar({ message: res.data.message, severity: "success" }));
-                }
-                if (res.data.success == true) {
-                    dispatch(setPropertyData(res.data.result))
+                dispatch(setIsLoading({ data: true }))
+                try {
+                    const res = await API.get('/api/property/deleteProperty', { params: { _id: id } });
+                    if (res.data.message) {
+                        dispatch(showSnackbar({ message: res.data.message, severity: "success" }));
+                    }
+                    if (res.data.success == true) {
+                        dispatch(setPropertyData(res.data.result))
+                        dispatch(setIsLoading({ data: false }))
+                        // getAllComapny()
+                        fetchStaff()
+                    }
+                } catch (error) {
                     dispatch(setIsLoading({ data: false }))
-                    // getAllComapny()
-                    fetchStaff()
+                    if (error.response?.status === 409) {
+                        dispatch(logout());
+                        navigation('/auth/login');
+                    } else {
+                        dispatch(showSnackbar({
+                            message: error.response?.data?.message || "An error occurred",
+                            severity: "error"
+                        }));
+                    }
                 }
             } catch (error) {
-                dispatch(setIsLoading({ data: false }))
-                if (error.response?.status === 409) {
-                    dispatch(logout());
-                    navigation('/auth/login');
-                } else {
-                    dispatch(showSnackbar({
-                        message: error.response?.data?.message || "An error occurred",
-                        severity: "error"
-                    }));
-                }
+                // console.log(error)
+                dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
             }
-        } catch (error) {
-            // console.log(error)
-            dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
         }
+
     }
 
     return (

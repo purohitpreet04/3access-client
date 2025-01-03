@@ -6,3 +6,11 @@
 .tox .tox-promotion{
     display: none;
 }
+
+.css-dqrght-MuiTable-root {
+    table-layout: auto !important;
+}
+
+.customClass{
+    table-layout: auto !important;
+}

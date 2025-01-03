@@ -10,17 +10,20 @@ import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice'
 import API from 'Constance'
 import PaginationTable from '@app/CommonComponents/TableComponent'
 import { debounce } from 'lodash'
+import PasswordModal from './PasswordModal'
 
 const ListRsl = () => {
 
     const { user } = useSelector(state => state.auth)
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const location = useLocation();
     const [open, setOpen] = useState(false)
+    const [openPasssWordmodal, setOpenPasswordModal] = useState(false)
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
-const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [fromdate, setFromDate] = useState('');
     const handleSearchChange = useCallback(debounce((val) => {
@@ -31,14 +34,17 @@ const [page, setPage] = useState(1);
         fetchAllRSL()
     }, [])
 
-    const handleClose = () => setOpen(!open)
+    const handleClose = () => { 
+        setOpenPasswordModal(!openPasssWordmodal)
+        navigate('/services/listrsl')
+    }
     const handleOpen = () => { navigate('/services/listrsl/add-new-rsl') }
 
     const fetchAllRSL = async () => {
         try {
 
             dispatch(setIsLoading({ data: true }))
-            const res = await API.get('/api/rsl/getrsl-list', { params: { _id: user?._id , } })
+            const res = await API.get('/api/rsl/getrsl-list', { params: { _id: user?._id, } })
             if (res.data.message) {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
@@ -53,22 +59,22 @@ const [page, setPage] = useState(1);
 
     }
 
-    const deleteProperty = async (id) => {
+    const deleteProperty = async (id, password) => {
         try {
             dispatch(setIsLoading({ data: true }))
             try {
-                const res = await API.get('/api/rsl/deletersl', { params: { _id: id } });
+                const res = await API.get('/api/rsl/deletersl', { params: { _id: id, password } });
                 if (res.data.message) {
                     dispatch(showSnackbar({ message: res.data.message, severity: "success" }));
                 }
                 if (res.data.success == true) {
                     // dispatch(setPropertyData(res.data.result))
                     dispatch(setIsLoading({ data: false }))
+                    handleClose()
                     fetchAllRSL()
                     // getAllComapny()
                 }
             } catch (error) {
-                console.log(error)
                 dispatch(setIsLoading({ data: false }))
                 if (error.response?.status === 409) {
                     dispatch(logout());
@@ -85,7 +91,10 @@ const [page, setPage] = useState(1);
         }
     }
 
-
+    const openPasssWordModal = (id) => {
+        setOpenPasswordModal(true)
+        navigate(`/services/listrsl?delete=${id}`)
+    }
     return (
         <>
 
@@ -109,21 +118,6 @@ const [page, setPage] = useState(1);
                             onChange={handleSearchChange}
                         />
 
-                        {/* Role Filter */}
-                        <TextField
-                            name="signInDate"
-                            label="Date From"
-                            type="date"
-                            fullWidth
-                            value={fromdate}
-                            onChange={(val) => {
-                                // setFromDate(val.target.value)
-                            }}
-                            // onChange={(e) => { setFromDate(e.target.value) }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
                     </Box>
                     <PaginationTable
                         data={listData}
@@ -144,7 +138,7 @@ const [page, setPage] = useState(1);
                                 <IconButton onClick={() => { navigate(`/services/listrsl/add-new-rsl?rsl=${cell?._id}`) }}>
                                     <Icon style={{ color: 'blue' }}>edit</Icon>
                                 </IconButton>
-                                <IconButton onClick={() => deleteProperty(cell?._id)}>
+                                <IconButton onClick={() => openPasssWordModal(cell?._id)}>
                                     <Icon style={{ color: 'red' }} color='red'>delete</Icon>
                                 </IconButton>
                             </>
@@ -153,7 +147,8 @@ const [page, setPage] = useState(1);
                     />
                 </Box>
             </Box>
-            {/* <When component={<AddRsl open={open} onClose={handleClose} />} when={open === true} /> */}
+
+            <When component={<PasswordModal open={openPasssWordmodal} deleteProperty={deleteProperty} handleClose={handleClose} />} when={openPasssWordmodal === true} />
         </>
     )
 }
