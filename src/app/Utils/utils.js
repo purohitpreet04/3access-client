@@ -171,6 +171,8 @@ export const handleFileUpload = async (file, options = {}) => {
       formData.append('image', file);
     } else if (file.type === 'application/pdf') {
       formData.append('pdf', file);
+    }else{
+      formData.append('file', file);
     }
 
 

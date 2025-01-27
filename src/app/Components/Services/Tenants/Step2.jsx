@@ -39,10 +39,6 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
     const dispatch = useDispatch();
     const validationSchema = Yup.object({
         nationalInsuranceNumber: Yup.string()
-            .matches(/^[JNYS]/, "Must start with J, N, Y, or S") // First character must be J, N, Y, or S
-            .matches(/^[A-Za-z]{2}/, "The first two characters must be alphabetical") // First two characters alphabetical
-            .matches(/^[A-Za-z]{2}\d{6}[A-Za-z]$/, "Invalid format: Must be 9 characters long with numbers between and last character alphabetical") // Overall pattern
-            .length(9, "Input must be exactly 9 characters long") // Must be exactly 9 characters
             .required("This field is required"), // Make it a required field
         lastName: Yup.string().required("Last Name is required"),
         firstName: Yup.string().required("First Name is required"),
@@ -72,9 +68,13 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
         placeOfBirth: Yup.string()
             .matches(/^[a-zA-Z\s]+$/, "Place of birth must contain only letters and spaces")
             .required("Place of birth is required"),
-        tenantEmail: Yup.string().email('Invalid email address')
+        tenantEmail: Yup.string().email('Invalid email address'),
+        tenantSignupEmail: Yup.string().email('Invalid email address')
     });
 
+    // useEffect(()=>{
+    //     console.log(prevValues);        
+    // }, [])
 
     return (
         <Formik
@@ -87,6 +87,10 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                 } else if (values.signuptype === false && values.bcc_form && values.bcc_form.size > 10 * 1024 * 1024) {
                     errors.bcc_form = 'File size is too large';
                 }
+
+                Object.keys(errors).forEach((key) => {
+                    dispatch(showSnackbar({ message: errors[key], severity: 'error' }))
+                })
                 return errors;
             }}
             onSubmit={(values, { setSubmitting }) => {
@@ -98,8 +102,6 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
             enableReinitialize={true}
         >
             {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors, setErrors }) => {
-
-
                 const checkNINO = useCallback(
                     debounce((value) => {
                         if (value) {
@@ -122,12 +124,18 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                     }, 500),
                     [dispatch]
                 );
+
+                const convertToUppercase = (str) => {
+                    return str.replace(/[a-z]/g, (match) => match.toUpperCase());
+                };
+
+
+
                 return (
                     <Form>
-
                         <Box>
                             <Grid flexDirection='column' p={2} spacing={2} xs={12} sm={12} md={12} container>
-                                <Grid item xs={6} sm={12} md={12}>
+                                {/* <Grid item xs={6} sm={12} md={12}>
                                     <RadioComponent
                                         title='Signup Type'
                                         direction='ver'
@@ -142,9 +150,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         <FlotingLableInput
                                             label="BCC Claim Form"
                                             accept="application/pdf"
-                                            // accept="image/*"
                                             allowedExtensions={['pdf']}
-                                            // allowedExtensions={['jpg', 'jpeg', 'png']}
                                             maxSize={10} // 10MB
                                             required
                                             type='file'
@@ -157,30 +163,9 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 shrink: true,
                                             }}
                                         />
-
                                     </Grid>}
-
-                                    {/* {values?.signuptype === false && (
-                                        <Grid mt={2} item xs={6} sm={12} md={12}>
-                                            <FileUpload
-                                                label="BCC Claim Form"
-                                                accept="application/pdf"
-                                                // accept="image/*"
-                                                allowedExtensions={['pdf']}
-                                                // allowedExtensions={['jpg', 'jpeg', 'png']}
-                                                maxSize={10} // 10MB
-                                                required
-                                                value={values.bcc_form}
-                                                showPreview={false}
-                                                onChange={(file) => { setFieldValue('bcc_form', file); }}
-                                                error={errors?.bcc_form}
-                                                helperText={errors?.bcc_form}
-                                            />
-                                        </Grid>
-                                    )} */}
-                                </Grid>
-
-                                <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
+                                </Grid> */}
+                                {/* <Divider sx={{ marginTop: 4, marginBottom: 4 }} /> */}
                                 <Grid p={3} gap={2} rowGap={1} container xs={12} sm={12} md={12}>
                                     {/* grid 1 */}
                                     <Grid container spacing={2} xs={4} sm={12} md={4} item >
@@ -217,7 +202,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             <FlotingLableInput
                                                 name="firstName"
                                                 fullWidth
-                                                placeholder='E.g. John'
+                                                placeholder=''
                                                 type='text'
                                                 onChange={(e) => { handleChange(e) }}
                                                 value={values?.firstName}
@@ -235,13 +220,13 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         >
                                             <FlotingLableInput
                                                 name="middleName"
-                                                placeholder='E.g. Doe'
+                                                placeholder=''
                                                 type='text'
                                                 fullWidth
                                                 onChange={(e) => { handleChange(e) }}
                                                 value={values?.middleName}
                                                 label="Middle Name"
-                                                required
+
                                             />
                                         </Grid>
                                         <Grid
@@ -252,7 +237,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         >
                                             <FlotingLableInput
                                                 name="lastName"
-                                                placeholder='E.g. Doe'
+                                                placeholder=''
                                                 type='text'
                                                 fullWidth
                                                 onChange={(e) => { handleChange(e) }}
@@ -279,7 +264,15 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                 errors={errors}
                                                 helperText={errors}
                                                 value={values.nationalInsuranceNumber}
-                                                onChange={(e) => { handleChange(e); checkNINO(e?.target?.value) }}
+                                                onChange={(e) => {
+                                                    const uppercasedValue = convertToUppercase(e?.target?.value);
+                                                    handleChange({
+                                                        target: { name: "nationalInsuranceNumber", value: uppercasedValue }
+                                                    });
+                                                    checkNINO(uppercasedValue); 
+                                                    // handleChange(e);
+                                                    // checkNINO(e?.target?.value)
+                                                }}
                                             />
                                         </Grid>
                                         <Grid
@@ -427,6 +420,20 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         </Grid>
                                         <Grid item xs={12} sm={12} md={12}>
                                             <FlotingLableInput
+                                                name="tenantSignupEmail"
+                                                label="Tenant Signup Email"
+                                                placeholder="E.g.example@gmail.com"
+                                                // type="email"
+                                                type='text'
+                                                errors={errors}
+                                                helperText={errors}
+                                                fullWidth
+                                                value={values?.tenantSignupEmail}
+                                                onChange={(e) => { handleChange(e) }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={12} md={12}>
+                                            <FlotingLableInput
                                                 name="build"
                                                 label="Build"
                                                 select
@@ -533,7 +540,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             spacing={2}
                                         >
                                             <FlotingLableInput
-                                                
+
                                                 label='Current Situation/Reason for Homelessness'
                                                 type='textarea'
                                                 name='reasonforhomelessness'

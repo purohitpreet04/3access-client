@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 // import { Formik, Form, Field } from 'formik';
 import {
     TextField,
@@ -23,6 +23,7 @@ import {
     TableCell,
     TableBody,
     RadioGroup,
+    Icon,
 } from '@mui/material';
 import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 import { useFormik } from 'formik';
@@ -36,139 +37,24 @@ import API from 'Constance';
 import { useDispatch } from 'react-redux';
 import RadioComponent from '@app/CommonComponents/RadioComponent';
 import { getDate } from '@app/Utils/utils';
-import { val } from '@app/test';
+import { checklistData, supportNeedsOptions, supportPlanChoices, beHealthyChoices, enjoyAndAchieveChoices, makingContributionChoices, staySafeChoices, riskCategories } from '@app/Utils/constant';
+import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
+import * as Yup from 'yup';
+import { useSnackbar } from 'notistack';
 
-const supportNeedsOptions = [
-    { label: "Tenancy failure or losing short term accommodation", name: "tenancyFailure" },
-    { label: "Becoming homeless / evicted (within 28 Days)", name: "homelessnessRisk" },
-    { label: "Ongoing issues with drug and alcohol", name: "substanceAbuse" },
-    { label: "Ability to manage ongoing health problems", name: "healthManagement" },
-    { label: "Access to local services Rough Sleeping", name: "roughSleepingServices" },
-    { label: "Access to health services", name: "healthServicesAccess" },
-    { label: "Improved quality of life", name: "qualityOfLifeImprovement" },
-    { label: "Build an alternative support network", name: "supportNetworkBuilding" },
-    { label: "Skills to eat healthily", name: "healthyEatingSkills" },
-    { label: "Access voluntary services", name: "voluntaryServicesAccess" },
-    { label: "Ability to manage personal hygiene", name: "personalHygieneManagement" },
-    { label: "Risk of domestic abuse", name: "domesticAbuseRisk" },
-    { label: "Increase social and community networks", name: "socialNetworkExpansion" },
-    { label: "Frequent presentation to accident and emergency", name: "emergencyServicesUsage" },
-    { label: "Unplanned hospital admissions", name: "hospitalAdmissions" },
-    { label: "Reduce social isolation", name: "socialIsolationReduction" },
-    { label: "Accessing drug and alcohol services", name: "substanceAbuseServices" },
-    { label: "Obtaining or maintaining a suitable home", name: "suitableHomeMaintenance" },
-    { label: "Getting involved in activities", name: "activityInvolvement" },
-    { label: "Increased feelings of being less reliant", name: "relianceReduction" },
-    { label: "Gaining and/or maintaining employment and/or education and training", name: "employmentEducationMaintenance" },
-    { label: "Risk of long-term worklessness", name: "longTermWorklessnessRisk" },
-    { label: "Deteriorating financial position", name: "financialPositionDeterioration" },
-    { label: "Developing household skills", name: "householdSkillsDevelopment" },
-    { label: "Help to find other help", name: "additionalSupportAccess" },
-    { label: "Feeling more involved", name: "increasedInvolvement" },
-    { label: "Risk of offending", name: "offendingRisk" },
-    { label: "Risk of harm from others", name: "harmFromOthersRisk" },
-    { label: "Ongoing health issues", name: "ongoingHealthIssues" },
-    { label: "Ability to keep home safe & secure", name: "homeSafetySecurity" },
-    { label: "Developing problem-solving skills", name: "problemSolvingSkillsDevelopment" },
-    { label: "Ability to manage a healthy lifestyle", name: "healthyLifestyleManagement" },
-    { label: "Developing personal competence", name: "personalCompetenceDevelopment" },
-    { label: "Developing self-esteem", name: "selfEsteemDevelopment" },
-    { label: "Increased feelings of being more independent", name: "increasedIndependence" },
-    { label: "Ability to manage health & wellbeing", name: "healthWellbeingManagement" },
-    { label: "Ability to manage money better", name: "moneyManagementImprovement" },
-    { label: "Developing interpersonal skills", name: "interpersonalSkillsDevelopment" },
-    { label: "Increased knowledge", name: "knowledgeIncrease" },
-    { label: "Increased confidence", name: "confidenceIncrease" },
-];
 
-const supportPlanChoices = [
-    { label: "Accessing benefits", name: "accessingBenefits" },
-    { label: "Budgeting", name: "budgeting" },
-    { label: "Reducing debt", name: "reducingDebt" },
-    { label: "Learn how to shop wisely", name: "learnToShopWisely" },
-    { label: "Setting up a bank/savings account", name: "settingUpAccount" },
-    { label: "Recoup monies owed", name: "recoupMoniesOwed" },
-];
+const Assessment = ({ nextStep, prevValues, backStep, setPreValues }) => {
 
-const beHealthyChoices = [
-    { label: "Better manage/improve mental health", name: "manageMentalHealth" },
-    { label: "Better manage/improve physical health", name: "managePhysicalHealth" },
-    { label: "Follow a healthy diet", name: "followHealthyDiet" },
-    { label: "Maintain good personal hygiene", name: "maintainHygiene" },
-    { label: "Reduce substance misuse (alcohol, drugs)", name: "reduceSubstanceMisuse" },
-    { label: "Register with a dentist", name: "registerDentist" },
-    { label: "Register with a GP", name: "registerGP" },
-];
-
-const enjoyAndAchieveChoices = [
-    { label: "Access training/education", name: "accessTrainingEducation" },
-    { label: "Accessing employment", name: "accessingEmployment" },
-    { label: "Accessing leisure, faith or cultural activities", name: "accessingLeisure" },
-    { label: "Access volunteering", name: "accessVolunteering" },
-    { label: "Move on", name: "moveOn" },
-    { label: "Support with equality and diversity", name: "supportEqualityDiversity" },
-    { label: "To change offending behaviour", name: "change_offending_behaviour" },
-    { label: "To access Support Services", name: "access_support_services" },
-];
-
-const makingContributionChoices = [
-    { label: "Establishing positive support networks", name: "establishingSupportNetworks" },
-    { label: "Address anti-social behaviour", name: "addressAntiSocialBehaviour" },
-    { label: "Address offending behaviour", name: "addressOffendingBehaviour" },
-];
-
-const staySafeChoices = [
-    { label: "Develop independent living skills", name: "developLivingSkills" },
-    { label: "Maintain accommodation", name: "maintainAccommodation" },
-    { label: "Minimize risk of harm", name: "minimizeRiskOfHarm" },
-];
-
-const riskCategories = [
-    { label: "Violence / Aggression", name: "violenceAggression" },
-    { label: "Known associates", name: "knownAssociates" }, // New
-    { label: "Hazards from others (friend/family/visitors)", name: "hazardsFromOthers" }, // New
-    { label: "Recent discontinuation of medication", name: "medicationDiscontinuation" }, // New
-    { label: "Professional boundaries", name: "professionalBoundaries" },
-    { label: "Finance / Gambling / Debt", name: "financeGamblingDebt" },
-    { label: "Attempted suicide", name: "attemptedSuicide" }, // New
-    { label: "Arson", name: "arson" },
-    { label: "Violent ideas/acts", name: "violentIdeasActs" }, // New
-    { label: "Substance abuse/alcohol misuse", name: "substanceAbuse" },
-    { label: "Harm to self, others or from others/injurious behaviour", name: "harmToSelfOthers" }, // New
-    { label: "Criminal/police or court involvement", name: "criminalInvolvement" }, // New
-    { label: "Offending behaviour", name: "offendingBehaviour" },
-    { label: "Anti-social behaviour", name: "antiSocialBehaviour" },
-    { label: "Physical Health", name: "physicalHealth" },
-    { label: "Mental Health", name: "mentalHealth" },
-    { label: "Sex Offences", name: "sexOffences" }, // New
-    { label: "Domestic Abuse", name: "domesticAbuse" }, // New
-    { label: "Extreme anger and hostility", name: "extremeanger" }, // New
-];
-
-const checklistData = [
-    { id: 1, description: "A Licence Agreement is in place and key points have been understood", date: "07-12-2024" },
-    { id: 2, description: "Ash-Shahada HA has been introduced as the landlord and corresponding contact details have been provided", date: "07-12-2024" },
-    { id: 3, description: "The role of TUK as a Managing Agent has been understood", date: "07-12-2024" },
-    { id: 4, description: "A copy of the rent settings has been made available to the tenant", date: "07-12-2024" },
-    { id: 5, description: "Tenant was offered a choice of accommodation", date: "07-12-2024" },
-    { id: 6, description: "Tenant has been formally introduced to other tenants at the property", date: "07-12-2024" },
-    { id: 7, description: "Tenant has been introduced to the support worker and has been informed that they have the right to ask for a different support worker if they are not comfortable.", date: "07-12-2024" },
-    { id: 8, description: "All facilities at the property have been shown and any operating instructions for appliances have been provided", date: "07-12-2024" },
-    { id: 9, description: "Code of Conduct has been understood by the tenant", date: "07-12-2024" },
-    { id: 10, description: "Tenant has been made aware of emergency contact details for the Support Provider, Managing Agent and RP", date: "07-12-2024" },
-    { id: 11, description: "Complaints procedure has been explained", date: "07-12-2024" },
-    { id: 12, description: "Health and safety aspects have been explained, for example fire exits, fire blankets etc", date: "07-12-2024" },
-    { id: 13, description: "Tenant is informed that they have a right to ask for property compliance certificates", date: "07-12-2024" },
-    { id: 14, description: "Requesting repairs and maintenance work", date: "07-12-2024" },
-    { id: 15, description: "Anti-social Behaviour Policy has been explained", date: "07-12-2024" },
-    { id: 16, description: "Information on notice board has been shown", date: "07-12-2024" },
-    { id: 17, description: "Brief introduction to the local area including relevant amenities", date: "07-12-2024" },
-    { id: 18, description: "The support provision and frequency has been explained", date: "07-12-2024" },
-    { id: 19, description: "Consequences of failure to engage with support provision have been communicated.", date: "07-12-2024" },
-    { id: 20, description: "Safeguarding procedures have been explained", date: "07-12-2024" },
-];
-
-const Assessment = ({ Field }) => {
+   
+    const assessmentSchema = Yup.object({
+        preferredArea: Yup.string().required('Preferred Area is required'),
+        sexualOrientation: Yup.string().required('Please select Sexual Orientation'),
+        sourceOfIncome: Yup.string().required('Source Of Income Is required'),
+        totalAmount: Yup.number()
+            .typeError("Total Amount must be a number")
+            .positive("Amount must be positive")
+            .required("Total Amount is required")
+    })
 
     const navigation = useNavigate();
     const dispatch = useDispatch();
@@ -178,66 +64,62 @@ const Assessment = ({ Field }) => {
     const tid = query.get('tid');
     const today = new Date();
     const threeMonthsFromToday = new Date(today.setMonth(today.getMonth() + 3));
-
+    const fieldRefs = useRef({})
 
     const formatDate = (date) => date.toISOString().split("T")[0];
+    // const handleValidation = (errors) => {
+    //     const firstErrorField = Object.keys(errors)[0];
+    //     if (firstErrorField) {
+    //         console.log("firstErrorField", firstErrorField);
+            
+    //       fieldRefs.current[firstErrorField]?.scrollIntoView({
+    //         behavior: 'smooth',
+    //         block: 'center',
+    //       });
+    //     }
+    // };
     const formik = useFormik({
+        validateOnChange: true,
+        validateOnBlur: false,
+        enableReinitialize: true,
+        // validationSchema: assessmentSchema,
         initialValues: {
-            supportNeeds: [],
-            homeNo: false,
-            workNo: false,
-            communicationNeeds: false,
-            dateOfAssessment: moment(sd).format('YYYY-MM-DD'),
-            debt: false,
-            debts: false,
-            gamblingIssues: false,
-            criminalRecords: false,
-            fullcheck: false,
-            supportFromAgencies: false,
-            physicalHealthcon: false,
-            mentalHealthcon: false,
-            prescribedMedication: false,
-            selfHarmcon: false,
-            drug: false,
-            isotherRisk: false,
-            mentalHealthdig: false,
-            related_under_condition: false,
-            records: [{ natureOfOffence: '', date: '', sentence: '' }],
-            prison: false,
-            currentAssessmentDate: formatDate(today),
-            nextAssessmentDate: formatDate(threeMonthsFromToday),
+            ...prevValues?.assesment,
+            supportNeeds: prevValues?.assesment?.supportNeeds ? [...prevValues?.assesment?.supportNeeds] : [],
+            dateOfAssessment: prevValues?.assesment?.dateOfAssessment ? moment(prevValues?.assesment?.dateOfAssessment).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+            categories: prevValues?.assesment?.categories ? { ...prevValues?.assesment?.categories } : {},
+            records: prevValues?.assesment?.records ? [...prevValues?.assesment?.records] : [{ natureOfOffence: '', date: '', sentence: '' }]
         },
-        onSubmit: async (values, { resetForm }) => {
-
-            // console.log(values)
-            // return
-            const { tenantSignature, supportWorkerSignature, ...restData } = values
+        validate: (value) => {
+            let errors = {}
+            if (!value?.supportNeeds || value?.supportNeeds?.length < 5) {
+                errors.supportNeeds = 'You need to Check Atleast 5 items in Support needs'
+                // dispatch(showSnackbar({ message: errors?.supportNeeds, severity: 'error' }))
+            }
+            if (!values.preferredArea) errors.preferredArea = "Preferred Area is required";
+            if (!values.sexualOrientation) errors.sexualOrientation = "Please select Sexual Orientation";
+            if (!values.sourceOfIncome) errors.sourceOfIncome = "Source Of Income Is required";
+            if (!values.supportNeeds || values.supportNeeds.length < 5) errors.supportNeeds = "You need to Check Atleast 5 items in Support needs";
+            if (!values.totalAmount) errors.totalAmount = "Total Amount is required";
+        
+            return errors
+        },
+        onSubmit: async (values, { resetForm,  }) => {
+            const { categories, ...restData } = values
             try {
-                const modifyVal = {
-                    assesment: {
-                        ...restData,
-                        dateOfAssessment: moment(values?.dateOfAssessment).toISOString(),
-                        currentAssessmentDate: moment(values?.currentAssessmentDate).toISOString(),
-                        release_date: moment(values?.release_date).toISOString(),
-                        nextAssessmentDate: moment(values?.nextAssessmentDate).toISOString(),
-                        tenantSignature,
-                        supportWorkerSignature,
-                    },
-                    _id: tid,
+                const assesment = {
+                    ...restData,
+                    dateOfAssessment: moment(values?.dateOfAssessment).toISOString(),
+                    release_date: moment(values?.release_date).toISOString(),
+                    categories
                 }
-                dispatch(setIsLoading({ data: true }))
-                const res = await API.post('/api/tenents/update-assessment', modifyVal)
-                if (res.data.success == true) {
-                    resetForm()
-                    navigation('/desh')
-                }
-                if (res.data?.message) {
-                    dispatch(showSnackbar({ message: res?.data?.message || "Assesment Added Succesfully", severity: "success" }))
+                setPreValues((pre) => ({
+                    ...pre, assesment,
+                }))
+                
+                nextStep()
 
-                }
-                dispatch(setIsLoading({ data: false }))
             } catch (error) {
-
                 dispatch(setIsLoading({ data: false }))
                 dispatch(showSnackbar({ message: error?.response?.data?.message || "error while add tenants details", severity: "error" }))
             }
@@ -245,29 +127,30 @@ const Assessment = ({ Field }) => {
 
     })
 
-
-
-
-    const { setValues, values, handleChange, handleSubmit, setFieldValue } = formik;
+    const { setValues, values, handleChange, handleSubmit, setFieldValue, errors } = formik;
+  
+    useEffect(() => {
+       
+        
+        const firstErrorField = Object.keys(formik.errors)[0];
+        if (firstErrorField) { 
+          fieldRefs.current[firstErrorField]?.scrollIntoView({
+            behavior: 'smooth',
+            // block: 'center',
+          });
+        }
+      }, [formik.errors, formik.submitCount]);
 
     const addRecord = () => {
-        setFieldValue('records', [...values.records, { natureOfOffence: '', date: '', sentence: '' }]);
+        setFieldValue('records', [...values?.records, { natureOfOffence: '', date: '', sentence: '' }]);
     };
-
     const removeRecord = (index) => {
-        const newRecords = values.records.filter((_, i) => i !== index);
+        const newRecords = values?.records.filter((_, i) => i !== index);
         setFieldValue('records', newRecords);
     };
     // console.log(values)
     return (
         <>
-            {/* <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid #e0e0e0' }}> */}
-            <Toolbar>
-                <IconButton edge="start" color="inherit" onClick={() => { navigation(-1) }} aria-label="back">
-                    <ArrowBackIcon />
-                </IconButton>
-            </Toolbar>
-            {/* </AppBar> */}
             <DynamicTitle title='Assessment' />
             <Box px={3} pb={3}>
                 <Box>
@@ -282,15 +165,17 @@ const Assessment = ({ Field }) => {
                             label="Date of Assessment"
                             type="date"
                             fullWidth
-                            value={values?.dateOfAssessment || sd.split('T')[0]}
+                            value={values?.dateOfAssessment || moment().format('DD/MM/YYYY')}
                             InputLabelProps={{
                                 shrink: true,
                             }}
+                            ref={(el) => (fieldRefs.current['dateOfAssessment'] = el)}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <FlotingLableInput
                             name="preferredArea"
+                            ref={(el) => (fieldRefs.current['preferredArea'] = el)}
                             label="Preferred Area of Tenant"
                             placeholder="Preferred Area of Tenant"
                             type="text"
@@ -298,34 +183,55 @@ const Assessment = ({ Field }) => {
                             fullWidth
                             value={values.preferredArea}
                             onChange={(e) => { handleChange(e) }}
+                            errors={errors}
+
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
 
-                        <Typography variant="subtitle1">Work No.</Typography>
-                        <FormGroup style={{ flexDirection: 'row' }}>
-                            <FormControlLabel
-                                control={<Radio checked={values.workNo === true} onChange={() => setValues((pre) => ({ ...pre, workNo: true }))} name="workNo" value={true} />}
-                                label="Yes"
+                        <RadioComponent
+                            defaultValue={false}
+                            title='Work No.'
+                            direction='hor'
+                            valArr={[
+                                { label: "Yes", value: true, checked: values.workNo === true, onChange: () => setValues((pre) => ({ ...pre, workNo: true })) },
+                                { label: 'No', value: false, checked: values.workNo === false, onChange: () => setValues((pre) => ({ ...pre, workNo: false })), defaultChecked: true }
+                            ]}
+                            name='workNo'
+                            value={values.workNo}
+                        />
+                        {values?.workNo && (
+                            <FlotingLableInput
+                                type="text"
+                                name="workNoDetails"
+                                onChange={handleChange}
+                                fullWidth
+                                value={values?.workNoDetails}
                             />
-                            <FormControlLabel
-                                control={<Radio checked={values.workNo === false} onChange={() => setValues((pre) => ({ ...pre, workNo: false }))} name="workNo" value={false} />}
-                                label="No"
-                            />
-                        </FormGroup>
+                        )}
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <Typography variant="subtitle1">Home No.</Typography>
-                        <FormGroup style={{ flexDirection: 'row' }}>
-                            <FormControlLabel
-                                control={<Radio checked={values.homeNo === true} onChange={() => setValues((pre) => ({ ...pre, homeNo: true }))} name="homeNo" value={true} />}
-                                label="Yes"
+                        <RadioComponent
+                            defaultValue={false}
+                            title="Home No."
+                            direction='hor'
+                            valArr={[
+                                { label: "Yes", value: true, checked: values.homeNo === true, onChange: () => setValues((pre) => ({ ...pre, homeNo: true })) },
+                                { label: 'No', value: false, checked: values.homeNo === false, onChange: () => setValues((pre) => ({ ...pre, homeNo: false })), defaultChecked: true }
+                            ]}
+                            name='homeNo'
+                            value={values.homeNo}
+                        />
+
+                        {values.homeNo && (
+                            <FlotingLableInput
+                                type="text"
+                                name="homeNoDetails"
+                                onChange={handleChange}
+                                fullWidth
+                                value={values?.homeNoDetails}
                             />
-                            <FormControlLabel
-                                control={<Radio checked={values.homeNo === false} onChange={() => setValues((pre) => ({ ...pre, homeNo: false }))} name="homeNo" value={false} />}
-                                label="No"
-                            />
-                        </FormGroup>
+                        )}
                     </Grid>
                 </Grid>
                 <Grid flexDirection='column' marginTop={4} spacing={2} container>
@@ -335,100 +241,130 @@ const Assessment = ({ Field }) => {
                         <Grid marginTop={4} spacing={2} container justifyContent="center">
                             {/* Ethnic Origin */}
                             <Grid item xs={12} sm={3}>
-                                <TextField
+                                <FlotingLableInput
                                     name="ethnicOrigin"
-                                    // as={TextField}
-                                    select
-                                    fullWidth
-                                    defaultValue=''
                                     label="Ethnic Origin"
-                                    value={values.ethnicOrigin}
-                                    onChange={(e) => { handleChange(e) }}
-                                // required
-                                >
-                                    <MenuItem value="White: British">White: British</MenuItem>
-                                    <MenuItem value="White: Irish">White: Irish</MenuItem>
-                                    <MenuItem value="White: Other">White: Other</MenuItem>
-                                    <MenuItem value="Mixed: White & Black Caribbean">Mixed: White & Black Caribbean</MenuItem>
-                                    <MenuItem value="Mixed: White & Black African">Mixed: White & Black African</MenuItem>
-                                    <MenuItem value="Mixed: White & Asian">Mixed: White & Asian</MenuItem>
-                                    <MenuItem value="Mixed: Other">Mixed: Other</MenuItem>
-                                    <MenuItem value="Asian/Asian British: Indian">Asian/Asian British: Indian</MenuItem>
-                                    <MenuItem value="Asian/Asian British: Pakistani">Asian/Asian British: Pakistani</MenuItem>
-                                    <MenuItem value="Asian/Asian British: Bangladeshi">Asian/Asian British: Bangladeshi</MenuItem>
-                                    <MenuItem value="Asian/Asian British: Other">Asian/Asian British: Other</MenuItem>
-                                    <MenuItem value="Black/Black British: Caribbean">Black/Black British: Caribbean</MenuItem>
-                                    <MenuItem value="Black/Black British: African">Black/Black British: African</MenuItem>
-                                    <MenuItem value="Black/Black British: Other">Black/Black British: Other</MenuItem>
-                                    <MenuItem value="Chinese/Other Ethnic Group">Chinese/Other Ethnic Group</MenuItem>
-                                    <MenuItem value="Other">Other</MenuItem>
-                                    <MenuItem value="Refuse to say">Refuse to say</MenuItem>
-                                    {/* Add other options as needed */}
-                                </TextField>
+                                    select
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                    }}
+                                    fullWidth
+                                    value={values?.ethnicOrigin}
+                                    menuItems={[
+                                        { val: "White: British", label: "White: British" },
+                                        { val: "White: Irish", label: "White: Irish" },
+                                        { val: "White: Other", label: "White: Other" },
+                                        { val: "Mixed: White & Black Caribbean", label: "Mixed: White & Black Caribbean" },
+                                        { val: "Mixed: White & Black African", label: "Mixed: White & Black African" },
+                                        { val: "Mixed: White & Asian", label: "Mixed: White & Asian" },
+                                        { val: "Mixed: Other", label: "Mixed: Other" },
+                                        { val: "Asian/Asian British: Indian", label: "Asian/Asian British: Indian" },
+                                        { val: "Asian/Asian British: Pakistani", label: "Asian/Asian British: Pakistani" },
+                                        { val: "Asian/Asian British: Bangladeshi", label: "Asian/Asian British: Bangladeshi" },
+                                        { val: "Asian/Asian British: Other", label: "Asian/Asian British: Other" },
+                                        { val: "Black/Black British: Caribbean", label: "Black/Black British: Caribbean" },
+                                        { val: "Black/Black British: African", label: "Black/Black British: African" },
+                                        { val: "Black/Black British: Other", label: "Black/Black British: Other" },
+                                        { val: "Chinese/Other Ethnic Group", label: "Chinese/Other Ethnic Group" },
+                                        { val: "Other", label: "Other" },
+                                        { val: "Refuse to say", label: "Refuse to say" },
+                                    ]}
+                                />
+
                             </Grid>
 
                             {/* Religion */}
                             <Grid item xs={12} sm={3}>
-                                <TextField
+
+                                <FlotingLableInput
                                     name="religion"
-                                    // as={TextField}
-                                    select
-                                    fullWidth
                                     label="Religion"
-                                    value={values.religion}
-                                    onChange={(e) => { handleChange(e) }}
-                                // required
-                                >
-                                    <MenuItem value="No religion/Atheist">No religion/Atheist</MenuItem>
-                                    <MenuItem value="Muslim">Muslim</MenuItem>
-                                    <MenuItem value="Christian (all denominations)">Christian (all denominations)</MenuItem>
-                                    <MenuItem value="Sikh">Sikh</MenuItem>
-                                    <MenuItem value="Buddhist">Buddhist</MenuItem>
-                                    <MenuItem value="Hindu">Hindu</MenuItem>
-                                    <MenuItem value="Jewish">Jewish</MenuItem>
-                                    <MenuItem value="Other">Other</MenuItem>
-                                    <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
-                                </TextField>
+                                    select
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                    }}
+                                    fullWidth
+                                    value={values?.religion}
+                                    menuItems={[
+                                        { val: "No religion/Atheist", label: "No religion/Atheist" },
+                                        { val: "Muslim", label: "Muslim" },
+                                        { val: "Christian (all denominations)", label: "Christian (all denominations)" },
+                                        { val: "Sikh", label: "Sikh" },
+                                        { val: "Buddhist", label: "Buddhist" },
+                                        { val: "Hindu", label: "Hindu" },
+                                        { val: "Jewish", label: "Jewish" },
+                                        { val: "Other", label: "Other" },
+                                        { val: "Prefer not to say", label: "Prefer not to say" },
+                                    ]}
+                                />
+
                             </Grid>
 
                             {/* Sexual Orientation */}
                             <Grid item xs={12} sm={3}>
-                                <TextField
+                                <FlotingLableInput
                                     name="sexualOrientation"
-                                    // as={TextField}
+                                    ref={(el) => (fieldRefs.current['sexualOrientation'] = el)}
+                                    label="Sexual Orientation"
                                     select
                                     fullWidth
-                                    value={values.sexualOrientation}
-                                    label="Sexual Orientation *"
                                     required
-                                    onChange={(e) => { handleChange(e) }}
-                                >
-                                    <MenuItem value="Heterosexual">Heterosexual</MenuItem>
-                                    <MenuItem value="Homosexual">Homosexual</MenuItem>
-                                    <MenuItem value="Lesbian">Lesbian</MenuItem>
-                                    <MenuItem value="Transgender">Transgender</MenuItem>
-                                    <MenuItem value="Bisexual">Bisexual</MenuItem>
-                                    <MenuItem value="Prefer not to say">Prefer not to say</MenuItem>
-                                </TextField>
+                                    value={values?.sexualOrientation}
+                                    onChange={(e) => {
+                                        handleChange(e);
+                                    }}
+                                    errors={errors}
+                                    helperText={errors}
+                                    menuItems={[
+                                        { val: "Heterosexual", label: "Heterosexual" },
+                                        { val: "Homosexual", label: "Homosexual" },
+                                        { val: "Lesbian", label: "Lesbian" },
+                                        { val: "Transgender", label: "Transgender" },
+                                        { val: "Bisexual", label: "Bisexual" },
+                                        { val: "Prefer not to say", label: "Prefer not to say" },
+                                    ]}
+                                />
                             </Grid>
 
                             {/* Any Communication Needs */}
                             <Grid item xs={12} sm={3}>
-                                <Typography variant="subtitle1">Any Communication Needs?</Typography>
-                                <FormGroup style={{ flexDirection: 'row' }}>
-                                    <FormControlLabel
-                                        control={<Radio checked={values.communicationNeeds === true} onChange={() => setValues((pre) => ({ ...pre, communicationNeeds: true }))} name="communicationNeeds" value={true} />}
-                                        label="Yes"
-                                    />
-                                    <FormControlLabel
-                                        control={<Radio checked={values.communicationNeeds === false} onChange={() => setValues((pre) => ({ ...pre, communicationNeeds: false }))} name="communicationNeeds" value={false} />}
-                                        label="No"
-                                    />
-                                </FormGroup>
+                                <RadioComponent
+                                    defaultValue={false}
+                                    title="Any Communication Needs?"
+                                    direction='hor'
+                                    valArr={[
+                                        { label: "Yes", value: true, checked: values.communicationNeeds === true, onChange: () => setValues((pre) => ({ ...pre, communicationNeeds: true })) },
+                                        { label: 'No', value: false, checked: values.communicationNeeds === false, onChange: () => setValues((pre) => ({ ...pre, communicationNeeds: false })), defaultChecked: true }
+                                    ]}
+                                    name='communicationNeeds'
+                                    value={values.communicationNeeds}
+                                />
+
+                                {values?.communicationNeeds && (
+                                    <TextField
+                                        name="communicationNeedsDetails"
+                                        select
+                                        fullWidth
+                                        value={values?.communicationNeedsDetails}
+                                        onChange={(e) => { handleChange(e) }}
+                                        defaultValue='Large Print'
+                                    >
+                                        <MenuItem value="Large Print">Large Print</MenuItem>
+                                        <MenuItem value="Braille">Braille</MenuItem>
+                                        <MenuItem value="Audiotape/CD">Audiotape/CD</MenuItem>
+                                        <MenuItem value="Translation/Interpreter">Translation/Interpreter</MenuItem>
+                                        <MenuItem value="Pictures & Symbols">Pictures & Symbols</MenuItem>
+                                        <MenuItem value="Easy Read">Easy Read</MenuItem>
+                                        <MenuItem value="BSL/Makaton">BSL/Makaton</MenuItem>
+                                        <MenuItem value="Other_communication_needs">Other</MenuItem>
+                                    </TextField>
+                                )}
+
+
                             </Grid>
                         </Grid>
                     </Box >
-                </Grid>
+                </Grid >
 
                 <Typography variant="h6" marginTop={4}>Financial Information</Typography>
                 <Divider sx={{ marginTop: 2 }} />
@@ -436,13 +372,13 @@ const Assessment = ({ Field }) => {
                     <Grid xs={3} marginTop={2} item flexDirection='column' >
                         <Grid mt={2} item xs={12} sm={12}>
                             <FlotingLableInput
-
                                 name="sourceOfIncome"
                                 type='text'
-                                label="What is your source of income? What benefits are you on *"
+                                label="What is your source of income? What benefits are you on"
                                 required
                                 fullWidth
-                                value={values.sourceOfIncome}
+                                errors={errors}
+                                value={values?.sourceOfIncome}
                                 onChange={(e) => { handleChange(e) }}
                             />
                         </Grid>
@@ -452,12 +388,14 @@ const Assessment = ({ Field }) => {
                             <FlotingLableInput
                                 name="totalAmount"
                                 // as={TextField}
-                                label="Total Amount *"
+                                label="Total Amount"
                                 type='text'
                                 required
+                                errors={errors}
                                 fullWidth
-                                value={values.totalAmount}
+                                value={values?.totalAmount}
                                 onChange={(e) => { handleChange(e) }}
+
                             />
                         </Grid>
 
@@ -465,23 +403,45 @@ const Assessment = ({ Field }) => {
                         <Grid mt={3} item xs={12}>
                             <FlotingLableInput
                                 name="howOften"
-                                // as={TextField}
                                 label="How Often"
-                                type='text'
-                                fullWidth
-                                value={values.howOften}
+                                select
+                                errors={errors}
                                 onChange={(e) => { handleChange(e) }}
+                                fullWidth
+                                // required
+                                value={values?.howOften}
+                                menuItems={[
+                                    { val: "Hourly", label: "Hourly: Occurs every hour" },
+                                    { val: "Daily", label: "Daily: Occurs every day" },
+                                    { val: "Weekly", label: "Weekly: Occurs once a week" },
+                                    { val: "Bi-weekly", label: "Bi-weekly: Occurs every two weeks" },
+                                    { val: "Semi-monthly", label: "Semi-monthly: Occurs twice a month" },
+                                    { val: "Monthly", label: "Monthly: Occurs once a month" },
+                                    { val: "Bimonthly", label: "Bimonthly: Occurs every two months" },
+                                    { val: "Quarterly", label: "Quarterly: Occurs every three months" },
+                                ]}
                             />
                         </Grid>
                     </Grid>
                     <Grid xs={9} marginTop={2} spacing={2} item flexWrap='wrap' container>
                         {/* Do you have any debts? */}
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="subtitle1">Do you have any debts? If so, please provide details.</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you have any debts? If so, please provide details."
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.debt === true, onChange: () => setValues((pre) => ({ ...pre, debt: true })) },
+                                    { label: 'No', value: false, checked: values.debt === false, onChange: () => setValues((pre) => ({ ...pre, debt: false })), defaultChecked: true }
+                                ]}
+                                name='debt'
+                                value={values.debt}
+                            />
+                            {/* <Typography variant="subtitle1">Do you have any debts? If so, please provide details.</Typography>
                             <FormGroup style={{ flexDirection: 'row' }}>
                                 <FormControlLabel
                                     control={<Radio
-                                        checked={values.debt === true}
+                                        checked={values?.debt === true}
                                         onChange={() => setValues((pre) => ({ ...pre, debt: true }))}
                                         name="debt"
                                         value={true}
@@ -490,15 +450,15 @@ const Assessment = ({ Field }) => {
                                 />
                                 <FormControlLabel
                                     control={<Radio
-                                        checked={values.debts === false}
+                                        checked={values?.debts === false}
                                         onChange={() => setValues((pre) => ({ ...pre, debts: false }))}
-                                        name="debts"
+                                        name="debt"
                                         value={false}
                                     />}
                                     label="No"
                                 />
-                            </FormGroup>
-                            {values?.debt === true &&
+                            </FormGroup> */}
+                            {values?.debt &&
                                 <FlotingLableInput
                                     // placeholder='Details of Vehicles'
                                     type='textarea'
@@ -512,18 +472,29 @@ const Assessment = ({ Field }) => {
 
                         {/* Do you have any issues with gambling? */}
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="subtitle1">Do you have any issues with gambling? If so, please provide details.</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you have any issues with gambling? If so, please provide details."
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.gamblingIssues === true, onChange: () => setValues((pre) => ({ ...pre, gamblingIssues: true })) },
+                                    { label: 'No', value: false, checked: values.gamblingIssues === false, onChange: () => setValues((pre) => ({ ...pre, gamblingIssues: false })), defaultChecked: true }
+                                ]}
+                                name='gamblingIssues'
+                                value={values.gamblingIssues}
+                            />
+                            {/* <Typography variant="subtitle1">Do you have any issues with gambling? If so, please provide details.</Typography>
                             <FormGroup style={{ flexDirection: 'row' }}>
                                 <FormControlLabel
-                                    control={<Radio checked={values.gamblingIssues === true} onChange={() => setValues((pre) => ({ ...pre, gamblingIssues: true }))} name="gamblingIssues" value={true} />}
+                                    control={<Radio checked={values?.gamblingIssues === true} onChange={() => setValues((pre) => ({ ...pre, gamblingIssues: true }))} name="gamblingIssues" value={true} />}
                                     label="Yes"
                                 />
                                 <FormControlLabel
-                                    control={<Radio checked={values.gamblingIssues === false} onChange={() => setValues((pre) => ({ ...pre, gamblingIssues: false }))} name="gamblingIssues" value={false} />}
+                                    control={<Radio checked={values?.gamblingIssues === false} onChange={() => setValues((pre) => ({ ...pre, gamblingIssues: false }))} name="gamblingIssues" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
-                            {values?.gamblingIssues === true &&
+                            </FormGroup> */}
+                            {values?.gamblingIssues &&
                                 <FlotingLableInput
                                     // placeholder='Details of Vehicles'
                                     type='textarea'
@@ -537,7 +508,18 @@ const Assessment = ({ Field }) => {
 
                         {/* Do you have any Criminal Records? */}
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="subtitle1">Do you have any Criminal Records?</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you have any Criminal Records?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.criminalRecords === true, onChange: () => setValues((pre) => ({ ...pre, criminalRecords: true })) },
+                                    { label: 'No', value: false, checked: values.criminalRecords === false, onChange: () => setValues((pre) => ({ ...pre, criminalRecords: false })), defaultChecked: true }
+                                ]}
+                                name='criminalRecords'
+                                value={values.criminalRecords}
+                            />
+                            {/* <Typography variant="subtitle1">Do you have any Criminal Records?</Typography>
                             <FormGroup style={{ flexDirection: 'row' }}>
                                 <FormControlLabel
                                     control={<Radio checked={values.criminalRecords === true} onChange={() => setValues((pre) => ({ ...pre, criminalRecords: true }))} name="criminalRecords" value={true} />}
@@ -547,8 +529,8 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.criminalRecords === false} onChange={() => setValues((pre) => ({ ...pre, criminalRecords: false }))} name="criminalRecords" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
-                            {values?.criminalRecords === true && (
+                            </FormGroup> */}
+                            {values?.criminalRecords && (
                                 <>
                                     {values?.records.map((record, index) => (
                                         <Grid
@@ -579,7 +561,7 @@ const Assessment = ({ Field }) => {
                                                     InputLabelProps={{ shrink: true }} // Ensures the label stays above the date input
                                                 />
                                             </Grid>
-                                            <Grid item xs={3}>
+                                            <Grid item xs={4}>
                                                 <TextField
                                                     fullWidth
                                                     name={`records[${index}].sentence`}
@@ -588,20 +570,22 @@ const Assessment = ({ Field }) => {
                                                     onChange={handleChange}
                                                 />
                                             </Grid>
-                                            <Grid item xs={3}>
-                                                <Button
+                                            <Grid item xs={1}>
+                                                <IconButton onClick={() => removeRecord(index)}>
+                                                    <Icon sx={{ color: 'red' }}>cancel</Icon>
+                                                </IconButton>
+                                                {/* <Button
                                                     onClick={() => removeRecord(index)}
                                                     color="error"
                                                     variant="contained"
                                                 >
                                                     Remove
-                                                </Button>
+                                                </Button> */}
                                             </Grid>
                                         </Grid>
                                     ))}
                                     <Grid container>
-
-                                        <Grid item xs={3}>
+                                        <Grid item xs={4}>
                                             <Button
                                                 onClick={addRecord}
                                                 color="primary"
@@ -613,13 +597,12 @@ const Assessment = ({ Field }) => {
                                         </Grid>
                                     </Grid>
                                 </>
-
                             )}
                         </Grid>
                     </Grid>
                 </Grid>
 
-                <Typography variant="h6" marginTop={4}>Support Needs</Typography>
+                <Typography id='supportNeeds' ref={(el) => (fieldRefs.current['supportNeeds'] = el)} variant="h6" marginTop={4}>Support Needs</Typography>
                 <Divider sx={{ marginTop: 2 }} />
                 <Box display="flex" justifyContent="space-between" width="100%" height='50%'>
                     <Box width="33%" p={2}>
@@ -687,7 +670,6 @@ const Assessment = ({ Field }) => {
                     </Box>
                 </Box>
                 <Box width='100%'>
-
                     <Typography variant='p'>You must have at least 5 support needs to qualify otherwise you have to give reason.</Typography>
                     <FlotingLableInput
                         name="qualifyreason"
@@ -698,25 +680,22 @@ const Assessment = ({ Field }) => {
                         value={values.qualifyreason}
                     />
                 </Box>
-
-                <Grid >
-                    <Typography variant="h6" marginTop={4}>Tenant Signature</Typography>
-                    <Divider sx={{ marginTop: 2 }} />
-                    <Box flexDirection='column'>
-                        <Typography variant='p'>I confirm that all the information provided is true to my knowledge and agree to follow a program of support based on this assessment</Typography>
-                    </Box>
-                    <Box>
-
-                        <SignatureCanvas name='tenantSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('tenantSignature', sign)} />
-                    </Box>
-
-                </Grid>
-
                 <Box>
                     <Typography variant="h6" marginTop={4}>Support Worker Informations</Typography>
                     <Divider sx={{ marginTop: 2 }} />
                     <Grid item xs={12} sm={4}>
-                        <Typography variant="subtitle1">Full check completed with the tenant?</Typography>
+                        <RadioComponent
+                            defaultValue={false}
+                            title="Full check completed with the tenant?"
+                            direction='hor'
+                            valArr={[
+                                { label: "Yes", value: true, checked: values.fullcheck === true, onChange: () => setValues((pre) => ({ ...pre, fullcheck: true })) },
+                                { label: 'No', value: false, checked: values.fullcheck === false, onChange: () => setValues((pre) => ({ ...pre, fullcheck: false })), defaultChecked: true }
+                            ]}
+                            name='fullcheck'
+                            value={values.fullcheck}
+                        />
+                        {/* <Typography variant="subtitle1">Full check completed with the tenant?</Typography>
                         <FormGroup>
                             <FormControlLabel
                                 control={<Radio checked={values.fullcheck === true} onChange={() => setValues((pre) => ({ ...pre, fullcheck: true }))} name="fullcheck" value={true} />}
@@ -726,11 +705,12 @@ const Assessment = ({ Field }) => {
                                 control={<Radio checked={values.fullcheck === false} onChange={() => setValues((pre) => ({ ...pre, fullcheck: false }))} name="fullcheck" value={false} />}
                                 label="No"
                             />
-                        </FormGroup>
+                        </FormGroup> */}
                     </Grid>
 
                 </Box>
-                {values?.fullcheck === true &&
+                {
+                    values?.fullcheck &&
                     <Box width='50%'>
                         <FlotingLableInput
                             placeholder='Why? (Reason)'
@@ -745,27 +725,20 @@ const Assessment = ({ Field }) => {
                 <Box width='50%'>
                     <Typography variant='p'>Referred From (Please state agency name or self-referral)</Typography>
                     <FlotingLableInput
-                        name="howOften"
+                        name="ReferredFrom"
                         fullWidth
                         type='text'
+                        value={values?.ReferredFrom}
                         onChange={(e) => { handleChange(e) }}
                         style={{ height: 100 }}
                     />
                 </Box>
 
-                <Grid >
-                    <Box flexDirection='column'>
-                        <Typography variant='p'>Support Worker Signature</Typography>
-                    </Box>
-                    <Box>
-                        <SignatureCanvas name='supportWorkerSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('supportWorkerSignature', sign)} />
-                    </Box>
 
-                </Grid>
 
                 <Grid>
-                    <Typography variant="h6" marginTop={4}>Stage 2 (Upon Placement Being Awarded)</Typography>
-                    <Typography variant="subtitle1">Please give details if you receive regular support from any of the listed agencies:</Typography>
+                    {/* <Typography variant="h6" marginTop={4}>Stage 2 (Upon Placement Being Awarded)</Typography> */}
+                    {/* <Typography variant="subtitle1">Please give details if you receive regular support from any of the listed agencies:</Typography>
                     <FormGroup>
                         <FormControlLabel
                             control={<Radio checked={values.supportFromAgencies === true} onChange={() => setValues((pre) => ({ ...pre, supportFromAgencies: true }))} name="supportFromAgencies" value={true} />}
@@ -775,7 +748,18 @@ const Assessment = ({ Field }) => {
                             control={<Radio checked={values.supportFromAgencies === false} onChange={() => setValues((pre) => ({ ...pre, supportFromAgencies: false }))} name="supportFromAgencies" value={false} />}
                             label="No"
                         />
-                    </FormGroup>
+                    </FormGroup> */}
+                    <RadioComponent
+                        defaultValue={false}
+                        title="Please give details if you receive regular support from any of the listed agencies:"
+                        direction='hor'
+                        valArr={[
+                            { label: "Yes", value: true, checked: values.supportFromAgencies === true, onChange: () => setValues((pre) => ({ ...pre, supportFromAgencies: true })) },
+                            { label: 'No', value: false, checked: values.supportFromAgencies === false, onChange: () => setValues((pre) => ({ ...pre, supportFromAgencies: false })), defaultChecked: true }
+                        ]}
+                        name='supportFromAgencies'
+                        value={values.supportFromAgencies}
+                    />
                     {values?.supportFromAgencies === true &&
                         (<>
                             <Grid container spacing={3} sx={{ padding: 2 }}>
@@ -849,7 +833,7 @@ const Assessment = ({ Field }) => {
                     <Typography variant="h6" marginTop={4}>PHYSICAL AND MENTAL HEALTH</Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={4} sm={4}>
-                            <Typography variant="subtitle1">Do you have any physical health conditions?</Typography>
+                            {/* <Typography variant="subtitle1">Do you have any physical health conditions?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.physicalHealthcon === true} onChange={() => setValues((pre) => ({ ...pre, physicalHealthcon: true }))} name="physicalHealthcon" value={true} />}
@@ -859,7 +843,18 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.physicalHealthcon === false} onChange={() => setValues((pre) => ({ ...pre, physicalHealthcon: false }))} name="physicalHealthcon" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you have any physical health conditions?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.physicalHealthcon === true, onChange: () => setValues((pre) => ({ ...pre, physicalHealthcon: true })) },
+                                    { label: 'No', value: false, checked: values.physicalHealthcon === false, onChange: () => setValues((pre) => ({ ...pre, physicalHealthcon: false })), defaultChecked: true }
+                                ]}
+                                name='physicalHealthcon'
+                                value={values.physicalHealthcon}
+                            />
                             {values?.physicalHealthcon && (
                                 <>
                                     <FlotingLableInput
@@ -874,8 +869,18 @@ const Assessment = ({ Field }) => {
                             )}
                         </Grid>
                         <Grid item xs={4} sm={4}>
-
-                            <Typography variant="subtitle1">Do you have any mental health conditions?</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you have any mental health conditions?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.mentalHealthcon === true, onChange: () => setValues((pre) => ({ ...pre, mentalHealthcon: true })) },
+                                    { label: 'No', value: false, checked: values.mentalHealthcon === false, onChange: () => setValues((pre) => ({ ...pre, mentalHealthcon: false })), defaultChecked: true }
+                                ]}
+                                name='mentalHealthcon'
+                                value={values.mentalHealthcon}
+                            />
+                            {/* <Typography variant="subtitle1">Do you have any mental health conditions?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.mentalHealthcon === true} onChange={() => setValues((pre) => ({ ...pre, mentalHealthcon: true }))} name="mentalHealthcon" value={true} />}
@@ -885,7 +890,7 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.mentalHealthcon === false} onChange={() => setValues((pre) => ({ ...pre, mentalHealthcon: false }))} name="mentalHealthcon" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
                             {values?.mentalHealthcon && (
                                 <>
                                     <FlotingLableInput
@@ -901,7 +906,7 @@ const Assessment = ({ Field }) => {
                         </Grid>
                         <Grid item xs={4} sm={4}>
 
-                            <Typography variant="subtitle1">Have you been diagnosed with any mental health condition?</Typography>
+                            {/* <Typography variant="subtitle1">Have you been diagnosed with any mental health condition?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.mentalHealthdig === true} onChange={() => setValues((pre) => ({ ...pre, mentalHealthdig: true }))} name="mentalHealthdig" value={true} />}
@@ -911,18 +916,73 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.mentalHealthdig === false} onChange={() => setValues((pre) => ({ ...pre, mentalHealthdig: false }))} name="mentalHealthdig" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Have you been diagnosed with any mental health condition?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.mentalHealthdig === true, onChange: () => setValues((pre) => ({ ...pre, mentalHealthdig: true })) },
+                                    { label: 'No', value: false, checked: values.mentalHealthdig === false, onChange: () => setValues((pre) => ({ ...pre, mentalHealthdig: false })), defaultChecked: true }
+                                ]}
+                                name='mentalHealthdig'
+                                value={values.mentalHealthdig}
+                            />
                             {values?.mentalHealthdig && (
-                                <>
-                                    <FlotingLableInput
-                                        // placeholder="Psychiatrist/Psychologist"
-                                        type="text"
-                                        name="mentalHealthdigdetails"
-                                        onChange={handleChange}
-                                        fullWidth
-                                        value={values?.mentalHealthdigdetails}
-                                    />
-                                </>
+                                <Grid container spacing={2} mt={2}>
+                                    <Grid item xs={12}>
+                                        <FlotingLableInput
+                                            name="diagnosed_any_mental_health_name_person"
+                                            type="text"
+                                            label="Name/position of person responsible for diagnosis"
+                                            placeholder="Name/position of person responsible for diagnosis"
+                                            required
+                                            fullWidth
+                                            value={values.diagnosed_any_mental_health_name_person || ''}
+                                            onChange={handleChange}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12}>
+                                        <FlotingLableInput
+                                            name="diagnosed_any_mental_health_prescribed"
+                                            type="text"
+                                            label="Prescribed medication"
+                                            placeholder="Prescribed medication"
+                                            required
+                                            fullWidth
+                                            value={values.diagnosed_any_mental_health_prescribed || ''}
+                                            onChange={handleChange}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12}>
+                                        <FlotingLableInput
+                                            name="diagnosed_any_mental_health_dosage"
+                                            type="text"
+                                            label="Dosage of medication"
+                                            placeholder="Dosage of medication"
+                                            required
+                                            fullWidth
+                                            value={values.diagnosed_any_mental_health_dosage || ''}
+                                            onChange={handleChange}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12}>
+                                        <FlotingLableInput
+                                            name="diagnosed_any_mental_health_medication"
+                                            type="text"
+                                            label="Medication prescribed by"
+                                            placeholder="Medication prescribed by"
+                                            required
+                                            fullWidth
+                                            value={values.diagnosed_any_mental_health_medication || ''}
+                                            onChange={handleChange}
+                                        />
+                                    </Grid>
+                                </Grid>
+
                             )}
                         </Grid>
                     </Grid>
@@ -935,9 +995,11 @@ const Assessment = ({ Field }) => {
                             <FlotingLableInput
                                 label='Have you been subject to any orders?'
                                 select
-                                menuItems={[{ val: "DRR", label: "DRR" },
-                                { val: "Yes", label: "Yes" },
-                                { val: "No", label: "No" },]}
+                                menuItems={[
+                                    { val: "DRR", label: "DRR" },
+                                    { val: "Yes", label: "Yes" },
+                                    { val: "No", label: "No" }
+                                ]}
                                 // type="text"
                                 name="subjecttoorder"
                                 onChange={handleChange}
@@ -947,7 +1009,7 @@ const Assessment = ({ Field }) => {
                         </Grid>
                         <Grid item xs={12} sm={4}>
 
-                            <Typography variant="subtitle1">Are you prescribed medication?</Typography>
+                            {/* <Typography variant="subtitle1">Are you prescribed medication?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.prescribedMedication === true} onChange={() => setValues((pre) => ({ ...pre, prescribedMedication: true }))} name="prescribedMedication" value={true} />}
@@ -957,7 +1019,18 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.prescribedMedication === false} onChange={() => setValues((pre) => ({ ...pre, prescribedMedication: false }))} name="prescribedMedication" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Are you prescribed medication?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.prescribedMedication === true, onChange: () => setValues((pre) => ({ ...pre, prescribedMedication: true })) },
+                                    { label: 'No', value: false, checked: values.prescribedMedication === false, onChange: () => setValues((pre) => ({ ...pre, prescribedMedication: false })), defaultChecked: true }
+                                ]}
+                                name='prescribedMedication'
+                                value={values.prescribedMedication}
+                            />
                             {values?.prescribedMedication && (
                                 <>
                                     <FlotingLableInput
@@ -973,8 +1046,18 @@ const Assessment = ({ Field }) => {
                         </Grid>
 
                         <Grid item xs={12} sm={4}>
-
-                            <Typography variant="subtitle1">Have you ever self-harmed, had suicidal thoughts or attempted suicide?</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Have you ever self-harmed, had suicidal thoughts or attempted suicide?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.selfHarmcon === true, onChange: () => setValues((pre) => ({ ...pre, selfHarmcon: true })) },
+                                    { label: 'No', value: false, checked: values.selfHarmcon === false, onChange: () => setValues((pre) => ({ ...pre, selfHarmcon: false })), defaultChecked: true }
+                                ]}
+                                name='selfHarmcon'
+                                value={values.selfHarmcon}
+                            />
+                            {/* <Typography variant="subtitle1">Have you ever self-harmed, had suicidal thoughts or attempted suicide?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.selfHarmcon === true} onChange={() => setValues((pre) => ({ ...pre, selfHarmcon: true }))} name="selfHarmcon" value={true} />}
@@ -984,7 +1067,7 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.selfHarmcon === false} onChange={() => setValues((pre) => ({ ...pre, selfHarmcon: false }))} name="selfHarmcon" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
                             {values.selfHarmcon === true &&
                                 (<>
                                     <Box sx={{ width: "100%", padding: 2 }}>
@@ -1037,8 +1120,18 @@ const Assessment = ({ Field }) => {
                             }
                         </Grid>
                         <Grid item xs={12} sm={4}>
-
-                            <Typography variant="subtitle1">Have you been to prison?</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Have you been to prison?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.prison === true, onChange: () => setValues((pre) => ({ ...pre, prison: true })) },
+                                    { label: 'No', value: false, checked: values.prison === false, onChange: () => setValues((pre) => ({ ...pre, prison: false })), defaultChecked: true }
+                                ]}
+                                name='prison'
+                                value={values.prison}
+                            />
+                            {/* <Typography variant="subtitle1">Have you been to prison?</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.prison === true} onChange={() => setValues((pre) => ({ ...pre, prison: true }))} name="prison" value={true} />}
@@ -1048,10 +1141,10 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.prison === false} onChange={() => setValues((pre) => ({ ...pre, prison: false }))} name="prison" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
                             {values.prison === true && (
                                 <>
-                                    <Grid flexDirection='column' container spacing={3} sx={{ padding: 2 }}>
+                                    <Grid flexDirection='column' container spacing={3} style={{ padding: 2 }}>
                                         <Grid item xs={6}>
                                             <FlotingLableInput
                                                 placeholder="when and which prison"
@@ -1091,7 +1184,18 @@ const Assessment = ({ Field }) => {
                             )}
                         </Grid>
                         <Grid item xs={12} sm={4}>
-                            <Typography variant="subtitle1">Related under any conditions</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Related under any conditions"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.related_under_condition === true, onChange: () => setValues((pre) => ({ ...pre, related_under_condition: true })) },
+                                    { label: 'No', value: false, checked: values.related_under_condition === false, onChange: () => setValues((pre) => ({ ...pre, related_under_condition: false })), defaultChecked: true }
+                                ]}
+                                name='related_under_condition'
+                                value={values.related_under_condition}
+                            />
+                            {/* <Typography variant="subtitle1">Related under any conditions</Typography>
                             <FormGroup>
                                 <FormControlLabel
                                     control={<Radio checked={values.related_under_condition === true} onChange={() => setValues((pre) => ({ ...pre, related_under_condition: true }))} name="related_under_condition" value={true} />}
@@ -1101,10 +1205,10 @@ const Assessment = ({ Field }) => {
                                     control={<Radio checked={values.related_under_condition === false} onChange={() => setValues((pre) => ({ ...pre, related_under_condition: false }))} name="related_under_condition" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
                             {values?.related_under_condition && (
                                 <>
-                                    <Grid flexDirection='column' container spacing={3} sx={{ padding: 2 }}>
+                                    <Grid flexDirection='column' container spacing={3} style={{ padding: 2 }}>
                                         <Grid item xs={6}>
                                             <FlotingLableInput
                                                 type="text" name="related_under_condition_what"
@@ -1157,24 +1261,35 @@ const Assessment = ({ Field }) => {
                     <Typography variant="h6" marginTop={4}>Drug Use</Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
-                            <Typography variant="subtitle1">Do you use drugs?</Typography>
+                            <RadioComponent
+                                defaultValue={false}
+                                title="Do you use drugs?"
+                                direction='hor'
+                                valArr={[
+                                    { label: "Yes", value: true, checked: values.drug === true, onChange: () => setValues((pre) => ({ ...pre, drug: true })) },
+                                    { label: 'No', value: false, checked: values.drug === false, onChange: () => setValues((pre) => ({ ...pre, drug: false })), defaultChecked: true }
+                                ]}
+                                name='drug'
+                                value={values.drug}
+                            />
+                            {/* <Typography variant="subtitle1">Do you use drugs?</Typography>
                             <FormGroup>
                                 <FormControlLabel
-                                    control={<Radio checked={values.drug === true} onChange={() => setValues((pre) => ({ ...pre, drug: true }))} name="drug" value={true} />}
+                                    control={<Radio checked={values?.drug === true} onChange={() => setValues((pre) => ({ ...pre, drug: true }))} name="drug" value={true} />}
                                     label="Yes"
                                 />
                                 <FormControlLabel
-                                    control={<Radio checked={values.drug === false} onChange={() => setValues((pre) => ({ ...pre, drug: false }))} name="drug" value={false} />}
+                                    control={<Radio checked={values?.drug === false} onChange={() => setValues((pre) => ({ ...pre, drug: false }))} name="drug" value={false} />}
                                     label="No"
                                 />
-                            </FormGroup>
+                            </FormGroup> */}
                         </Grid>
-                        {values?.drug === true && (
+                        {values?.drug && (
                             <Grid container spacing={1} flexDirection='column'>
                                 <Grid item xs={12} sm={6}>
                                     <FlotingLableInput
                                         type="text"
-                                        name="drug_use"
+                                        name="drug_user"
                                         placeholder="What drugs do you use?"
                                         label="What drugs do you use?"
                                         onChange={handleChange}
@@ -1365,25 +1480,74 @@ const Assessment = ({ Field }) => {
                             <FormControlLabel
                                 control={
                                     <Checkbox
-                                        name={category.name}
-                                        checked={values[category.name]}
+                                        // name={category.name}
+                                        // checked={values?.riskCategories[category.name]}
+                                        name={`${category?.name}`}
+                                        checked={values?.categories[`${category?.name}`] || false}
                                         onChange={(e) => {
+                                            // handleChange(e)
                                             if (e.target.checked) {
-                                                setFieldValue(category.name, true)
+                                                setFieldValue(`categories.${category?.name}`, true)
                                             } else {
-                                                setFieldValue(category.name, false)
+                                                setFieldValue(`categories.${category?.name}`, false)
                                             }
                                         }}
                                     />
                                 }
                                 label={category.label}
                             />
+                            {/* {values.riskCategories[`${category.name}`]?.isChecked === true && (
+                                <>
+                                    <Grid spacing={2} container xs={12} md={6}>
+                                        <Grid item xs={12} sm={4}>
+                                            <FlotingLableInput
+                                                type="text"
+                                                label="Who is at risk?"
+                                                fullWidth
+                                                name={`riskCategories.${category.name}.whoIsAtRisk`}
+                                                value={values?.riskCategories[`${category.name}`]?.whoIsAtRisk || ''}
+                                                onChange={handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4}>
 
+                                            <FlotingLableInput
+                                                type="text"
+                                                label="How will the risk be managed?"
+                                                fullWidth
+                                                // name={`${category.name}_riskManagement`}
+                                                // value={values[`${category.name}_riskManagement`] || ''}
+                                                name={`riskCategories.${category.name}.riskManagement`}
+                                                value={values?.riskCategories[`${category.name}`]?.riskManagement || ''}
+                                                onChange={handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4}>
+                                            <FlotingLableInput
+                                                type="text"
+                                                label="Risk rating (High/Medium/Low)"
+                                                fullWidth
+                                                select
+                                                menuItems={[
+                                                    { val: "High", label: "High" },
+                                                    { val: "Medium", label: "Medium" },
+                                                    { val: "Low", label: "Low" },
+                                                ]}
+                                                onChange={handleChange}
+                                                name={`riskCategories.${category.name}.riskRating`}
+                                                value={values?.riskCategories[`${category.name}`].riskRating || ''}
+                                            // value={values[`${category.name}_riskRating`] || ''}
+                                            // name={`${category.name}_riskRating`}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </>
+                            )} */}
                         </Box>
                     ))}
 
 
-                    <Typography variant="h6" marginBottom={2}>Other</Typography>
+                    {/* <Typography variant="h6" marginBottom={2}>Other</Typography>
                     <FormControlLabel
                         control={
                             <Radio
@@ -1403,6 +1567,17 @@ const Assessment = ({ Field }) => {
                             />
                         }
                         label="No"
+                    /> */}
+                    <RadioComponent
+                        defaultValue={false}
+                        title="Other"
+                        direction='hor'
+                        valArr={[
+                            { label: "Yes", value: true, checked: values.isotherRisk === true, onChange: () => setValues((pre) => ({ ...pre, isotherRisk: true })) },
+                            { label: 'No', value: false, checked: values.isotherRisk === false, onChange: () => setValues((pre) => ({ ...pre, isotherRisk: false })), defaultChecked: true }
+                        ]}
+                        name='isotherRisk'
+                        value={values.isotherRisk}
                     />
                     {values.isotherRisk && <>
                         <Grid container>
@@ -1436,7 +1611,18 @@ const Assessment = ({ Field }) => {
                     <Typography variant="h6" marginTop={4}>Risk Assessment</Typography>
                     <Divider sx={{ marginTop: 1 }} />
                     <Box sx={{ padding: 2 }}>
-                        <Typography variant="h6" marginBottom={2}>
+                        <RadioComponent
+                            defaultValue={false}
+                            title=" Family Support"
+                            direction='hor'
+                            valArr={[
+                                { label: "Yes", value: true, checked: values.family_support === true, onChange: () => setValues((pre) => ({ ...pre, family_support: true })) },
+                                { label: 'No', value: false, checked: values.family_support === false, onChange: () => setValues((pre) => ({ ...pre, family_support: false })), defaultChecked: true }
+                            ]}
+                            name='family_support'
+                            value={values.family_support}
+                        />
+                        {/* <Typography variant="h6" marginBottom={2}>
                             Family Support
                         </Typography>
 
@@ -1455,10 +1641,10 @@ const Assessment = ({ Field }) => {
                                 label="No"
                                 value="no"
                             />
-                        </RadioGroup>
+                        </RadioGroup> */}
 
                         {/* Conditional fields based on the selected radio button */}
-                        {values.family_support === "yes" && (
+                        {values.family_support && (
                             <Box sx={{ marginTop: 2 }}>
                                 <Grid container flexDirection='column' spacing={2}>
                                     {/* Who Supports Family */}
@@ -1509,11 +1695,7 @@ const Assessment = ({ Field }) => {
                             </Box>
                         )}
                     </Box>
-
-
-
-
-                    <Box width={{ xs: "100%", md: "80%", lg: "50%" }} my={4}>
+                    {['6766bedbffa321615627cecf'].includes(prevValues?.rsl) && <Box width={{ xs: "100%", md: "80%", lg: "50%" }} my={4}>
                         <TableContainer
                             component={Paper}
                             sx={{
@@ -1614,29 +1796,50 @@ const Assessment = ({ Field }) => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </Box>
+                    </Box>}
+                    <Grid container spacing={2}>
+                        <Grid xs={4} item >
+                            <Box flexDirection='column'>
+                                <Typography variant='h6'>Support Worker Signature</Typography>
+                            </Box>
+                            <Box>
+                                <SignatureCanvas value={values?.supportWorkerSignature} name='supportWorkerSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('supportWorkerSignature', sign)} />
+                            </Box>
+                        </Grid>
+                        <Grid xs={4} item >
+                            <Typography variant="h6">Tenant Signature</Typography>
+                            <Box flexDirection='column' my={1}>
+                                <Typography variant='p'>I confirm that all the information provided is true to my knowledge and agree to follow a program of support based on this assessment</Typography>
+                            </Box>
+                            <Box>
+                                <SignatureCanvas value={values?.tenantSignature} name='tenantSignature' setFieldValue={setFieldValue} onSave={(sign) => setFieldValue('tenantSignature', sign)} />
+                            </Box>
+                        </Grid>
 
-                    <Divider sx={{ marginTop: 4 }} />
-                    <Typography variant="h5" marginTop={4}>Risk Assessment Reviews</Typography>
-                    <Box
+                    </Grid>
+
+                    {/* <Divider sx={{ marginTop: 4 }} /> */}
+                    {/* <Typography variant="h5" marginTop={4}>Risk Assessment Reviews</Typography> */}
+                    {/* <Box
                         display="flex"
                         width="50%"
-                        gap={2} // Use a numeric value for consistent spacing
-                        flexDirection={{ xs: "column", md: "row" }} // Responsive: column on small screens, row on larger screens
+                        gap={2} 
+                        flexDirection={{ xs: "column", md: "row" }} 
                         justifyContent="space-between"
                         marginTop={2}
                     >
                         <FlotingLableInput
-                            sx={{ flex: 1, marginBottom: { xs: 2, md: 0 } }} // Adjust margin for responsiveness
+                            sx={{ flex: 1, marginBottom: { xs: 2, md: 0 } }} 
                             name="currentAssessmentDate"
                             label="Current Assessment Date"
                             type="date"
                             fullWidth
+                            disabled
                             value={values.currentAssessmentDate}
                             onChange={(e) => {
                                 handleChange(e);
-                                const result = moment(e.target.value).add(3, 'months');
-                                setFieldValue('nextAssessmentDate', result.format('YYYY-MM-DD'))
+                                const result = moment(e.target.value).add(3, 'months').format('YYYY-MM-DD');
+                                setFieldValue('nextAssessmentDate', result)
                             }}
                             InputLabelProps={{
                                 shrink: true,
@@ -1648,6 +1851,7 @@ const Assessment = ({ Field }) => {
                             name="nextAssessmentDate"
                             label="Next Assessment Date"
                             type="date"
+                            disabled
                             fullWidth
                             value={values.nextAssessmentDate}
                             onChange={(e) => handleChange(e)}
@@ -1655,15 +1859,37 @@ const Assessment = ({ Field }) => {
                                 shrink: true,
                             }}
                         />
+                    </Box> */}
+                    <Box
+                        m={2}
+                        justifyContent='start'
+                        alignItems='flex-start'
+                        display='flex'
+                        gap={3}
+                    >
+                        <Divider sx={{ my: 2 }} />
+                        <Button
+                            onClick={() => backStep()}
+                            variant="outlined"
+                            color="primary"
+                        >
+                            Back
+                        </Button>
+                        <Button onClick={() => {
+                            handleSubmit()
+                        }} variant="contained" color="primary">
+                            Next
+                        </Button>
+
+
                     </Box>
 
-
-                    <Button type="button" onClick={() => { handleSubmit(); }} variant="contained" color="primary" sx={{ marginTop: 2 }}>
+                    {/* <Button type="button" onClick={() => { handleSubmit(); }} variant="contained" color="primary" sx={{ marginTop: 2 }}>
                         Add Tenant Assessment
-                    </Button>
+                    </Button> */}
                 </Grid>
 
-            </Box>
+            </Box >
         </>
 
     );

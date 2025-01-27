@@ -1,5 +1,4 @@
 // src/hooks/useApi.js
-import { useQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { showSnackbar } from '../Redux/Sclice/SnaackBarSclice';
@@ -8,14 +7,11 @@ import API from 'Constance';
 import { useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 import { useCallback, useState } from 'react';
-import { useInfiniteQuery } from "@tanstack/react-query";
 import debounce from "lodash/debounce";
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { saveAs } from 'file-saver';
 
-const queryClient = new QueryClient()
+
+
 
 
 export const postData = async (url, data, config = {}) => {
@@ -59,109 +55,9 @@ export const postData = async (url, data, config = {}) => {
 };
 
 
-// Custom hook for GET request
-export const useGetApi = (key, url, options) => {
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  return useQuery({
-    queryKey: key,
-    queryFn: async () => {
-      try {
-        const res = await API.get(url, { params: { ...options } });
-        return res.data;
-      } catch (error) {
-        if (error.response?.status === 409) {
-          dispatch(logout());
-          navigate('/login');
-        } else {
-          dispatch(showSnackbar({
-            message: error.response?.data?.message || "An error occurred",
-            severity: "error"
-          }));
-        }
-        throw error;
-      }
-    },
-    retry: (failureCount, error) => {
-
-      if (error.response?.status !== 200) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-    retryDelay: (retryAttempt) => Math.min(1000 * 2 ** retryAttempt, 30000),
-    refetchOnWindowFocus: false,
-    refetchInterval: false,
-    ...options,
-  });
-};
 
 
 
-
-// Custom hook for POST request
-export const usePost = (url, invalidatekey, params) => {
-  const dispatch = useDispatch();
-  const navigation = useNavigate()
-  return useMutation({
-    mutationFn: async (data) => {
-      try {
-        dispatch(setIsLoading({ data: true }))
-        const res = await API.post(url, data, { params: { ...params } });
-        dispatch(showSnackbar({ message: res?.data?.message || "Request successful", severity: "success" }));
-        dispatch(setIsLoading({ data: false }))
-        return res.data;
-
-      } catch (error) {
-        if (error.response?.status === 409) {
-          dispatch(logout());
-          dispatch(setIsLoading({ data: false }))
-          navigation('/auth/login')
-        }
-        dispatch(showSnackbar({ message: error.response?.data?.message || "An error occurred", severity: "error" }));
-        dispatch(setIsLoading({ data: false }))
-      }
-    },
-    onMutate: async (newData) => {
-      await queryClient.cancelQueries([...invalidatekey]);
-      const previousData = queryClient.getQueryData([...invalidatekey]);
-      return { previousData };
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...invalidatekey] })
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...invalidatekey] });
-    }
-  });
-};
-
-// Custom hook for listing with pagination
-export const useListing = (key, url, options = { page, limit, search, clinicID }) => {
-  const dispatch = useDispatch();
-  const navigation = useNavigate();
-  return useQuery({
-    queryKey: [key, page, limit, search],
-    queryFn: async () => {
-      try {
-        const res = await API.get(url, {
-          params: { page: page + 1, limit, search: search, clinicID, ...options },
-        });
-        return res.data;
-      } catch (error) {
-        if (error.response?.status === 409) {
-          dispatch(logout());
-          navigation('/login')
-        }
-        dispatch(showSnackbar({ message: error.response?.data?.message || "An error occurred", severity: "error" }));
-        throw error;
-      }
-    },
-    keepPreviousData: true,
-  });
-};
 
 
 export const FetchData = async (url, options) => {
@@ -189,44 +85,6 @@ export const FetchData = async (url, options) => {
 
 
 
-export const useInfiniteScroll = ({ queryKey, queryFn, getNextPageParam, initialPageParam, getPreviousPageParam }) => {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey,
-    queryFn,
-    getNextPageParam,
-    getPreviousPageParam,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    initialPageParam
-  });
-  // const a = getNextPageParam()
-  // console.log(getNextPageParam)
-  const handleScroll = (e) => {
-    if (!hasNextPage || isFetchingNextPage) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    if (scrollTop + clientHeight >= scrollHeight - 5) {
-      fetchNextPage(); // Call fetchNextPage directly
-    }
-  }
-  return {
-    data: { listdata: data?.pages.flatMap((page) => page?.items) || [], total: data?.pages[0]?.Total },
-    isLoading,
-    isFetchingNextPage,
-    error,
-    handleScroll,
-    fetchNextPage,
-    refetch,
-  };
-}
 
 
 
@@ -484,10 +342,10 @@ export const handleView = async ({ type, id }) => {
 //   dispatch(setIsLoading({data:false}))
 // };
 
-export const handleDownload = async ({ type, id, tempname }, dispatch) => {
+export const handleDownload = async ({ type, id, tempname, assesment_id }, dispatch) => {
   try {
     dispatch(setIsLoading({ data: true }))
-    const response = await API.get('/api/user/generate-pdf', { params: { type, id }, responseType: 'arraybuffer', headers: { Accept: 'application/pdf' } });
+    const response = await API.get('/api/user/generate-pdf', { params: { type, id, assessment_id:assesment_id }, responseType: 'arraybuffer', headers: { Accept: 'application/pdf' } });
     if (response.data.byteLength === 0) {
       alert('Received empty PDF data from server.');
     }

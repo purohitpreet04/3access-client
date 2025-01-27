@@ -55,8 +55,8 @@ function TenantDetails() {
             const res = await API.get('/api/tenents/gettenantdetails', { params: { _id: tenantId } })
 
             setTenantData({ ...res.data.data, rslDocument: res.data?.rslDocuments })
-            setLoading(false)
             dispatch(setIsLoading({ data: false }))
+            setLoading(false)
         } catch (error) {
             dispatch(showSnackbar({ message: error.message, severity: 'error' }))
             setLoading(false)
@@ -89,7 +89,7 @@ function TenantDetails() {
             { name: 'BCC Claim Form:', needsAssessment: false, type: '' }
         ],
         referral: [
-            { name: 'Interim Risk Review:', needsAssessment: true, navigate: '/services/tenetdetails/assesment' },
+            // { name: 'Interim Risk Review:', needsAssessment: true, navigate: '/services/tenetdetails/assesment' },
             { name: 'Referral and Risk Assessment:', needsAssessment: true, }
         ],
         support: [
@@ -127,7 +127,6 @@ function TenantDetails() {
                 }
             }
         } catch (error) {
-            console.log(error)
             dispatch(showSnackbar({ message: 'error while edit tenant', severity: 'error' }))
         }
     }
@@ -153,7 +152,6 @@ function TenantDetails() {
             <Box sx={{ p: 3 }}>
 
                 <DynamicTitle title='Tenant Details' />
-
 
                 <Box
                     sx={{
@@ -182,8 +180,30 @@ function TenantDetails() {
                     >
                         {`${tenantdata?.title_before_name || ''}. ${tenantdata?.firstName || ''} ${tenantdata?.middleName || ''} ${tenantdata?.lastName || ''}`}
                     </Typography>
+
                 </Box>
+               {tenantdata?.error && <Grid container xs={12} md={6} my={2}>
+                    <Typography
+                        variant="subtitle1"
+                        component="p"
+                        sx={{
+                            fontWeight: 500,
+                            textAlign: 'center',
+                            color: 'white',  // Red color for errors (MUI default theme)
+                            backgroundColor: 'error.light',  // Light red background to highlight the error
+                            padding: 2,  // Adds padding inside the text box
+                            borderRadius: 1,  // Rounds the corners of the box
+                            border: '1px solid',  // Adds a border around the error message
+                            borderColor: 'error.dark',  // Dark red color for the border
+                            marginTop: 2,  // Adds some spacing at the top
+                            marginBottom: 2,  // Adds some spacing at the bottom
+                        }}
+                    >
+                        {tenantdata?.error}
+                    </Typography>
+                </Grid>}
                 <Grid container spacing={3}>
+
                     {/* Left Panel - Document Upload */}
                     <Grid item xs={12} md={6}>
                         <Paper sx={{ p: 2, mb: 2 }}>
@@ -316,14 +336,7 @@ function TenantDetails() {
                                             </TableCell>
                                             <TableCell>
                                                 {tenantdata?.claimReferenceNumber}
-                                                <LaunchIcon
-                                                    sx={{
-                                                        ml: 1,
-                                                        fontSize: 16,
-                                                        color: '#337ab7',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
+
                                             </TableCell>
                                         </TableRow>
                                         <TableRow
@@ -346,14 +359,7 @@ function TenantDetails() {
                                             </TableCell>
                                             <TableCell>
                                                 {tenantdata?.gender}
-                                                <LaunchIcon
-                                                    sx={{
-                                                        ml: 1,
-                                                        fontSize: 16,
-                                                        color: '#337ab7',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
+
                                             </TableCell>
                                         </TableRow>
                                         <TableRow
@@ -376,14 +382,7 @@ function TenantDetails() {
                                             </TableCell>
                                             <TableCell>
                                                 {tenantdata?.tenantContactNumber}
-                                                <LaunchIcon
-                                                    sx={{
-                                                        ml: 1,
-                                                        fontSize: 16,
-                                                        color: '#337ab7',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
+
                                             </TableCell>
                                         </TableRow>
                                         <TableRow
@@ -428,16 +427,83 @@ function TenantDetails() {
                                             </TableCell>
                                             <TableCell>
                                                 {tenantdata?.status === 0 ? 'Not active' : 'Active'}
-                                                <LaunchIcon
-                                                    sx={{
-                                                        ml: 1,
-                                                        fontSize: 16,
-                                                        color: '#337ab7',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                />
+
                                             </TableCell>
                                         </TableRow>
+                                        {tenantdata?.Housing_benefit_weekly_amount && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Housing Benefit Weekly Amount:
+                                            </TableCell>
+                                            <TableCell>
+                                                
+                                                £ {tenantdata?.Housing_benefit_weekly_amount}
+                                            </TableCell>
+                                        </TableRow>}
+                                        {tenantdata?.Next_HB_payment_amount && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Next HB Payment Amount:
+                                            </TableCell>
+                                            <TableCell>
+                                                
+                                                £ {tenantdata?.Next_HB_payment_amount}
+                                            </TableCell>
+                                        </TableRow>}
+                                        {tenantdata?.Next_HB_payment_date && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Next HB Payment Date:
+                                            </TableCell>
+                                            <TableCell>
+                                                {getDate(tenantdata?.Next_HB_payment_date)}
+                                            </TableCell>
+                                        </TableRow>}
                                         {/* {tenantInfo.map((row) => (
                             <TableRow
                                 key={row.label}
@@ -708,46 +774,114 @@ function TenantDetails() {
 
                             <Box role="tabpanel" hidden={tabValue !== 1}>
                                 {documents.referral.map((doc, i) => (
-                                    <Box
-                                        key={doc.name}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            borderBottom: '1px solid #eee',
-                                            py: 1
-                                        }}
-                                    >
-                                        <Typography>{doc.name}</Typography>
-                                        <Typography
+                                    <Box>
+                                        <Box
+                                            key={doc.name}
                                             sx={{
-                                                color: '#337ab7',
                                                 display: 'flex',
-                                                alignItems: 'center'
+                                                direction: 'column',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                borderBottom: '1px solid #eee',
+                                                py: 1
                                             }}
                                         >
-                                            Assessment needs to be done
-                                            <Box
-                                                component="span"
+                                            <Typography>{doc.name}</Typography>
+                                            <Typography
                                                 sx={{
-                                                    ml: 1,
-                                                    width: 20,
-                                                    height: 20,
-                                                    borderRadius: '50%',
-                                                    bgcolor: '#337ab7',
-                                                    color: 'white',
+                                                    color: '#337ab7',
                                                     display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: '14px',
-                                                    cursor: 'pointer'
+                                                    alignItems: 'center'
                                                 }}
-                                                onClick={() => navigation(`${doc?.navigate}?sd=${tenantdata?.signInDate}&t=${i + 1}&tid=${tenantdata?._id}`)}
                                             >
-                                                +
+                                                Assessment needs to be done
+                                                <Box
+                                                    component="span"
+                                                    sx={{
+                                                        ml: 1,
+                                                        width: 20,
+                                                        height: 20,
+                                                        borderRadius: '50%',
+                                                        bgcolor: '#337ab7',
+                                                        color: 'white',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: '14px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                    onClick={() => navigation(`${doc?.navigate}?sd=${tenantdata?.signInDate}&t=${i + 1}&tid=${tenantdata?._id}`)}
+                                                >
+                                                    +
+                                                </Box>
+                                            </Typography>
+                                        </Box>
+                                        {i === 1 && (
+                                            <Box>
+                                                {tenantdata?.assesment?.length > 0 && tenantdata?.assesment?.map((doc, index) => {
+
+                                                    return (doc?.temp.map((asses) => {
+                                                        return (
+                                                            <>
+                                                                <Box
+                                                                    key={doc.name}
+                                                                    sx={{
+                                                                        display: 'flex',
+                                                                        justifyContent: 'space-between',
+                                                                        alignItems: 'center',
+                                                                        borderBottom: '1px solid #eee',
+                                                                        py: 1
+                                                                    }}
+                                                                >
+                                                                    <Typography>
+                                                                        {`${asses?.name} (${getDate(doc?.currentAssessmentDate)} - ${getDate(doc?.nextAssessmentDate)})`}
+                                                                    </Typography>
+                                                                    <Box>
+                                                                        <Button
+                                                                            size="small"
+                                                                            startIcon={<DownloadIcon />}
+                                                                            sx={{
+                                                                                bgcolor: '#337ab7',
+                                                                                color: 'white',
+                                                                                mr: 1,
+                                                                                '&:hover': {
+                                                                                    bgcolor: '#286090'
+                                                                                }
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                handleDownload({ type: asses?.key, id: tenantId, tempname: asses?.name, assesment_id: doc?._id }, dispatch)
+                                                                            }}
+                                                                        >
+                                                                            Download
+                                                                        </Button>
+                                                                        <Button
+                                                                            onClick={() => {
+                                                                                window.open(`/document?type=${asses?.key}&t=${tenantId}&assessment=${doc?._id}`, '_blank')
+                                                                                // handleView({ type: doc.type, id: tenantId })
+                                                                            }}
+                                                                            size="small"
+                                                                            startIcon={<VisibilityIcon />}
+                                                                            sx={{
+                                                                                bgcolor: '#337ab7',
+                                                                                color: 'white',
+                                                                                '&:hover': {
+                                                                                    bgcolor: '#286090'
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            View
+                                                                        </Button>
+                                                                    </Box>
+                                                                </Box>
+                                                            </>
+                                                        )
+                                                    }))
+
+                                                })}
                                             </Box>
-                                        </Typography>
+                                        )}
                                     </Box>
+
                                 ))}
                             </Box>
 

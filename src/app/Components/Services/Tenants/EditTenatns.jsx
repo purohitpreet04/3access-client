@@ -18,6 +18,7 @@ import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
 import { getDate } from '@app/Utils/utils';
 import API from 'Constance';
+import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -115,107 +116,114 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
                                         </Field>
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
                                             onChange={handleChange}
                                             name="tenantContactNumber"
-                                            as={TextField}
-                                            label="Tenant Contact Number *"
+                                            value={values.tenantContactNumber}
+                                            // as={TextField}
+                                            label="Tenant Contact Number"
                                             fullWidth
-                                            error={touched.tenantContactNumber && Boolean(errors.tenantContactNumber)}
+                                            errors={errors}
                                             helperText={touched.tenantContactNumber && errors.tenantContactNumber}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
                                             onChange={handleChange}
                                             name="firstName"
-                                            as={TextField}
                                             label="First Name *"
+                                            value={values.firstName}
                                             fullWidth
-                                            error={touched.firstName && Boolean(errors.firstName)}
+                                            errors={errors}
                                             helperText={touched.firstName && errors.firstName}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
                                             onChange={handleChange}
                                             name="tenantEmail"
-                                            as={TextField}
                                             label="Tenant Email"
                                             fullWidth
                                             value={values.tenantEmail}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
                                             onChange={handleChange}
                                             name="middleName"
-                                            as={TextField}
                                             label="Middle Name"
                                             fullWidth
                                             value={values.middleName}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            // type='text'
                                             onChange={handleChange}
                                             name="dateOfBirth"
-                                            as={TextField}
                                             label="Date of Birth *"
                                             type="date"
                                             fullWidth
                                             value={values?.dateOfBirth ? new Date(values.dateOfBirth).toISOString().split('T')[0] : ''}
                                             InputLabelProps={{ shrink: true }}
-                                            error={touched.dateOfBirth && Boolean(errors.dateOfBirth)}
+                                            errors={errors}
                                             helperText={touched.dateOfBirth && errors.dateOfBirth}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
+                                            value={values.lastName}
                                             onChange={handleChange}
                                             name="lastName"
-                                            as={TextField}
                                             label="Last Name *"
                                             fullWidth
-                                            error={touched.lastName && Boolean(errors.lastName)}
+                                            errors={errors}
                                             helperText={touched.lastName && errors.lastName}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
+                                            value={values.nationalInsuranceNumber}
                                             onChange={handleChange}
                                             name="nationalInsuranceNumber"
-                                            as={TextField}
                                             label="National Insurance Number *"
                                             fullWidth
-                                            error={touched.nationalInsuranceNumber && Boolean(errors.nationalInsuranceNumber)}
+                                            errors={errors}
                                             helperText={touched.nationalInsuranceNumber && errors.nationalInsuranceNumber}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                            type='text'
                                             onChange={handleChange}
                                             name="claimReferenceNumber"
-                                            as={TextField}
                                             label="Claim Reference Number"
                                             fullWidth
                                             value={values.claimReferenceNumber}
                                         />
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <Field
+                                        <FlotingLableInput
+                                        select
+                                            type='text'
                                             onChange={handleChange}
                                             name="gender"
-                                            as={TextField}
                                             label="Gender *"
-                                            select
+                                            // select
+                                            value={values.gender}
                                             fullWidth
-                                            error={touched.gender && Boolean(errors.gender)}
+                                            errors={errors}
                                             helperText={touched.gender && errors.gender}
-                                        >
-                                            <MenuItem value="male">Male</MenuItem>
-                                            <MenuItem value="female">Female</MenuItem>
-                                        </Field>
+                                            menuItems={[{val:'', label:'Select'}, {val:'male', label:'Male'}, {val:'female', label:'Female'}]}
+                                        />
+                                            {/* <MenuItem value="male">Male</MenuItem>
+                                            <MenuItem value="female">Female</MenuItem> */}
                                     </Grid>
                                 </Grid>
                                 <Box mt={3} textAlign="right">

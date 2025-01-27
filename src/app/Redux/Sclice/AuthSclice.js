@@ -34,7 +34,7 @@ export const login = createAsyncThunk(
                 return { user: {}, token: null, isAuthenticate: false }
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             dispatch(setIsLoading({ data: false }));
             dispatch(showSnackbar({ message: error.response.data.message, severity: error.response.data.severity }))
             return { user: {}, token: null, isAuthenticate: false, loading: false }

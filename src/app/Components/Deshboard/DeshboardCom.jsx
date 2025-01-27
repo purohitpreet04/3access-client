@@ -4,7 +4,6 @@ import { styled } from '@mui/system';
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, Container, Paper } from '@mui/material';
 import { Bed, Group, House, Room } from '@mui/icons-material'
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetApi } from '@app/Utils/CustomHooks';
 import { PropertyList, StackCards } from './shared';
 
 const FixedHeightPaper = styled(Paper)(({ theme }) => ({

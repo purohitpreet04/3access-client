@@ -176,6 +176,41 @@ const PropertyList = () => {
         <>
             <Box width="100%" overflow="auto">
                 <StackCards cardList={stackData} />
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                    gap={2} // Spacing between dots
+                    padding={2}
+                >
+                    {/* Active Dot with Label */}
+                    <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+                        <Box
+                            width={16}
+                            height={16}
+                            borderRadius="50%" // Makes it a circle
+                            bgcolor="#4CAF50" // Green if active
+                            border="2px solid #2E7D32" // Border to emphasize
+                        />
+                        <Typography variant="body2" color="#2E7D32">
+                            Active
+                        </Typography>
+                    </Box>
+
+                    {/* Inactive Dot with Label */}
+                    <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+                        <Box
+                            width={16}
+                            height={16}
+                            borderRadius="50%" // Makes it a circle
+                            bgcolor="#FADBD8" // Red if not active
+                            border="2px solid #C0392B" // Border to emphasize
+                        />
+                        <Typography variant="body2" color="#C0392B">
+                            Not Active
+                        </Typography>
+                    </Box>
+                </Box>
                 <TableContainer
                     sx={{
                         padding: 1,
@@ -233,7 +268,8 @@ const PropertyList = () => {
                             },
                             "& tbody": {
                                 "& td": {
-                                    padding: theme.spacing(1),
+                                    // padding: theme.spacing(1),
+
                                     textTransform: "capitalize",
                                     border: `1px solid ${theme.palette.divider}`,
                                     wordBreak: "break-word",
@@ -246,6 +282,11 @@ const PropertyList = () => {
                             "& table": {
                                 tableLayout: "auto",
                             },
+
+                            "& .css-1ieb10p-MuiTable-root tbody tr td": {
+                                // padding: '10px !important',
+                                textTransform: "capitalize"
+                            }
 
                         }}
                     >
@@ -278,7 +319,14 @@ const PropertyList = () => {
                                                 <TableCell style={{ wordBreak: 'break-word' }} align="center" key={room.key}>
                                                     {property[room.key] ? (
                                                         property[room.key].tenant_id ? (
-                                                            <Box flexDirection='column' display='flex' justifyContent='center' alignItems='center'>
+                                                            <Box
+                                                                ml={1}
+                                                                p={1}
+                                                                flexDirection='column'
+                                                                display='flex' justifyContent='center' alignItems='center'
+                                                                bgcolor={property[room.key].tenant_id?.status == 1 ? '#DFF2D8' : '#FADBD8'} // Soft green for active, soft red for not active
+                                                                color={property[room.key].tenant_id?.status == 1 ? '#2E7D32' : '#C0392B'} // Darker matching text color
+                                                            >
                                                                 {
                                                                     mainuser.includes(user?.role) ? (
                                                                         <>
@@ -318,10 +366,10 @@ const PropertyList = () => {
                                                         ) : (
                                                             <Box flexDirection='column' display='flex' justifyContent='center' alignItems='center'>
                                                                 {mainuser.includes(user.role) ? (<Clickablelink onClick={() => { checkHasOneStaff(property._id, room.roomNumber) }}>
-                                                                    Add new Tenant
+                                                                    Signup new Tenant
                                                                 </Clickablelink>) : (<>
                                                                     {user?.permmission.includes(7) ? <Clickablelink to={`/services/addtenants?p=${property._id}&r=${room.roomNumber}`} >
-                                                                        Add new Tenant
+                                                                        Signup new Tenant
                                                                     </Clickablelink> : <Clickablelink>---</Clickablelink>}
                                                                 </>)}
                                                                 {property[room.key]?.lastsignoutdate && (

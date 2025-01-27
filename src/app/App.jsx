@@ -9,8 +9,9 @@ import CustomSnackbar from './CommonComponents/CustomSnackbar.jsx';
 import LoadingOverlay from './Components/LoadingOverlay.jsx';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 
-import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ListRsl, LoginScreen, NotFound, OtpInput, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ExistingTenants, ListRsl, LoginScreen, NotFound, OtpInput, PendingTenants, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import { ActivityLogs, DocumentCom, MatxLoading } from './Components/index.js';
+import { allUsers } from './Utils/constant.js';
 
 
 function App() {
@@ -27,6 +28,10 @@ function App() {
 
     return isAuthenticate ? <>{children}</> : <Navigate to="/auth/login" />;
   };
+
+
+
+
   // Fetch user details on app load
   useEffect(() => {
     dispatch(fetchUserDetails({ navigate }));
@@ -48,19 +53,22 @@ function App() {
   ];
 
   const appRoutes = [
-    { path: '/', element: <Navigate to="/desh" replace /> },
+    ...authRoutes,
+    { path: '/', element: <Navigate to={isAuthenticate ? '/desh' : '/auth/login'} replace /> },
     {
       element: isAuthenticate ? <MatxLayout /> : <Navigate to="/auth/login" replace />,
       children: [
         { path: '/desh', element: <DeshboardCom /> },
-        { path: '/services/staff', element:  ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <StaffList /> : <Navigate to="*" /> },
-        { path: '/services/property', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <PropertyList /> : <Navigate to="*" /> },
-        { path: '/services/tenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <Tenants /> : <Navigate to="*" /> },
-        { path: '/services/sign-out-tenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <SignOutTenants /> : <Navigate to="*" /> },
-        { path: '/services/addtenants', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <AddTenants /> : <Navigate to="*" /> },
-        { path: '/services/addproperty', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <AddNewProperty /> : <Navigate to="*" /> },
-        { path: '/services/tenetdetails', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <TenantDetails /> : <Navigate to="*" /> },
-        { path: '/services/tenetdetails/assesment', element: ['company', 'agent', 'staff', 'company-agent'].includes(user?.role) ? <Assessment /> : <Navigate to="*" /> },
+        { path: '/services/staff', element: allUsers.includes(user?.role) ? <StaffList /> : <Navigate to="*" /> },
+        { path: '/services/property', element: allUsers.includes(user?.role) ? <PropertyList /> : <Navigate to="*" /> },
+        { path: '/services/tenants', element: allUsers.includes(user?.role) ? <Tenants /> : <Navigate to="*" /> },
+        { path: '/services/pending-tenants', element: allUsers.includes(user?.role) ? <PendingTenants /> : <Navigate to="*" /> },
+        { path: '/services/existing-tenants', element: allUsers.includes(user?.role) ? <ExistingTenants /> : <Navigate to="*" /> },
+        { path: '/services/sign-out-tenants', element: allUsers.includes(user?.role) ? <SignOutTenants /> : <Navigate to="*" /> },
+        { path: '/services/addtenants', element: allUsers.includes(user?.role) ? <AddTenants /> : <Navigate to="*" /> },
+        { path: '/services/addproperty', element: allUsers.includes(user?.role) ? <AddNewProperty /> : <Navigate to="*" /> },
+        { path: '/services/tenetdetails', element: allUsers.includes(user?.role) ? <TenantDetails /> : <Navigate to="*" /> },
+        { path: '/services/tenetdetails/assesment', element: allUsers.includes(user?.role) ? <Assessment /> : <Navigate to="*" /> },
         { path: '/services/settings', element: ['company', 'agent'].includes(user?.role) ? <SettingEmails /> : <Navigate to="*" /> },
         { path: '/services/agents', element: ['agent'].includes(user?.role) ? <Agents /> : <Navigate to="*" /> },
         { path: '/services/agents/permission', element: ['agent'].includes(user?.role) ? <AgentPermmision /> : <Navigate to="*" /> },
@@ -75,7 +83,8 @@ function App() {
     { path: '*', element: <NotFound /> },
   ];
 
-  const content = useRoutes(!isAuthenticate ? authRoutes : appRoutes);
+  const content = useRoutes(appRoutes);
+  // const content = useRoutes(!isAuthenticate ? authRoutes : appRoutes);
 
   return (
     <MatxTheme>

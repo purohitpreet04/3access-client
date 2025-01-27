@@ -1,3 +1,26 @@
+* {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #888 transparent; /* Thumb and track colors for Firefox */
+  }
+  
+  *::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the thumb */
+    border-radius: 8px; /* Rounded corners for the thumb */
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Color of the thumb when hovered */
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent; /* Background of the scrollbar track */
+  }
+
+
 .accordion-content-enter {
     opacity: 0;
     max-height: 0;
@@ -57,4 +80,23 @@
 
 table.MuiTable-root.css-1540n7i-MuiTable-root {
     table-layout: auto I !important; 
+}
+
+.MuiBox-root .css-absfm6{
+    min-height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    /* -webkit-scrollbar {
+        width: '8px';
+    }
+    
+    -webkit-scrollbar-thumb {
+        background-color: '#888';
+        border-radius: '8px';
+    }
+    
+    -webkit-scrollbar-thumb:hover {
+        background-color: '#555';
+    } */
 }

@@ -6,25 +6,26 @@ import { Provider } from 'react-redux'
 import { store, persistor } from './app/Redux/Store.js'
 import { PersistGate } from 'redux-persist/integration/react';
 // import { store, persistor } from './redux/store';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import SettingsProvider from '@app/contexts/SettingsContext.jsx';
+import CustomSnackbar from '@app/CommonComponents/CustomSnackbar.jsx';
 
-const queryClient = new QueryClient()
 
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <SettingsProvider>
-        <Provider store={store}>
-          {/* <PersistGate loading={null} persistor={persistor}> */}
-            <BrowserRouter >
-              <App />
-            </BrowserRouter>
-          {/* </PersistGate> */}
-        </Provider>
-      </SettingsProvider>
-    </QueryClientProvider>
+
+    <SettingsProvider>
+      <Provider store={store}>
+        {/* <PersistGate loading={null} persistor={persistor}> */}
+        <CustomSnackbar>
+          <BrowserRouter >
+            <App />
+          </BrowserRouter>
+        </CustomSnackbar>
+        {/* </PersistGate> */}
+      </Provider>
+    </SettingsProvider>
+
   </React.StrictMode>,
 )

@@ -10,7 +10,7 @@ const DynamicTitle = ({ title }) => {
     const currentNav = navigationArray.find((nav) => nav.path === location.pathname);
     const dynamicTitle = currentNav?.title
     useEffect(() => {
-        document.title = (title || dynamicTitle) != ('' || undefined || null) ? `${title || dynamicTitle} - 3 Access | Real Estate` : '3 Access | Real Estate'; // Update the document title
+        document.title = (title || dynamicTitle) != ('' || undefined || null) ? `${title || dynamicTitle} - 3Access | Real Estate` : '3 Access | Real Estate'; // Update the document title
     }, [title, dynamicTitle]);
 
     return null;

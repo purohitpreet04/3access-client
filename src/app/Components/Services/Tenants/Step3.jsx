@@ -851,7 +851,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction="ver"
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.hasGPInfo === true, onChange: () => setValues((pre) => ({ ...pre, hasGPInfo: true })) },
-                                                { label: 'No', value: false, checked: values.hasGPInfo === false, onChange: () => setValues((pre) => ({ ...pre, hasGPInfo: false })) },
+                                                { label: 'No', value: false, checked: values.hasGPInfo === false, onChange: () => setValues((pre) => ({ ...pre, hasGPInfo: false })), defaultChecked: true },
                                             ]}
                                             name="hasGPInfo"
                                             value={values.hasGPInfo}
@@ -891,7 +891,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction="ver"
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.nillIncome === true, onChange: () => { setValues((pre) => ({ ...pre, nillIncome: true })) } },
-                                                { label: 'No', value: false, checked: values.nillIncome === false, onChange: () => setValues((pre) => ({ ...pre, nillIncome: false })) },
+                                                { label: 'No', value: false, checked: values.nillIncome === false, onChange: () => setValues((pre) => ({ ...pre, nillIncome: false })), defaultChecked: true },
                                             ]}
                                             name="nillIncome"
                                             onChange={(e) => { handleChange(e) }}
@@ -906,7 +906,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                         direction="ver"
                                                         valArr={[
                                                             { label: 'Yes', value: true, checked: values.nillIncomeFormFilledByOther === true, onChange: () => { setValues((pre) => ({ ...pre, nillIncomeFormFilledByOther: true })) } },
-                                                            { label: 'No', value: false, checked: values.nillIncomeFormFilledByOther === false, onChange: () => setValues((pre) => ({ ...pre, nillIncomeFormFilledByOther: false })) },
+                                                            { label: 'No', value: false, checked: values.nillIncomeFormFilledByOther === false, onChange: () => setValues((pre) => ({ ...pre, nillIncomeFormFilledByOther: false })), defaultChecked: true },
                                                         ]}
                                                         name="nillIncomeFormFilledByOther"
                                                         onChange={(e) => { handleChange(e) }}
@@ -953,9 +953,9 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                         InputLabelProps={{
                                                             shrink: true,
                                                         }}
-                                                        inputProps={{
-                                                            max: new Date().toISOString().split('T')[0],
-                                                        }}
+                                                        // inputProps={{
+                                                        //     max: new Date().toISOString().split('T')[0],
+                                                        // }}
                                                         onChange={(e) => handleChange(e)}
                                                     />
                                                 </Grid>
@@ -971,9 +971,9 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                             shrink: true,
                                                         }}
                                                         onChange={(e) => handleChange(e)}
-                                                        inputProps={{
-                                                            max: new Date().toISOString().split('T')[0],
-                                                        }}
+                                                    // inputProps={{
+                                                    //     max: new Date().toISOString().split('T')[0],
+                                                    // }}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12}>
@@ -1001,6 +1001,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                         type="select"
                                                         fullWidth
                                                         variant="outlined"
+
                                                         value={values.borrowingMoneyFromFamily}
                                                         onChange={(e) => handleChange(e)}
                                                         menuItems={[
@@ -1090,7 +1091,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                         <Typography variant='p'>Signature</Typography>
                                                     </Box>
                                                     <Box>
-                                                        <SignatureCanvas onSave={(dataURL) => setFieldValue('supportmansign', dataURL)} />
+                                                        <SignatureCanvas name='nillincomesign' value={values?.nillincomesign} setFieldValue={setFieldValue} onSave={(dataURL) => setFieldValue('nillincomesign', dataURL)} />
                                                     </Box>
                                                 </Grid>
                                             </Grid>
@@ -1106,7 +1107,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction='ver'
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.early_date === true, onChange: () => setValues((pre) => ({ ...pre, early_date: true })) },
-                                                { label: 'No', value: false, checked: values.early_date === false, onChange: () => setValues((pre) => ({ ...pre, early_date: false })) }
+                                                { label: 'No', value: false, checked: values.early_date === false, onChange: () => setValues((pre) => ({ ...pre, early_date: false })), defaultChecked: true }
                                             ]}
                                             name='early_date'
                                             value={values.early_date}
@@ -1133,7 +1134,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                     direction='ver'
                                                     valArr={[
                                                         { label: 'Yes', value: true, checked: values.circumstances_the_same === true, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: true })) },
-                                                        { label: 'No', value: false, checked: values.circumstances_the_same === false, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: false })) }
+                                                        { label: 'No', value: false, checked: values.circumstances_the_same === false, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: false })), defaultChecked: true }
                                                     ]}
                                                     name='circumstances_the_same'
                                                     value={values.circumstances_the_same}
@@ -1170,7 +1171,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction='ver'
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.circumstances_the_same === true, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: true })) },
-                                                { label: 'No', value: false, checked: values.circumstances_the_same === false, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: false })) }
+                                                { label: 'No', value: false, checked: values.circumstances_the_same === false, onChange: () => setValues((pre) => ({ ...pre, circumstances_the_same: false })), defaultChecked: true }
                                             ]}
                                             name='circumstances_the_same'
                                             value={values.circumstances_the_same}
@@ -1230,10 +1231,10 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction='ver'
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.photo_uploaded === true, onChange: () => setValues((pre) => ({ ...pre, photo_uploaded: true })) },
-                                                { label: 'No', value: false, checked: values.photo_uploaded === false, onChange: () => setValues((pre) => ({ ...pre, photo_uploaded: false })) }
+                                                { label: 'No', value: false, checked: values.photo_uploaded === false, onChange: () => setValues((pre) => ({ ...pre, photo_uploaded: false })), defaultChecked: true }
                                             ]}
                                             name='photo_uploaded'
-                                            value={values.photo_uploaded}
+                                            value={values?.photo_uploaded || false}
                                         />
                                         {values?.photo_uploaded && (
                                             <>
@@ -1272,7 +1273,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             direction='ver'
                                             valArr={[
                                                 { label: 'Yes', value: true, checked: values.proof_of_benefit_radio === true, onChange: () => setValues((pre) => ({ ...pre, proof_of_benefit_radio: true })) },
-                                                { label: 'No', value: false, checked: values.proof_of_benefit_radio === false, onChange: () => setValues((pre) => ({ ...pre, proof_of_benefit_radio: false })) }
+                                                { label: 'No', value: false, checked: values.proof_of_benefit_radio === false, onChange: () => setValues((pre) => ({ ...pre, proof_of_benefit_radio: false })), defaultChecked: true }
                                             ]}
                                             name='proof_of_benefit_radio'
                                             value={values.proof_of_benefit_radio}
@@ -1318,14 +1319,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                 <Button onClick={() => handleSubmit()} variant="contained" color="primary">
                                     Next
                                 </Button>
-
-
                             </Box>
-
-
-
-
-
                         </Box>
                     </Form>
                 )

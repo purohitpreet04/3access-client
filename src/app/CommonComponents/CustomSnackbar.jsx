@@ -1,14 +1,15 @@
 // src/components/CustomSnackbar.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert, IconButton } from '@mui/material';
 import { hideSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-
-
-const CustomSnackbar = () => {
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import CloseIcon from '@mui/icons-material/Close';
+const CustomSnackbar = ({ children }) => {
   const dispatch = useDispatch();
   const { open, message, severity } = useSelector((state) => state.snack);
-    
+  const { enqueueSnackbar } = useSnackbar();
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -16,17 +17,38 @@ const CustomSnackbar = () => {
     dispatch(hideSnackbar());
   };
 
+  useEffect(() => {
+    if (open) {
+      enqueueSnackbar(message, { variant: severity });
+    }
+  }, [open])
+
+
+
+  const handleClick = () => enqueueSnackbar('I love snacks.');
   return (
-    <Snackbar
-      open={open}
-      autoHideDuration={3000}
-      onClose={handleClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    <SnackbarProvider 
+    maxSnack={5}
+      
+    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    action={(key) => (
+      <IconButton size="small" onClick={() => SnackbarProvider.closeSnackbar(key)}>
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    )}
     >
-      <Alert onClose={handleClose} severity={severity}  sx={{ width: '100%' }}>
-        {message}
-      </Alert>
-    </Snackbar>
+      {children}
+    </SnackbarProvider>
+    // <Snackbar
+    //   open={open}
+    //   autoHideDuration={3000}
+    //   onClose={handleClose}
+    //   anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    // >
+    //   <Alert onClose={handleClose} severity={severity}  sx={{ width: '100%' }}>
+    //     {message}
+    //   </Alert>
+    // </Snackbar>
   );
 };
 

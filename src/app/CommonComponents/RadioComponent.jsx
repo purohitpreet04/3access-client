@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import { ErrorMessage } from 'formik';
 import { Small } from '@app/Components/Typography';
 
-const RadioComponent = ({ title,title2, name, valArr, handleChange, value, error, direction = 'hor' }, props) => {
+const RadioComponent = ({ title, title2, name, valArr, handleChange, value: roleVal, error, direction = 'hor' }, props) => {
 
 
     const RoleButtonGroup = styled(RadioGroup)(({ theme }) => ({
@@ -23,15 +23,23 @@ const RadioComponent = ({ title,title2, name, valArr, handleChange, value, error
                             {title}
                         </Typography>
                     </FormLabel>
-                        {title2 && <Small>{title2}</Small>}
-
-                    <RoleButtonGroup defaultValue={false} row aria-labelledby="common-selector" value={value || false} name={name} onChange={handleChange}>
-                        {valArr.map(({ value, label, checked, onChange, defaultChecked }) => (
-                            <FormControlLabel defaultChecked={defaultChecked} value={value} control={<Radio value={value} checked={checked} onChange={onChange} />} label={label} />
+                    {title2 && <Small>{title2}</Small>}
+                    <RoleButtonGroup defaultValue={roleVal} row aria-labelledby="common-selector" value={roleVal || false} name={name} onChange={handleChange}>
+                        {valArr.map(({ value, label, checked, onChange, defaultChecked }, i) => (
+                            <FormControlLabel
+                                key={i + `${i + 1}`}
+                                value={value}
+                                control={<Radio
+                                    value={value}
+                                    // checked={checked}
+                                    onChange={onChange}
+                                    defaultChecked={defaultChecked}
+                                />}
+                                label={label}
+                            />
                         ))}
                     </RoleButtonGroup>
                     {error && <div style={{ color: 'red' }}>{error}</div>}
-                    {/* <ErrorMessage name={name} component="div" /> */}
                 </FormGroup>
             </>
         )

@@ -11,6 +11,7 @@ import {
     Button,
     Box,
     TextField,
+    IconButton,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,11 +20,20 @@ import { useNavigate } from 'react-router-dom';
 import SignatureCanvas from '@app/CommonComponents/SignatureCanvas';
 import moment from 'moment';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const SignOutModal = ({ open, data, handleClose, refetch }) => {
+
     const dispatch = useDispatch();
     const navigation = useNavigate();
+    const [showPassword, setShowPassword] = React.useState(false);
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+
     const formik = useFormik({
+        validateOnBlur: false,
+        validateOnChange: false,
+        validateOnMount: false,
         enableReinitialize: true,
         initialValues: {
             isPresent: false,
@@ -35,6 +45,9 @@ const SignOutModal = ({ open, data, handleClose, refetch }) => {
                 errors.signature = 'Required';
                 dispatch(showSnackbar({ message: 'Signature is required', severity: 'error' }));
             }
+            if (!values?.password) {
+                errors.password = 'Password is Required!'
+            }
             return errors;
         },
         onSubmit: (values, { resetForm }) => {
@@ -45,25 +58,18 @@ const SignOutModal = ({ open, data, handleClose, refetch }) => {
                     withOutMail: values?.withOutMail,
                     signOutDate: moment(values?.signOutDate).toISOString(),
                     signature: values?.signature,
+                    password: values?.password,
                     navigate: navigation,
                 })
-
             ).then(() => {
-                refetch(); // Trigger a refresh of tenant data
+                refetch();
                 resetForm();
+                handleClose();
             });
-            handleClose();
-            // Add logic to sign out the user
         },
     });
 
-
-    const { values, setFieldValue, handleChange, errors, handleSubmit, resetForm } = formik;
-
-
-    const handleSignOut = (withOutMail) => {
-
-    }
+    const { values, setFieldValue, handleChange, errors, handleSubmit, resetForm, touched } = formik;
 
     return (
         <Dialog
@@ -92,6 +98,25 @@ const SignOutModal = ({ open, data, handleClose, refetch }) => {
                         inputProps={{
                             // min: minDate,
                             max: new Date().toISOString().split('T')[0], // Prevent future dates
+                        }}
+                    />
+
+                    <TextField
+                        fullWidth
+                        label="Password"
+                        name="password"
+                        onChange={handleChange}
+                        placeholder='Your Login password'
+                        error={errors.password}
+                        helperText={touched.password && errors.password}
+                        margin="normal"
+                        type={showPassword ? 'text' : 'password'}
+                        InputProps={{
+                            endAdornment: (
+                                <IconButton onClick={handleClickShowPassword} edge="end">
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            ),
                         }}
                     />
                     <FormControlLabel

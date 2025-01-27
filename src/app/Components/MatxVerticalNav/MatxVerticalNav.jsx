@@ -95,11 +95,9 @@ export default function MatxVerticalNav({ items }) {
         );
 
       if (item.children) {
-
         let filteredChildren = [];
-
         if (mainuser.includes(user?.role)) {
-          filteredChildren = item.children;
+          filteredChildren = [...item.children];
         } else {
           if (user?.permmission.includes(3)) {
             filteredChildren = [
@@ -114,12 +112,11 @@ export default function MatxVerticalNav({ items }) {
             ];
           }
         }
-
+        
         filteredChildren = filteredChildren.filter(
           (child, index, self) =>
             index === self.findIndex((c) => c.path === child.path)
         );
-
 
         if (filteredChildren.length > 0) {
           return (
@@ -154,8 +151,6 @@ export default function MatxVerticalNav({ items }) {
           </ExternalLink>
         );
       } else {
-
-
         if (mainuser.includes(user?.role) && !['newstaff'].includes(item?.nav)) {
           return (
             <InternalLink key={index}>
@@ -211,7 +206,7 @@ export default function MatxVerticalNav({ items }) {
               </NavLink>
             </InternalLink>
           );
-        }else if(!['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role)){
+        } else if (!['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role)) {
           return (
             <InternalLink key={index}>
               <NavLink
@@ -266,7 +261,7 @@ export default function MatxVerticalNav({ items }) {
               </NavLink>
             </InternalLink>
           );
-        }else if(['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role) && user?.permmission.includes(8)){
+        } else if (['newstaff'].includes(item?.nav) && ['staff'].includes(user?.role) && user?.permmission.includes(8)) {
           return (
             <InternalLink key={index}>
               <NavLink
@@ -322,9 +317,6 @@ export default function MatxVerticalNav({ items }) {
             </InternalLink>
           );
         }
-
-
-
       }
     });
   };

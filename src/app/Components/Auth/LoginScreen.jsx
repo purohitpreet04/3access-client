@@ -218,12 +218,12 @@ const LoginForm = () => {
                       fullWidth
                       margin="normal"
                       required
-                      type={showPassword ? 'text' : 'password'}
                       name="password"
                       value={values.password}
                       onChange={handleChange}
                       error={touched.password && Boolean(errors.password)}
                       helperText={touched.password && errors.password}
+                      type={showPassword ? 'text' : 'password'}
                       InputProps={{
                         endAdornment: (
                           <IconButton onClick={handleClickShowPassword} edge="end">

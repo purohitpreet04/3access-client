@@ -90,7 +90,7 @@ const SignOutTenants = () => {
     };
 
     const navigateToTenantsDetails = (ten_id, pro_id) => {
-        navigation(`/services/tenetdetails?t=${ten_id}&p=${pro_id}}`)
+        navigation(`/services/tenetdetails?t=${ten_id}&p=${pro_id}`)
     }
 
 

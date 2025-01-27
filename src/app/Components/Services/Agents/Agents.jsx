@@ -5,9 +5,11 @@ import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
 import { Box, Icon, IconButton, Switch, TablePagination, TextField } from '@mui/material'
 import API from 'Constance';
 import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import ExistingFileModal from './ExistingFileModal';
+import When from '@app/CommonComponents/When';
 
 const Agents = () => {
 
@@ -15,12 +17,14 @@ const Agents = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [isExistingData, setExistingData] = useState({ open: false })
     const [page, setPage] = useState(1);
     const [totalcount, setTotalCount] = useState(0);
     const [listData, setListData] = useState([])
     const [searchQuery, setSearchQuery] = useState('');
-    const handleSearchChange = useCallback(debounce((val) => {
-        setSearchQuery(val.target.value.trim());
+
+    const handleSearchChange = useMemo(debounce((val) => {
+        setSearchQuery(val?.target?.value.trim());
     }, 500), [])
 
 
@@ -30,7 +34,7 @@ const Agents = () => {
         }
     }, [searchQuery, page, rowsPerPage])
 
-    const fetchAllRSL = async () => {
+    const fetchAllRSL = useCallback(async () => {
         try {
 
             dispatch(setIsLoading({ data: true }))
@@ -41,21 +45,23 @@ const Agents = () => {
             dispatch(setIsLoading({ data: false }))
             setListData(res.data.data)
             setTotalCount(res.data?.total)
-            setTotalPage(res.data?.page)
             const agentCount = { active: 0, inactive: 0 }
             res?.data?.data.forEach(element => {
                 element.status === 1 ? agentCount.active = agentCount.active + 1 : agentCount.inactive = agentCount.inactive + 1
             });
+
             dispatch(handeAgentCount({ ...agentCount }))
             dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
 
         } catch (error) {
-            dispatch(showSnackbar({ message: error.response.data.error || 'Error while Add new RSL!', severity: 'error' }))
+            console.log(error);
+
+            dispatch(showSnackbar({ message: error?.response?.data?.error || 'Error while fetching agents!', severity: 'error' }))
             dispatch(setIsLoading({ data: false }))
         }
-    }
+    }, [dispatch, user?._id, searchQuery])
 
-    const handleStatusChange = async (event, agentid) => {
+    const handleStatusChange = useCallback(async (event, agentid) => {
         // setStatus(event.target.checked);
         try {
             let status = event.target.checked ? 1 : 0
@@ -65,7 +71,7 @@ const Agents = () => {
                 dispatch(showSnackbar({ message: res.data.message, severity: 'success' }))
             }
             setListData(res.data.data)
-           
+
             fetchAllRSL()
             dispatch(setIsLoading({ data: false }))
 
@@ -73,18 +79,47 @@ const Agents = () => {
             dispatch(showSnackbar({ message: error.response?.data.error || 'Error while Add new RSL!', severity: 'error' }))
             dispatch(setIsLoading({ data: false }))
         }
-    };
+    }, [dispatch, user?._id, searchQuery]);
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(event.target.value);
-        // setPage(1);
     };
     const handleChangePage = (_, newPage) => {
-        // if (newPage > 0) {
         setPage(newPage + 1);
-        // }
     };
-
+    const renderActionBtn = useCallback((cell) => (
+        <>
+            <IconButton onClick={() => navigate(`/services/agents/permission?agent=${cell?._id}`)}>
+                <Icon style={{ color: 'blue' }}>edit</Icon>
+            </IconButton>
+            <IconButton>
+                <Switch
+                    checked={cell?.status === 1}
+                    onChange={(e) => handleStatusChange(e, cell?._id)}
+                    color="primary"
+                />
+            </IconButton>
+            {cell?.exsitingTenantFile && <IconButton
+                onClick={() => {
+                    setExistingData({
+                        open: true,
+                        addedBy: cell?._id,
+                        url: cell?.exsitingTenantFile,
+                        addedByModel: ['company', 'agent'].includes(user?.role) ? "User" : "Staff",
+                        addedByRole: user?.role
+                    })
+                }}
+                sx={{
+                    color: 'blue',
+                    '&:hover': {
+                        color: 'darkblue',
+                    },
+                }}
+            >
+                <Icon>folder_open</Icon>
+            </IconButton>}
+        </>
+    ), [navigate, handleStatusChange]);
 
     return (
         <Box p={3}>
@@ -98,39 +133,37 @@ const Agents = () => {
                         // value={searchQuery}
                         onChange={handleSearchChange}
                     />
-
-
                 </Box>
                 <PaginationTable
                     data={listData}
                     headCells={[
-
-                        { label: 'Company Name', key: 'companyname' },
                         { label: 'First Name', key: 'fname' },
                         { label: 'Last Name', key: 'lname' },
                         { label: 'Email', key: 'email' },
                         { label: 'Properties', key: 'totalPropertyCount' },
                         { label: 'Tenants', key: 'totalTenantCount' },
+                        { label: 'Staff', key: 'totalStaff' },
                         { label: 'Created At', key: 'createdAt' },
                     ]}
-                    actionBtn={(cell) => (
-                        <>
-                            <IconButton onClick={() => {
-                                navigate(`/services/agents/permission?agent=${cell?._id}`)
-                            }}>
-                                <Icon style={{ color: 'blue' }}>edit</Icon>
-                            </IconButton>
-                            <IconButton>
-                                <Switch
-                                    checked={cell?.status === 1 ? true : false}
-                                    onChange={(e) => handleStatusChange(e, cell?._id)}
-                                    color="primary" // Change to "secondary", "default" or other theme color
-                                    inputProps={{ "aria-label": "Switch Status" }}
-                                />
-                            </IconButton>
-                        </>
-                    )
-                    }
+                    actionBtn={renderActionBtn}
+                // actionBtn={(cell) => (
+                //     <>
+                //         <IconButton onClick={() => {
+                //             navigate(`/services/agents/permission?agent=${cell?._id}`)
+                //         }}>
+                //             <Icon style={{ color: 'blue' }}>edit</Icon>
+                //         </IconButton>
+                //         <IconButton>
+                //             <Switch
+                //                 checked={cell?.status === 1 ? true : false}
+                //                 onChange={(e) => handleStatusChange(e, cell?._id)}
+                //                 color="primary" // Change to "secondary", "default" or other theme color
+                //                 inputProps={{ "aria-label": "Switch Status" }}
+                //             />
+                //         </IconButton>
+                //     </>
+                // )
+                // }
                 />
 
                 <TablePagination
@@ -146,6 +179,15 @@ const Agents = () => {
                     backIconButtonProps={{ "aria-label": "Previous Page" }}
                 />
             </Box>
+            <When
+                when={isExistingData?.open}
+                component={
+                    <ExistingFileModal
+                        open={isExistingData?.open}
+                        data={isExistingData}
+                        handleClose={() => { setExistingData({ open: false }) }}
+                    />}
+            />
         </Box>
     )
 }

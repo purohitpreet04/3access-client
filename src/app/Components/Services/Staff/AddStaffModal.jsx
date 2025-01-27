@@ -23,6 +23,7 @@ import {
     Checkbox,
     TableHead,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -60,6 +61,9 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
     const { properties } = useSelector(state => state.property)
     const [checked, setChecked] = useState([]);
     const [allChecked, setAllChecked] = useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
     useEffect(() => {
         if (editData?._id && properties.length > 0) {
             const newPropertyPer = properties
@@ -119,6 +123,8 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
         { lable: 'View Active Tenants', val: 5 },
         { lable: 'View Profile', val: 6 },
         { lable: 'Add/Signup Tenant', val: 7 },
+        { lable: 'Add sign in Date', val: 8 },
+        { lable: 'Add sign Out Date', val: 9 },
         // { lable: 'Add new Staff', val: 8 },
     ];
 
@@ -307,7 +313,14 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                 error={touched.password && Boolean(errors.password)}
                                                 helperText={touched.password && errors.password}
                                                 margin="normal"
-                                                type="password"
+                                                type={showPassword ? 'text' : 'password'}
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <IconButton onClick={handleClickShowPassword} edge="end">
+                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    ),
+                                                }}
                                             />
                                             {['company'].includes(user?.role) && <Field
                                                 as={TextField}
@@ -345,54 +358,54 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
 
                                         </Grid>
                                         {['agent'].includes(user?.role) &&
-                                        <Box p={3}>
-                                            <Box mb={3}>
-                                                <Typography variant="h6">Allowed Permissions</Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    Please allow permissions to the user.
-                                                </Typography>
-                                            </Box>
+                                            <Box p={3}>
+                                                <Box mb={3}>
+                                                    <Typography variant="h6">Allowed Permissions</Typography>
+                                                    <Typography variant="body2" color="textSecondary">
+                                                        Please allow permissions to the user.
+                                                    </Typography>
+                                                </Box>
 
-                                            <TableContainer component={Paper}>
+                                                <TableContainer component={Paper}>
 
-                                                <Table>
-                                                    <TableBody>
-                                                        {permissions.map((permission, index) => (
-                                                            <TableRow key={index} sx={{ backgroundColor: '#eaf3fa' }}>
-                                                                <TableCell padding='3'>
-                                                                    <Typography fontWeight={'bold'} paddingLeft={3}>{permission.lable}</Typography>
-                                                                </TableCell>
-                                                                <TableCell padding='2' align="center">
-                                                                    <FormControlLabel
-                                                                        control={
-                                                                            <Field
-                                                                                as={Checkbox}
-                                                                                name={`permissions${permission?.val}`}
-                                                                                // value={permission?.val}
-                                                                                checked={values?.permission?.includes(permission?.val)}
-                                                                                onChange={(e) => {
-                                                                                    if (e.target.checked) {
-                                                                                        setValues((pre) => ({ ...pre, ['permission']: [...values.permission, permission.val] }))
-                                                                                        // setFieldValue('permissions', [...values.permissions, permission.val]);
-                                                                                    } else {
+                                                    <Table>
+                                                        <TableBody>
+                                                            {permissions.map((permission, index) => (
+                                                                <TableRow key={index} sx={{ backgroundColor: '#eaf3fa' }}>
+                                                                    <TableCell padding='3'>
+                                                                        <Typography fontWeight={'bold'} paddingLeft={3}>{permission.lable}</Typography>
+                                                                    </TableCell>
+                                                                    <TableCell padding='2' align="center">
+                                                                        <FormControlLabel
+                                                                            control={
+                                                                                <Field
+                                                                                    as={Checkbox}
+                                                                                    name={`permissions${permission?.val}`}
+                                                                                    // value={permission?.val}
+                                                                                    checked={values?.permission?.includes(permission?.val)}
+                                                                                    onChange={(e) => {
+                                                                                        if (e.target.checked) {
+                                                                                            setValues((pre) => ({ ...pre, ['permission']: [...values.permission, permission.val] }))
+                                                                                            // setFieldValue('permissions', [...values.permissions, permission.val]);
+                                                                                        } else {
 
-                                                                                        setValues((pre) => ({ ...pre, ['permission']: [...values.permission.filter((p) => p !== permission.val)] }))
+                                                                                            setValues((pre) => ({ ...pre, ['permission']: [...values.permission.filter((p) => p !== permission.val)] }))
 
-                                                                                    }
-                                                                                }}
-                                                                            />
-                                                                        }
-                                                                        label=""
-                                                                    />
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ))}
-                                                    </TableBody>
-                                                </Table>
-                                            </TableContainer>
-                                        </Box>}
+                                                                                        }
+                                                                                    }}
+                                                                                />
+                                                                            }
+                                                                            label=""
+                                                                        />
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </TableContainer>
+                                            </Box>}
 
-                                        { ['agent'].includes(user?.role) && <Box p={3}>
+                                        {['agent'].includes(user?.role) && <Box p={3}>
                                             <Box mb={3}>
                                                 <Typography variant="h6">Allowed Properties</Typography>
                                                 <Typography variant="body2" color="textSecondary">
@@ -424,7 +437,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                                 />
 
                                                             </TableCell>
-                                                            <TableCell sx={{ fontWeight: 'bold' }}>RSL Type Group</TableCell>
+                                                            {/* <TableCell sx={{ fontWeight: 'bold' }}>RSL Type Group</TableCell> */}
                                                             <TableCell sx={{ fontWeight: 'bold' }}>RSI Type Group</TableCell>
                                                             <TableCell sx={{ fontWeight: 'bold' }}>Address Line 1</TableCell>
                                                             <TableCell sx={{ fontWeight: 'bold' }}>Area</TableCell>
@@ -462,9 +475,9 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
                                                                         />
 
                                                                     </TableCell>
-                                                                    <TableCell style={{ wordBreak: 'break-word' }} align="left">
+                                                                    {/* <TableCell style={{ wordBreak: 'break-word' }} align="left">
                                                                         { }
-                                                                    </TableCell>
+                                                                    </TableCell> */}
                                                                     <TableCell style={{ wordBreak: 'break-word' }} align="left">
                                                                         {permission?.rslTypeGroup}
                                                                     </TableCell>

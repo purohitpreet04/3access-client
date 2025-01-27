@@ -14,13 +14,14 @@ const Document = () => {
                 setLoading(true);
                 const type = searchParams.get('type');
                 const id = searchParams.get('t');
+                const assessment_id = searchParams.get('assessment');
 
                 if (!type || !id) {
                     throw new Error('Missing required parameters');
                 }
 
                 const response = await API.get('/api/tenents/getdocument', {
-                    params: { type, id }
+                    params: { type, id, assessment_id }
                 });
 
                 // Check if response.data is a function

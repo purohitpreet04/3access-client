@@ -6,7 +6,7 @@ import { confirm } from "react-confirm-box";
 
 export const signOutTenant = createAsyncThunk(
   'tenants/signOutTenant',
-  async ({ id, propertyid, userId, navigate, withOutMail, signOutDate, signature, isPresent }, { dispatch, rejectWithValue }) => {
+  async ({ id, propertyid, userId, navigate, withOutMail, signOutDate, signature, isPresent, password }, { dispatch, rejectWithValue }) => {
 
     // if (await confirm('Are you sure you want to sign out this tenant?')) {
     try {
@@ -17,7 +17,8 @@ export const signOutTenant = createAsyncThunk(
           withOutMail,
           signOutDate,
           signature,
-          isPresent
+          isPresent,
+          password
         }
       );
 
@@ -79,3 +80,82 @@ export const CheckHasOneStaff = createAsyncThunk(
     }
   }
 );
+
+
+export const HandleApprovalOfTenants = createAsyncThunk(
+  'tenants/HandleApprovalOfTenants',
+  async ({ navigation, tenantId, approved_status, propertyid }, { dispatch, rejectWithValue }) => {
+    if (await confirm('Are You Sure?', {
+      closeOnOverlayClick: false,
+    })) {
+      try {
+        dispatch(setIsLoading({ data: true }))
+        const res = await API.get('/api/tenents/change-tenants-status', { params: { approved_status, _id: tenantId, propertyid } })
+        if (res.data.success && res.data.hasStaffOrAgent) {
+          dispatch(setIsLoading({ data: false }))
+        } else {
+          dispatch(showSnackbar({
+            message: "You don't have any staff or agent. Please add staff first.",
+            severity: "info"
+          }));
+          navigation('/desh')
+          dispatch(setIsLoading({ data: false }))
+        }
+      } catch (error) {
+        dispatch(setIsLoading({ data: false }))
+        dispatch(showSnackbar({
+          message: error.response?.data?.message || "An error occurred",
+          severity: "error"
+        }));
+      }
+    } else {
+      return false
+    }
+
+  }
+)
+
+
+export const handleEditTenant = createAsyncThunk(
+  'tenants/handleEditTenant',
+  async ({ _id }, { dispatch, rejectWithValue }) => {
+
+    try {
+      dispatch(setIsLoading({ data: true }))
+      const res = await API.get('/api/tenents/get-all-details', { params: { _id } })
+      if (res.status === 200) {
+        dispatch(setIsLoading({ data: false }))
+        return res.data.tenant
+      }
+      dispatch(setIsLoading({ data: false }))
+    } catch (error) {
+      rejectWithValue(error)
+      dispatch(setIsLoading({ data: false }))
+      dispatch(showSnackbar({
+        message: error.response?.data?.message || "An error occurred while fetching tenant details!",
+        severity: "error"
+      }));
+    }
+
+  })
+
+
+export const handleExistingExelFileExport = createAsyncThunk(
+  'tenants/handleEditTenant',
+  async ({ formData, setFieldValue }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }))
+      const result = await API.post("api/tenents/import-tenants", formData)
+      if (result.success) {
+        setFieldValue('path', result?.data?.path)
+        dispatch(showSnackbar({ message: result.data.message || 'File Uploaded', severity: 'success' }))
+      } else {
+        dispatch(showSnackbar({ message: result.error, severity: 'error' }))
+      }
+      dispatch(setIsLoading({ data: false }))
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }))
+      dispatch(showSnackbar({ message: error.message || 'File upload error', severity: 'error' }))
+    }
+  }
+)
