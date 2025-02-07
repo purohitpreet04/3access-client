@@ -140,22 +140,43 @@ export const handleEditTenant = createAsyncThunk(
   })
 
 
-export const handleExistingExelFileExport = createAsyncThunk(
-  'tenants/handleEditTenant',
-  async ({ formData, setFieldValue }, { dispatch, rejectWithValue }) => {
-    try {
-      dispatch(setIsLoading({ data: true }))
-      const result = await API.post("api/tenents/import-tenants", formData)
-      if (result.success) {
-        setFieldValue('path', result?.data?.path)
-        dispatch(showSnackbar({ message: result.data.message || 'File Uploaded', severity: 'success' }))
-      } else {
-        dispatch(showSnackbar({ message: result.error, severity: 'error' }))
+  export const handleExistingExelFileExport = createAsyncThunk(
+    "tenants/handleEditTenant",
+    async ({ _id, role }, { dispatch, rejectWithValue }) => {
+      try {
+        dispatch(setIsLoading({ data: true }));
+  
+        const result = await API.post(
+          "api/tenents/exportnotactivetenants",
+          { _id, role },
+          {
+            responseType: "arraybuffer",
+            headers: { Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, 
+          }
+        );
+  
+        if (result.data) {
+          const blob = new Blob([result.data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "NonActiveTenants.xlsx";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+  
+          dispatch(showSnackbar({ message: "Excel file downloaded successfully!", severity: "success" }));
+        } else {
+          dispatch(showSnackbar({ message: "Failed to download file", severity: "error" }));
+        }
+  
+        dispatch(setIsLoading({ data: false }));
+      } catch (error) {
+        dispatch(setIsLoading({ data: false }));
+        dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
       }
-      dispatch(setIsLoading({ data: false }))
-    } catch (error) {
-      dispatch(setIsLoading({ data: false }))
-      dispatch(showSnackbar({ message: error.message || 'File upload error', severity: 'error' }))
     }
-  }
-)
+  );
+  

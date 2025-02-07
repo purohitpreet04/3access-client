@@ -35,6 +35,9 @@ import { handleDownload, handleView } from '@app/Utils/CustomHooks';
 import EditTenantModal from './EditTenatns';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PdfHandle from './PdfHandle';
+
+
+
 function TenantDetails() {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -53,7 +56,6 @@ function TenantDetails() {
         try {
             dispatch(setIsLoading({ data: true }))
             const res = await API.get('/api/tenents/gettenantdetails', { params: { _id: tenantId } })
-
             setTenantData({ ...res.data.data, rslDocument: res.data?.rslDocuments })
             dispatch(setIsLoading({ data: false }))
             setLoading(false)
@@ -70,9 +72,6 @@ function TenantDetails() {
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
-
-
-
 
     const documents = {
         signup: [
@@ -133,7 +132,7 @@ function TenantDetails() {
 
 
 
-    if (isLoading) {
+    if (!tenantdata?._id) {
         return (
             <Loadable />
         )
@@ -182,26 +181,7 @@ function TenantDetails() {
                     </Typography>
 
                 </Box>
-               {tenantdata?.error && <Grid container xs={12} md={6} my={2}>
-                    <Typography
-                        variant="subtitle1"
-                        component="p"
-                        sx={{
-                            fontWeight: 500,
-                            textAlign: 'center',
-                            color: 'white',  // Red color for errors (MUI default theme)
-                            backgroundColor: 'error.light',  // Light red background to highlight the error
-                            padding: 2,  // Adds padding inside the text box
-                            borderRadius: 1,  // Rounds the corners of the box
-                            border: '1px solid',  // Adds a border around the error message
-                            borderColor: 'error.dark',  // Dark red color for the border
-                            marginTop: 2,  // Adds some spacing at the top
-                            marginBottom: 2,  // Adds some spacing at the bottom
-                        }}
-                    >
-                        {tenantdata?.error}
-                    </Typography>
-                </Grid>}
+
                 <Grid container spacing={3}>
 
                     {/* Left Panel - Document Upload */}
@@ -426,10 +406,28 @@ function TenantDetails() {
                                                 Status:
                                             </TableCell>
                                             <TableCell>
-                                                {tenantdata?.status === 0 ? 'Not active' : 'Active'}
-
+                                                {tenantdata?.status === 0 ? 'Not active' : `Active (${tenantdata?.sts_Str})`}
                                             </TableCell>
                                         </TableRow>
+
+                                        {tenantdata?.error && <TableRow>
+
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    width: '200px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Error:
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography sx={{ color: 'red' }}>
+                                                {tenantdata?.error}
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>}
                                         {tenantdata?.Housing_benefit_weekly_amount && <TableRow
                                             sx={{
                                                 '& td, & th': {
@@ -441,7 +439,6 @@ function TenantDetails() {
                                             <TableCell
                                                 component="th"
                                                 scope="row"
-
                                                 sx={{
                                                     wordWrap: 'break-word',
                                                     width: '250px',
@@ -451,8 +448,7 @@ function TenantDetails() {
                                                 Housing Benefit Weekly Amount:
                                             </TableCell>
                                             <TableCell>
-                                                
-                                                £ {tenantdata?.Housing_benefit_weekly_amount}
+                                                {tenantdata?.Housing_benefit_weekly_amount}
                                             </TableCell>
                                         </TableRow>}
                                         {tenantdata?.Next_HB_payment_amount && <TableRow
@@ -476,8 +472,7 @@ function TenantDetails() {
                                                 Next HB Payment Amount:
                                             </TableCell>
                                             <TableCell>
-                                                
-                                                £ {tenantdata?.Next_HB_payment_amount}
+                                                 {tenantdata?.Next_HB_payment_amount}
                                             </TableCell>
                                         </TableRow>}
                                         {tenantdata?.Next_HB_payment_date && <TableRow

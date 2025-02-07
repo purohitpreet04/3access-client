@@ -49,14 +49,13 @@ export const register = createAsyncThunk(
         const { data, navigate } = value
         try {
 
-            const res = await API.post('/api/auth/register', data)
             dispatch(setIsLoading({ data: true }));
-            if (res.data.token) {
+            const res = await API.post('/api/auth/register', data)
+            if (res.data.token && res.data.success === true && res.status === 200) {
                 await localStorage.setItem('authToken', JSON.stringify(res.data.token))
                 localStorage.setItem('user', JSON.stringify({ _id: res.data.user?._id, role: res.data.user?.role }))
                 let token = await JSON.parse(localStorage.getItem('authToken'))
                 if (token) {
-
                     dispatch(showSnackbar({ message: 'Register successful', severity: 'success' }));
                     dispatch(setIsLoading({ data: false }));
                     navigate('/desh')
@@ -65,22 +64,22 @@ export const register = createAsyncThunk(
             }
             else {
 
-                navigate('/auth/login')
-                dispatch(showSnackbar({ message: res.data.message, severity: 'error' }));
+                // navigate('/auth/login')
+                dispatch(showSnackbar({ message: res.data.message, severity: 'success' }));
                 dispatch(setIsLoading({ data: false }));
-                return { user: {}, token: null, isAuthenticate: false }
+                // return { user: {}, token: null, isAuthenticate: false }
             }
 
         } catch (error) {
-            if (error.status == 400) {
-                navigate('/auth/login')
-            }
-            if (error.status == 409) {
-                navigate(`/auth/login?page=${error.response.data.page}`,)
-            }
+            // if (error.status == 400) {
+            //     navigate('/auth/login')
+            // }
+            // if (error.status == 409) {
+            //     navigate(`/auth/login?page=${error.response.data.page}`,)
+            // }
+            // return rejectWithValue(error.response.data.error);
             dispatch(setIsLoading({ data: false }));
             dispatch(showSnackbar({ message: error.response.data.error, severity: error.response.data.severity }))
-            return rejectWithValue(error.response.data.error);
         }
     }
 );
@@ -115,7 +114,6 @@ export const updateUser = createAsyncThunk(
 );
 
 
-
 export const fetchUserDetails = createAsyncThunk(
     "auth/fetchUserDetails",
     async (value, { rejectWithValue, dispatch }) => {
@@ -145,7 +143,7 @@ export const fetchUserDetails = createAsyncThunk(
                 return { user: {}, isAuthenticate: false };
             }
         } catch (error) {
-            if (error.response?.status === 401 || 404 || 409 ) {
+            if (error.response?.status === 401 || 404 || 409) {
                 // Dispatch the logout action here
                 dispatch(logout({ navigate }));
 
@@ -181,6 +179,9 @@ export const AuthSlice = createSlice({
 
     },
     reducers: {
+        updateUserData: (state, action) => {
+            state.user = { ...state.user, ...action.payload }
+        }
         // logout: async (state, action) => {
         //     await localStorage.removeItem('user')
         //     await localStorage.removeItem('authToken')
@@ -271,5 +272,5 @@ export const AuthSlice = createSlice({
     },
 })
 
-// export const { logout } = AuthSlice.actions
+export const { updateUserData } = AuthSlice.actions
 export default AuthSlice.reducer

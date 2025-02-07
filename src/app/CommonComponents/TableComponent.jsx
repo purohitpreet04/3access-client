@@ -79,19 +79,36 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
         width: "max-content"
     },
 
-    "& td.MuiTableCell-root.MuiTableCell-body.MuiTableCell-alignCenter.MuiTableCell-sizeMedium.css-1htgh2s-MuiTableCell-root": {
-        // width: "100%",
-        maxWidth: "181px"
+    "& .MuiTableCell-root": {
+        padding: "10px 16px",
+        maxWidth: "fit-content",
+        whiteSpace: "nowrap",
+        width: "fit-content",
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        fontSize: "clamp(12px, 1vw, 16px)" /* Responsive font size */
     },
 
-    '& .css-167e5dj':{
+    '& .css-167e5dj': {
         width: "150%"
     }
-
-
+    
 }));
 
-export default function PaginationTable({ headCells = [], data = [], actionBtn, style }) {
+const TableCellstyle = styled(TableCell)(() => ({
+    // fontSize: 20,
+    fontWeight: 'bold',
+    padding: "10px 16px !important",
+    maxWidth: "fit-content !important",
+    whiteSpace: "nowrap !important",
+    width: "fit-content !important",
+    overflow: "hidden !important",
+    textOverflow: "ellipsis !important",
+    fontSize: "clamp(12px, 1vw, 16px) !important"
+}));
+
+
+export default function PaginationTable({ headCells = [], data = [], actionBtn, style, rowStye = () => { }, cellStye = () => ({}) }) {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('');
 
@@ -114,10 +131,10 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
         <StyledTableContainer sx={{ width: '100%', ...style }} overflowX="auto">
             <StyledTable sx={{ tableLayout: 'auto' }} aria-label="data table">
                 <TableHead width="100%">
-                    <TableRow>
+                    <TableRow >
                         {headCells.length > 0 && headCells.map(({ label, key, align, isCheckbox }, i) => {
                             if (label == 'ID') {
-                                return (<TableCell key={i} style={{ fontWeight: 'bold', fontSize: 20 }} >
+                                return (<TableCellstyle key={i} style={{ fontWeight: 'bold', fontSize: 20 }} >
                                     <TableSortLabel
                                         align={align || 'center'}
                                         active={orderBy === key}
@@ -126,9 +143,9 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                     >
                                         ID
                                     </TableSortLabel>
-                                </TableCell>)
+                                </TableCellstyle>)
                             } else if (isCheckbox) {
-                                <TableCell key={i} style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }} align={align || 'center'}>
+                                <TableCellstyle key={i} style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }} align={align || 'center'}>
                                     <TableSortLabel
                                         align={align || 'center'}
                                         active={orderBy === key}
@@ -137,10 +154,10 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                     >
                                         {label}
                                     </TableSortLabel>
-                                </TableCell>
+                                </TableCellstyle>
                             } else {
                                 return (
-                                    <TableCell key={i}
+                                    <TableCellstyle key={i}
                                         style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }}
                                         align={align || 'center'}>
                                         <TableSortLabel
@@ -151,17 +168,17 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                         >
                                             {label}
                                         </TableSortLabel>
-                                    </TableCell>
+                                    </TableCellstyle>
                                 )
                             }
                         })}
-                        {actionBtn && <TableCell style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'keep-all' }} align="center">Actions</TableCell>}
+                        {actionBtn && <TableCellstyle style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'keep-all' }} align="center">Actions</TableCellstyle>}
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {sortedRows.length > 0 ? (
                         sortedRows.map((subscriber, index) => (
-                            <TableRow key={index}>
+                            <TableRow key={index} style={{ ...rowStye(subscriber) }}>
                                 {/* {headCells.map(({ key, date, html }) => (
                                         <TableCell style={{ wordBreak: 'break-word' }} key={key} align="center">
                                             {date || key === 'createdAt'
@@ -189,7 +206,17 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                         <>
                                             {(CheckBoxCom && isCheckbox) ? <TableCell key={i} style={{ wordBreak: 'break-word' }} align="center">{CheckBoxCom}</TableCell> :
 
-                                                <TableCell style={{ wordBreak: 'break-word', fontSize: 18 }} key={key} align="center">
+                                                <TableCell
+                                                    sx={{
+                                                        // padding: "10px 16px !important",
+                                                        // maxWidth: "fit-content !important",
+                                                        // whiteSpace: "nowrap !important",
+                                                        // width: "fit-content !important",
+                                                        // overflow: "hidden !important",
+                                                        // textOverflow: "ellipsis !important",
+                                                        // fontSize: "clamp(12px, 1vw, 16px) !important"
+                                                    }}
+                                                    style={{ wordBreak: 'break-word', fontSize: 18, ...cellStye(subscriber)[key] }} key={key} align="center">
                                                     {date || key === 'createdAt' ? (
                                                         getDate(subscriber[key], formate ? formate : "DD-MM-YYYY")
                                                     ) : html ? (
@@ -231,7 +258,18 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                     )
                                 })}
 
-                                {actionBtn && <TableCell style={{ wordBreak: 'break-word', fontSize: 18 }} align="center">{actionBtn(subscriber)}</TableCell>}
+                                {actionBtn && <TableCell 
+                                
+                                sx={{
+                                    padding: "10px 16px !important",
+                                    maxWidth: "fit-content !important",
+                                    whiteSpace: "nowrap !important",
+                                    width: "fit-content !important",
+                                    overflow: "hidden !important",
+                                    textOverflow: "ellipsis !important",
+                                    fontSize: "clamp(12px, 1vw, 16px) !important"
+                                }}
+                                style={{ wordBreak: 'break-word', fontSize: 18 }} align="center">{actionBtn(subscriber)}</TableCell>}
                             </TableRow>
                         ))
                     ) : (

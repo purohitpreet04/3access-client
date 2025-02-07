@@ -1,4 +1,4 @@
-import { Box, Button, MenuItem, Select, styled, TextField, Typography } from '@mui/material'
+import { Autocomplete, Box, Button, MenuItem, Select, styled, TextField, Typography } from '@mui/material'
 import React, { forwardRef, useState } from 'react'
 import FileUpload from './FileUploas'
 import FileInput from './FileInput'
@@ -46,7 +46,7 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
                     name={name}
                     label={label}
                     fullWidth={fullWidth}
-                    onChange={handleChange}
+                    onChange={(e) => handleChange(e)}
                     type={type}
                     placeholder={placeholder}
                     className={className}
@@ -142,31 +142,57 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
 
 
 
-        return (<TextField
-            inputRef={ref}
-            defaultValue={menuItems.length > 0 && menuItems[0].val}
-            // default={default}
-            select={select}
-            required={required}
-            name={name}
-            label={label}
-            fullWidth={fullWidth}
-            onChange={onChange}
-            type={type}
-            placeholder={placeholder}
-            className={className}
-            {...events}
-            variant='outlined'
-            value={value || ''}
-            error={errors && errors[name]}
-            helperText={errors && errors[name]}
-            InputLabelProps={{
-                ...InputLabelProps
-            }}
-            inputProps={inputProps}
-        >
-            {menuItems.length > 0 && menuItems.map(({ val, label }, i) => (<MenuItem key={i} value={val}>{label}</MenuItem>))}
-        </TextField>)
+        // return (<TextField
+        //     inputRef={ref}
+        //     defaultValue={menuItems.length > 0 && menuItems[0].val}
+        //     // default={default}
+        //     select={select}
+        //     required={required}
+        //     name={name}
+        //     label={label}
+        //     fullWidth={fullWidth}
+        //     onChange={onChange}
+        //     type={type}
+        //     placeholder={placeholder}
+        //     className={className}
+        //     {...events}
+        //     variant='outlined'
+        //     value={value || ''}
+        //     error={errors && errors[name]}
+        //     helperText={errors && errors[name]}
+        //     InputLabelProps={{
+        //         ...InputLabelProps
+        //     }}
+        //     inputProps={inputProps}
+        // >
+        //     {menuItems.length > 0 && menuItems.map(({ val, label }, i) => (<MenuItem key={i} value={val}>{label}</MenuItem>))}
+        // </TextField>)
+        return (
+            <Autocomplete
+                name={name}
+                onChange={(event, value) =>
+                    onChange({ target: { name, value: value?.val } })
+                    // handleAutocompleteChange(event, value?.value, "myAutocomplete")
+                }
+                required={required}
+                options={menuItems}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.value === value}
+                renderInput={(params) => (
+                    <TextField
+                        inputRef={ref}
+                        onChange={onChange}
+                        name={name}
+                        error={errors && errors[name]}
+                        helperText={errors && errors[name]}
+                        {...params}
+                        label={label}
+                        variant="outlined"
+                        fullWidth
+                    />
+                )}
+            />
+        )
     }
 
 
@@ -182,7 +208,7 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
                 name={name}
                 label={label}
                 fullWidth={fullWidth}
-                onChange={handleChange}
+                onChange={(e) => handleChange(e)}
                 type={type}
                 placeholder={placeholder}
                 className={className}
@@ -198,5 +224,7 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
     }
 
 })
+
+
 
 export default FlotingLableInput

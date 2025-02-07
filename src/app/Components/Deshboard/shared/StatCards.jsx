@@ -21,6 +21,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const ContentBox = styled(Box)(({ theme }) => ({
+  
   padding: 10,
   display: "flex",
   flexDirection: "column",
@@ -51,11 +52,14 @@ const StackCards = ({ cardList }) => {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   return (
-    <Box sx={{ mb: "24px", overflowX: "auto" }}>
+    <Box sx={{ mb: "24px", overflowX: "auto",  }}>
       <Grid container sx={{ justifyContent: 'center', alignItems: 'center' }}>
         {cardList.length !== 0 ? cardList.map(({ Icon, name, path, count }, index) => (
           // <Grid item xs={6} md={4} lg={3} key={index}>
-          <StyledCard key={index}>
+          <StyledCard  sx={{
+            margin:{ xs: "10px", sm: "10px", md: "10px", lg: "10px" },
+            padding: { xs: "16px", sm: "20px", md: "24px" }, // Adjust padding based on screen size
+          }} key={index}>
             <ContentBox>
               <Box gap={1} display='flex' flexDirection='row' justifyContent='center' alignItems='center' >
                 <Icon className="icon" />

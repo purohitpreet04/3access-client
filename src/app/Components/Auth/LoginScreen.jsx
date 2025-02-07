@@ -136,7 +136,7 @@ const LoginForm = () => {
           phonenumber: '',
         }}
         validationSchema={showPage != 1 ? RegisterSchema : loginschma}
-        onSubmit={(values) => {
+        onSubmit={async (values) => {
           const modifyValues = {
             ...values,
           }
@@ -148,11 +148,11 @@ const LoginForm = () => {
             modifyValues['role'] = 'agent'
             delete modifyValues?.companyname
             delete modifyValues?.website
-            dispatch(register({ data: modifyValues, navigate }));
+            await dispatch(register({ data: modifyValues, navigate }));
           }
           if (showPage == 1) {
             const { email, password } = modifyValues
-            dispatch(login({ data: { email, password }, navigate }));
+            await dispatch(login({ data: { email, password }, navigate }));
           }
         }}
         enableReinitialize
@@ -527,7 +527,6 @@ const LoginForm = () => {
                       color="primary"
                       fullWidth
                       sx={{ mt: 2, fontWeight: 'bold' }}
-                      type="button"
                       onClick={() => { handleSubmit() }}
                     >
                       Create Account

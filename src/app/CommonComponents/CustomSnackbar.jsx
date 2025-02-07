@@ -17,38 +17,37 @@ const CustomSnackbar = ({ children }) => {
     dispatch(hideSnackbar());
   };
 
-  useEffect(() => {
-    if (open) {
-      enqueueSnackbar(message, { variant: severity });
-    }
-  }, [open])
-
-
+  // useEffect(() => {
+  //   if (open) {
+  //     enqueueSnackbar(message || '', { variant: severity });
+  //   }
+  // }, [open])
 
   const handleClick = () => enqueueSnackbar('I love snacks.');
   return (
-    <SnackbarProvider 
-    maxSnack={5}
-      
-    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-    action={(key) => (
-      <IconButton size="small" onClick={() => SnackbarProvider.closeSnackbar(key)}>
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    )}
-    >
-      {children}
-    </SnackbarProvider>
-    // <Snackbar
-    //   open={open}
+    // <SnackbarProvider
     //   autoHideDuration={3000}
-    //   onClose={handleClose}
+    //   transitionDuration={500}
+    //   maxSnack={5}
     //   anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    //   action={(key) => (
+    //     <IconButton size="small" onClick={() => SnackbarProvider.closeSnackbar(key)}>
+    //       <CloseIcon fontSize="small" />
+    //     </IconButton>
+    //   )}
     // >
-    //   <Alert onClose={handleClose} severity={severity}  sx={{ width: '100%' }}>
-    //     {message}
-    //   </Alert>
-    // </Snackbar>
+    //   {children}
+    // </SnackbarProvider>
+    <Snackbar
+      open={open}
+      autoHideDuration={3000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+    >
+      <Alert onClose={handleClose} severity={severity}  sx={{ width: '100%' }}>
+        {message}
+      </Alert>
+    </Snackbar>
   );
 };
 

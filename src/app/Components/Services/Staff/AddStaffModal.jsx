@@ -125,6 +125,7 @@ const AddStaffModal = ({ open, onClose, editData, refetch }) => {
         { lable: 'Add/Signup Tenant', val: 7 },
         { lable: 'Add sign in Date', val: 8 },
         { lable: 'Add sign Out Date', val: 9 },
+        { lable: 'Can Export Not-Active Tenants File', val: 10 },
         // { lable: 'Add new Staff', val: 8 },
     ];
 

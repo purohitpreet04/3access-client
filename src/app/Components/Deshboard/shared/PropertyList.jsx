@@ -122,9 +122,15 @@ const PropertyList = () => {
 
     }));
     const TableCellstyle = styled(TableCell)(() => ({
-        fontSize: 20,
-        fontWeight: 'bold'
-
+        // fontSize: 20,
+        fontWeight: 'bold',
+        padding: "10px 16px !important",
+        maxWidth: "fit-content !important",
+        whiteSpace: "nowrap !important",
+        width: "fit-content !important",
+        overflow: "hidden !important",
+        textOverflow: "ellipsis !important",
+        fontSize: "clamp(12px, 1vw, 16px) !important"
     }));
 
 
@@ -183,7 +189,6 @@ const PropertyList = () => {
                     gap={2} // Spacing between dots
                     padding={2}
                 >
-                    {/* Active Dot with Label */}
                     <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
                         <Box
                             width={16}
@@ -197,13 +202,12 @@ const PropertyList = () => {
                         </Typography>
                     </Box>
 
-                    {/* Inactive Dot with Label */}
                     <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
                         <Box
                             width={16}
                             height={16}
                             borderRadius="50%" // Makes it a circle
-                            bgcolor="#FADBD8" // Red if not active
+                            bgcolor="#D14747" // Red if not active
                             border="2px solid #C0392B" // Border to emphasize
                         />
                         <Typography variant="body2" color="#C0392B">
@@ -253,7 +257,9 @@ const PropertyList = () => {
                     component={Paper}
                 >
                     <StyledTable
+
                         sx={{
+                            tableLayout: 'auto',
                             width: "100%",
                             borderCollapse: "collapse", // Ensure proper border spacing
                             "& thead": {
@@ -312,11 +318,52 @@ const PropertyList = () => {
                                 <>
                                     {listData.map((property, index) => (
                                         <TableRow key={property._id}>
-                                            <TableCell style={{ wordBreak: 'break-word' }} align='center'>{index + 1}</TableCell>
-                                            <TableCell style={{ wordBreak: 'break-word' }} align='center'>{property.companyname}</TableCell>
-                                            <TableCell style={{ wordBreak: 'break-word' }} align='center'>{property.address}</TableCell>
+                                            <TableCell
+                                                sx={{
+                                                    padding: "10px 16px !important",
+                                                    maxWidth: "fit-content !important",
+                                                    whiteSpace: "nowrap !important",
+                                                    width: "fit-content !important",
+                                                    overflow: "hidden !important",
+                                                    textOverflow: "ellipsis !important",
+                                                    fontSize: "clamp(12px, 1vw, 16px) !important"
+                                                }}
+                                                style={{ wordBreak: 'break-word' }} align='center'>{index + 1}</TableCell>
+                                            <TableCell
+                                                sx={{
+                                                    padding: "10px 16px !important",
+                                                    maxWidth: "fit-content !important",
+                                                    whiteSpace: "nowrap !important",
+                                                    width: "fit-content !important",
+                                                    overflow: "hidden !important",
+                                                    textOverflow: "ellipsis !important",
+                                                    fontSize: "clamp(12px, 1vw, 16px) !important"
+                                                }}
+
+                                                style={{ wordBreak: 'break-word' }} align='center'>{property.companyname}</TableCell>
+                                            <TableCell
+                                                sx={{
+                                                    padding: "10px 16px !important",
+                                                    maxWidth: "fit-content !important",
+                                                    whiteSpace: "nowrap !important",
+                                                    width: "fit-content !important",
+                                                    overflow: "hidden !important",
+                                                    textOverflow: "ellipsis !important",
+                                                    fontSize: "clamp(12px, 1vw, 16px) !important"
+                                                }}
+                                                style={{ wordBreak: 'break-word' }} align='center'>{property.address}</TableCell>
                                             {rooms.map((room) => (
-                                                <TableCell style={{ wordBreak: 'break-word' }} align="center" key={room.key}>
+                                                <TableCell
+                                                    sx={{
+                                                        padding: "10px 16px !important",
+                                                        maxWidth: "fit-content !important",
+                                                        whiteSpace: "nowrap !important",
+                                                        width: "fit-content !important",
+                                                        overflow: "hidden !important",
+                                                        textOverflow: "ellipsis !important",
+                                                        fontSize: "clamp(12px, 1vw, 16px) !important"
+                                                    }}
+                                                    style={{ wordBreak: 'break-word' }} align="center" key={room.key}>
                                                     {property[room.key] ? (
                                                         property[room.key].tenant_id ? (
                                                             <Box
@@ -324,9 +371,19 @@ const PropertyList = () => {
                                                                 p={1}
                                                                 flexDirection='column'
                                                                 display='flex' justifyContent='center' alignItems='center'
-                                                                bgcolor={property[room.key].tenant_id?.status == 1 ? '#DFF2D8' : '#FADBD8'} // Soft green for active, soft red for not active
+                                                                // bgcolor={property[room.key].tenant_id?.status == 1 ? '#DFF2D8' : '#FADBD8'} // Soft green for active, soft red for not active
                                                                 color={property[room.key].tenant_id?.status == 1 ? '#2E7D32' : '#C0392B'} // Darker matching text color
                                                             >
+                                                                <Box
+                                                                    width={16}
+                                                                    height={16}
+                                                                    position='relative'
+                                                                    right={70}
+                                                                    top={-5}
+                                                                    borderRadius="50%" // Makes it a circle
+                                                                    bgcolor={property[room.key].tenant_id?.status == 1 ? '#4CAF50' : '#D14747'} // Green if active
+                                                                    border="2px solid #2E7D32" // Border to emphasize
+                                                                />
                                                                 {
                                                                     mainuser.includes(user?.role) ? (
                                                                         <>
@@ -362,6 +419,10 @@ const PropertyList = () => {
                                                                 <Clickablelink>
                                                                     Claim Ref: {property[room.key].tenant_id.claimReferenceNumber}
                                                                 </Clickablelink>
+                                                                <Clickablelink>
+                                                                    Status: {property[room.key].tenant_id.status == 1 ? 'Active' : 'Not Active'}
+                                                                </Clickablelink>
+
                                                             </Box>
                                                         ) : (
                                                             <Box flexDirection='column' display='flex' justifyContent='center' alignItems='center'>
@@ -394,7 +455,20 @@ const PropertyList = () => {
 
                                 <>
                                     <TableRow>
-                                        <TableCell colSpan={12} sx={{ borderBottom: 'none', padding: 0 }}>
+                                        <TableCell
+                                            colSpan={12}
+
+
+                                            sx={{
+                                                padding: "10px 16px !important",
+                                                maxWidth: "fit-content !important",
+                                                whiteSpace: "nowrap !important",
+                                                width: "fit-content !important",
+                                                overflow: "hidden !important",
+                                                textOverflow: "ellipsis !important",
+                                                fontSize: "clamp(12px, 1vw, 16px) !important",
+                                            borderBottom: 'none', padding: 0
+                                            }}>
                                             <Paper
                                                 elevation={0}
                                                 sx={{

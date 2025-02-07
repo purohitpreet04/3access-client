@@ -122,15 +122,6 @@ function AddProperty({ open, onClose, editData }) {
         area: Yup.string().required('Required'),
         city: Yup.string().required('Required'),
         postCode: Yup.string()
-            .test(
-                'exact-length',
-                'Postcode must have exactly 6 characters (excluding spaces)',
-                (value) => {
-                    if (!value) return false; // Ensure value is present
-                    const trimmedValue = value.replace(/\s+/g, ''); // Remove all spaces
-                    return trimmedValue.length === 6; // Check length excluding spaces
-                }
-            )
             .required('Postcode is required'),
         basicRent: Yup.number().required('Required').positive().min(0, "can't be less then 0"),
         serviceCharges: Yup.number().required('Required').positive().min(0, "can't be less then 0"),

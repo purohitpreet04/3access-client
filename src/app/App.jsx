@@ -9,7 +9,7 @@ import CustomSnackbar from './CommonComponents/CustomSnackbar.jsx';
 import LoadingOverlay from './Components/LoadingOverlay.jsx';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 
-import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ExistingTenants, ListRsl, LoginScreen, NotFound, OtpInput, PendingTenants, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ExistingTenants, ListRsl, LoginScreen, NotFound, Notificaiton, OtpInput, PendingTenants, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import { ActivityLogs, DocumentCom, MatxLoading } from './Components/index.js';
 import { allUsers } from './Utils/constant.js';
 
@@ -70,6 +70,7 @@ function App() {
         { path: '/services/tenetdetails', element: allUsers.includes(user?.role) ? <TenantDetails /> : <Navigate to="*" /> },
         { path: '/services/tenetdetails/assesment', element: allUsers.includes(user?.role) ? <Assessment /> : <Navigate to="*" /> },
         { path: '/services/settings', element: ['company', 'agent'].includes(user?.role) ? <SettingEmails /> : <Navigate to="*" /> },
+        { path: '/services/notifications', element: ['company', 'agent'].includes(user?.role) ? <Notificaiton /> : <Navigate to="*" /> },
         { path: '/services/agents', element: ['agent'].includes(user?.role) ? <Agents /> : <Navigate to="*" /> },
         { path: '/services/agents/permission', element: ['agent'].includes(user?.role) ? <AgentPermmision /> : <Navigate to="*" /> },
         { path: '/services/listrsl', element: ['company', 'agent'].includes(user?.role) ? <ListRsl /> : <Navigate to="*" /> },

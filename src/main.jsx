@@ -18,11 +18,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <SettingsProvider>
       <Provider store={store}>
         {/* <PersistGate loading={null} persistor={persistor}> */}
-        <CustomSnackbar>
+        {/* <CustomSnackbar> */}
           <BrowserRouter >
             <App />
           </BrowserRouter>
-        </CustomSnackbar>
+        {/* </CustomSnackbar> */}
         {/* </PersistGate> */}
       </Provider>
     </SettingsProvider>

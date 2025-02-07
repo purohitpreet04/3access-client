@@ -35,7 +35,7 @@ const validationSchema = Yup.object({
 
     firstName: Yup.string().required('Required'),
     lastName: Yup.string().required('Required'),
-    tenantContactNumber: Yup.string().required('Required'),
+    // tenantContactNumber: Yup.string().required('Required'),
     dateOfBirth: Yup.date().required('Required'),
     nationalInsuranceNumber: Yup.string().required('Required'),
 
@@ -48,14 +48,10 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
     const dispatch = useDispatch()
     const navigation = useNavigate()
     const { user } = useSelector(state => state.auth)
-    // console.log(editdata)
     const initialValues = { ...editdata };
-
-
 
     return (
         <>
-
             <Modal open={open} onClose={handleClose}>
                 <Box sx={style}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

@@ -18,10 +18,11 @@ export const SignOutTenants = Loadable(lazy(() => import("./Tenants/SignOutTenan
 export const AddTenants = Loadable(lazy(() => import("./Tenants/AddTenants.jsx")))
 export const Assessment = Loadable(lazy(() => import("./Tenants/Assessment.jsx")))
 export const TenantDetails = Loadable(lazy(() => import("./Tenants/TenantDetails.jsx")))
-export const SettingEmails = Loadable(lazy(() => import("./Settings/Email.jsx")))
 export const ListRsl = Loadable(lazy(() => import("./RSL/ListRsl.jsx")))
 export const AddRsl = Loadable(lazy(() => import("./RSL/AddRsl.jsx")))
 export const Agents = Loadable(lazy(() => import("./Agents/Agents.jsx")))
 export const AgentPermmision = Loadable(lazy(() => import("./Agents/AgentPermmision.jsx")))
 export const Profile = Loadable(lazy(() => import("./Profile/Profile.jsx")))
 
+export const SettingEmails = Loadable(lazy(() => import("./Settings/Email.jsx")))
+export const Notificaiton = Loadable(lazy(() => import("./Settings/Notificaiton.jsx")))

@@ -145,8 +145,10 @@ function AddTenantForm() {
             .max(new Date(), 'Date cannot be in the future')
             .required('Sign In Date is required'),
     });
+    const formikRef = React.useRef();
     return (
         <Formik
+            innerRef={formikRef}
             validationSchema={validationSchema}
             enableReinitialize={true}
             const initialValues={editData?._id ? { ...editData, tenantSignupEmail: editData?.tenantSignupEmail || ['agent'].includes(user?.role) ? user?.coruspondingEmail : ['staff'].includes(user?.role) && user?.coruspondingEmail } : {
@@ -257,6 +259,7 @@ function AddTenantForm() {
                 }
             }}
             validateOnChange={false}
+            validateOnBlur={false}
         >
             {({ values, setFieldValue, handleSubmit, setValues, handleChange, errors, setErrors }) => {
                 const handlePropertyChange = (event, val) => {
@@ -453,13 +456,6 @@ function AddTenantForm() {
                                                             setErrors({ signInDate: "Select Sign in date" })
                                                             return
                                                         }
-
-                                                        // if (!values?.endDate || !moment(values?.endDate).isValid()) {
-                                                        //     setErrors((pre) => ({ ...pre, endDate: "Select Sign out date" }))
-                                                        //     return
-                                                        // }
-
-
                                                         handleNext()
                                                     }} variant="contained" color="primary">
                                                         Next
@@ -469,7 +465,15 @@ function AddTenantForm() {
                                         </>
                                     )}
                                     {activeStep === 1 && (
-                                        <Assessment prevValues={values} setPreValues={setValues} nextStep={handleNext} backStep={handleBack} />
+                                        <Assessment
+                                            handleChange={handleChange}
+                                            prevValues={values}
+                                            setPreValues={setValues}
+                                            nextStep={handleNext}
+                                            backStep={handleBack}
+                                            errors={errors}
+                                            setErrors={setErrors}
+                                        />
                                     )}
                                     {/* step 2 */}
                                     {activeStep === 2 && (
@@ -503,8 +507,8 @@ function AddTenantForm() {
                                                         {signaturearray.map((com) => {
                                                             // console.log(values[`${com.name}_terms`])
                                                             return (
-                                                                <Grid item xs={4}>
-                                                                    <Typography>{com.label}</Typography>
+                                                                <Grid item xs={4} mb={2}>
+                                                                    <Typography variant='h6'>{com.label}</Typography>
                                                                     <div style={{ display: "flex", alignItems: "center", marginTop: "10px" }}>
                                                                         <input
                                                                             id={`${com.name}_terms`}

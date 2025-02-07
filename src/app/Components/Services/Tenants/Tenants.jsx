@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import EditTenantModal from './EditTenatns';
 import { logout } from '@app/Redux/Sclice/AuthSclice';
 import { mainuser, staffuser } from '@app/Utils/constant';
-import { CheckHasOneStaff, signOutTenant } from '@app/API/Tenant';
+import { CheckHasOneStaff, handleExistingExelFileExport, signOutTenant } from '@app/API/Tenant';
 import { confirm } from 'react-confirm-box';
 import When from '@app/CommonComponents/When';
 import SignOutModal from './SignOutModal';
@@ -28,7 +28,7 @@ const Tenants = () => {
     const navigation = useNavigate();
     const [fromdate, setFromDate] = useState('');
     const [todate, setTodate] = useState('');
-    const [roleFilter, setRoleFilter] = useState('');
+    const [filter, setFilter] = useState('');
     const [editdata, setEditData] = useState({});
     const [departmentFilter, setDepartmentFilter] = useState('');
     const [open, setOpen] = useState(false);
@@ -82,7 +82,7 @@ const Tenants = () => {
 
     useEffect(() => {
         fetchSignOutTenants()
-    }, [rowsPerPage, page, searchQuery, todate])
+    }, [rowsPerPage, page, searchQuery, todate, filter])
 
 
     const fetchSignOutTenants = async () => {
@@ -98,7 +98,8 @@ const Tenants = () => {
                         search: searchQuery,
                         fromDate: fromdate,
                         toDate: todate,
-                        role: user?.role
+                        role: user?.role,
+                        filter: filter
                     }
                 });
 
@@ -139,18 +140,7 @@ const Tenants = () => {
 
         setSignOut({ isOpen: true, id, propertyid: propertyid, userId: user?._id, })
         return
-        dispatch(
-            signOutTenant({
-                id,
-                propertyid,
-                userId: user?._id,
-                isPresent,
-                withOutMail,
-                navigate: navigation,
-            })
-        ).then(() => {
-            fetchSignOutTenants(); // Trigger a refresh of tenant data
-        });
+
     }
 
     const checkHasOneStaff = async () => {
@@ -165,6 +155,12 @@ const Tenants = () => {
     const navigateToTenantsDetails = (t_id, p_id) => {
         navigation(`/services/tenetdetails?t=${t_id}&p=${p_id}`)
     }
+
+
+    const handleExportTenants = async () => {
+        await dispatch(handleExistingExelFileExport({ _id: user?._id, role: user?.role }))
+    }
+
 
     return (
         <Box p={2}>
@@ -187,7 +183,6 @@ const Tenants = () => {
             }
 
             <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={3}>
-                {/* Search Bar */}
                 <TextField
                     fullWidth
                     label="Search by Name"
@@ -195,7 +190,22 @@ const Tenants = () => {
                     // value={searchQuery}
                     onChange={handleSearchChange}
                 />
-
+                <TextField
+                    name="filter"
+                    label="Tenant Status"
+                    // type="date"
+                    fullWidth
+                    value={filter}
+                    onChange={(val) => {
+                        setFilter(val.target.value)
+                    }}
+                    select
+                    defaultValue='Select'
+                >
+                    <MenuItem value="">Select Status</MenuItem>
+                    <MenuItem value="1">Active</MenuItem>
+                    <MenuItem value="0">Not-Active</MenuItem>
+                </TextField>
                 {/* Role Filter */}
                 <TextField
                     name="signInDate"
@@ -227,7 +237,72 @@ const Tenants = () => {
                 />
             </Box>
             <Box width="100%" overflow="auto">
+
+
+
+
+                {
+                    mainuser.includes(user.role) ? (
+                        <>
+                            <Box
+                                mb={2}
+                            >
+                                <Button
+                                    onClick={() => {
+                                        handleExportTenants()
+                                    }}
+                                    p={2}
+                                    variant='contained'
+                                    color='secondary'
+                                >
+                                    Export Not-Active Tenants
+                                </Button>
+                            </Box>
+                        </>) :
+                        (<>
+                            {user?.permmission.includes(10) && <Box
+                                mb={2}
+                            >
+                                <Button
+                                    onClick={() => {
+                                        handleExportTenants()
+                                    }}
+                                    p={2}
+                                    variant='contained'
+                                    color='secondary'
+                                >
+                                    Export Not-Active Tenants
+                                </Button>
+                            </Box>}
+                        </>)
+                }
+
+
                 <PaginationTable
+                    cellStye={(cell) => {
+                        console.log(cell);
+                        
+                        return ({
+                            status: {
+                                backgroundColor: cell.status != "active" ? '#ff000014' : '#4CAF50',
+                                position: "relative",
+                                "::after": {
+                                    content: '""', // Required for pseudo-elements
+                                    position: "absolute",
+                                    left: "5px", // Adjust position
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    width: "10px",
+                                    height: "10px",
+                                    borderRadius: "50%",
+                                    backgroundColor: cell.status === 1 ? "#4CAF50" : "#ff0000",
+                                },
+                            }
+                        })
+                    }}
+                    rowStye={(row) => ({
+                        // backgroundColor: row?.status === 1 ? '#DFF2D8' : '#ff000014'
+                    })}
                     data={listData}
                     actionBtn={(item) => {
                         return (
@@ -267,6 +342,7 @@ const Tenants = () => {
                         )
                     }}
                     headCells={[
+                        { label: "Status", key: "status" },
                         { label: "Property", key: "property" },
                         { label: "First Name", key: "firstName" },
                         { label: "Middel Name", key: "middleName" },
