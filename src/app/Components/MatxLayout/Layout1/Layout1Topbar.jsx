@@ -124,7 +124,7 @@ const Layout1Topbar = () => {
     if (['agent'].includes(user.role) && [1].includes(user?.isMainMA)) {
       getSelectedData()
     }
-  }, [user?._id])
+  }, [user])
 
   useEffect(() => {
     if (user?._id) {

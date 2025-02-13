@@ -54,8 +54,8 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
             .matches(/^[a-zA-Z\s]+$/, "Eye color must contain only letters")
             .required("Eye color is required"),
         tenantContactNumber: Yup.string()
-            .matches(/^(?:\+44|0)(?:\d\s?){10,11}$/, "Please enter a valid phone number")
-            .required("Contact number is required"),
+            .matches(/^(?:\+44|0)(?:\d\s?){10,11}$/, "Please enter a valid phone number"),
+            // .required("Contact number is required"),
         skinTone: Yup.string()
             .matches(/^[a-zA-Z\s]+$/, "Skin tone must contain only letters")
             .required("Skin tone is required"),
@@ -129,7 +129,11 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                     return str.replace(/[a-z]/g, (match) => match.toUpperCase());
                 };
 
-
+                const handleBackSteps = () => {
+                    setPreValues((pre) => ({
+                        ...pre, ...values
+                    }))
+                }
 
                 return (
                     <Form>
@@ -269,7 +273,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                                     handleChange({
                                                         target: { name: "nationalInsuranceNumber", value: uppercasedValue }
                                                     });
-                                                    checkNINO(uppercasedValue); 
+                                                    checkNINO(uppercasedValue);
                                                     // handleChange(e);
                                                     // checkNINO(e?.target?.value)
                                                 }}
@@ -636,7 +640,7 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                 <Divider sx={{ my: 2 }} />
                                 <Button
 
-                                    onClick={() => backStep()}
+                                    onClick={() => { backStep(); handleBackSteps() }}
                                     variant="outlined"
                                     color="primary"
                                 >

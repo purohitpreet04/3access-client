@@ -152,18 +152,7 @@ const PropertyList = () => {
 
         setSignOut({ isOpen: true, id, propertyid: propertyid, userId: user?._id, })
         return
-        dispatch(
-            signOutTenant({
-                id,
-                propertyid,
-                userId: user?._id,
-                isPresent,
-                withOutMail,
-                navigate: navigation,
-            })
-        ).then(() => {
-            fetchStaff(); // Trigger a refresh of tenant data
-        });
+
     }
 
 
@@ -467,7 +456,7 @@ const PropertyList = () => {
                                                 overflow: "hidden !important",
                                                 textOverflow: "ellipsis !important",
                                                 fontSize: "clamp(12px, 1vw, 16px) !important",
-                                            borderBottom: 'none', padding: 0
+                                                borderBottom: 'none',
                                             }}>
                                             <Paper
                                                 elevation={0}

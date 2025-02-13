@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Button, MenuItem, Select, styled, TextField, Typography } from '@mui/material'
-import React, { forwardRef, useState } from 'react'
+import React, { forwardRef, useCallback, useState } from 'react'
 import FileUpload from './FileUploas'
 import FileInput from './FileInput'
 // import { LocalizationProvider, } from '@mui/x-date-pickers';
@@ -7,7 +7,7 @@ import FileInput from './FileInput'
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 // import { DatePicker } from '@mui/x-date-pickers';
 
-const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPreview, accept, menuItems = [{ val: '', label: '' }], select, events, name, label, type, placeholder, className, onChange, value, errors, fullWidth, InputLabelProps, required, inputProps, disabled, apiEndPoint, uploadFile }, ref) => {
+const FlotingLableInput = forwardRef(({ form, field, defaultValue, allowedExtensions, showPreview, accept, menuItems = [{ val: '', label: '' }], select, events, name, label, type, placeholder, className, onChange, value, errors, fullWidth, InputLabelProps, required, inputProps, disabled, apiEndPoint, uploadFile }, ref) => {
 
     const [selectedDate, setSelectedDate] = useState(value || '')
     const handleFileChange = (e) => {
@@ -31,19 +31,21 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
         if (onChange) {
             onChange({ target: { name, value: capitalizedValue } });
         }
-    };
+    }
 
-
+    const errorText = errors && errors[name] || ''
 
     if (!select && ['text', 'date', "datetime - local"].includes(type)) {
         return (
             <>
                 <TextField
+                    {...field}
                     inputRef={ref}
                     disabled={disabled}
                     accept={accept}
                     required={required}
                     name={name}
+                    id={name}
                     label={label}
                     fullWidth={fullWidth}
                     onChange={(e) => handleChange(e)}
@@ -53,8 +55,8 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
                     {...events}
                     variant='outlined'
                     value={value || ''}
-                    error={errors && errors[name]}
-                    helperText={errors && errors[name]}
+                    error={Boolean(errorText)}
+                    helperText={errorText}
                     InputLabelProps={{ ...InputLabelProps, shrink: type === "date" || 'text' ? true : false, }}
                     inputProps={inputProps}
                 />
@@ -170,6 +172,7 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
         return (
             <Autocomplete
                 name={name}
+                value={menuItems.find(option => option.val == value)}
                 onChange={(event, value) =>
                     onChange({ target: { name, value: value?.val } })
                     // handleAutocompleteChange(event, value?.value, "myAutocomplete")
@@ -177,13 +180,14 @@ const FlotingLableInput = forwardRef(({ defaultValue, allowedExtensions, showPre
                 required={required}
                 options={menuItems}
                 getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.value === value}
+                isOptionEqualToValue={(option, value) => option.val == value}
                 renderInput={(params) => (
                     <TextField
                         inputRef={ref}
                         onChange={onChange}
+                        value={value}
                         name={name}
-                        error={errors && errors[name]}
+                        error={errors && Boolean(errors[name])}
                         helperText={errors && errors[name]}
                         {...params}
                         label={label}

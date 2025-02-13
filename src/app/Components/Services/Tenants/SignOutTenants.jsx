@@ -118,7 +118,8 @@ const SignOutTenants = () => {
                 {/* Search Bar */}
                 <TextField
                     fullWidth
-                    label="Search by Name"
+                    label="Search"
+                    placeholder="First Name/Middel Name/Last Name/NINO/Claim Reference No/Property"
                     variant="outlined"
                     // value={searchQuery}
                     onChange={handleSearchChange}
@@ -164,13 +165,13 @@ const SignOutTenants = () => {
                         return (
                             <>
                                 {mainuser.includes(user?.role) ? (
-                                    <IconButton onClick={() => {navigateToTenantsDetails(item?._id, item?.propertyDetails?._id)}}>
+                                    <IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
                                         <Icon>info</Icon>
                                     </IconButton>) : (
                                     <>
                                         {
                                             user?.permmission.includes(4) &&
-                                            (<IconButton onClick={() => {navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
+                                            (<IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
                                                 <Icon>info</Icon>
                                             </IconButton>)
                                         }

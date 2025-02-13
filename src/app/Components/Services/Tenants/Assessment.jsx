@@ -26,9 +26,7 @@ import {
     Icon,
 } from '@mui/material';
 import FlotingLableInput from '@app/CommonComponents/FlotingLableInput';
-import { Form, Formik, useFormik } from 'formik';
-import DynamicTitle from '@app/CommonComponents/DynamicTitle';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { FastField, Form, Formik, useFormik, useFormikContext } from 'formik';
 import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
 import moment from 'moment';
 import SignatureCanvas from '@app/CommonComponents/SignatureCanvas';
@@ -39,8 +37,7 @@ import RadioComponent from '@app/CommonComponents/RadioComponent';
 import { getDate } from '@app/Utils/utils';
 import { checklistData, supportNeedsOptions, supportPlanChoices, beHealthyChoices, enjoyAndAchieveChoices, makingContributionChoices, staySafeChoices, riskCategories } from '@app/Utils/constant';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-import * as Yup from 'yup';
-import { useSnackbar } from 'notistack';
+
 
 
 const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
@@ -51,10 +48,11 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
     const query = new URLSearchParams(search);
     const sd = query.get('sd');
     const fieldRefs = useRef({})
-    useEffect(() => {
-        console.log('Assessment');
 
-    }, [])
+
+    const { values } = useFormikContext()
+    // console.log(values);
+
     // const formik = useFormik({
     //     validateOnChange: false,
     //     validateOnBlur: false,
@@ -112,7 +110,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
         <>
             <Formik
                 validateOnChange={false}
-                validateOnBlur={false}
+                validateOnBlur={true}
                 enableReinitialize={true}
                 // validationSchema: assessmentSchema,
                 initialValues={{
@@ -129,9 +127,11 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                     if (!values.sourceOfIncome) errors.sourceOfIncome = "Source Of Income Is required";
                     if (!values.supportNeeds || values.supportNeeds.length < 5) errors.supportNeeds = "You need to Check Atleast 5 items in Support needs";
                     if (!values.totalAmount) errors.totalAmount = "Total Amount is required";
-                    if (!values?.supportNeeds || value?.supportNeeds?.length < 5) {
+                    if (!values?.supportNeeds || values?.supportNeeds?.length < 5) {
                         errors.supportNeeds = 'You need to Check Atleast 5 items in Support needs'
                     }
+                    // console.log(errors);
+
                     return errors
                 }}
                 onSubmit={async (values, { resetForm, }) => {
@@ -153,9 +153,9 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                         dispatch(showSnackbar({ message: error?.response?.data?.message || "error while add tenants details", severity: "error" }))
                     }
                 }}
-
             >
                 {({ setValues, values, handleChange, handleSubmit, setFieldValue, errors, submitCount }) => {
+                    // console.log(values);
 
                     const handleScrollOnError = () => {
                         const firstErrorField = Object.keys(errors)[0];
@@ -174,8 +174,15 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                         setFieldValue('records', newRecords);
                     };
 
+
+                    const handleBackSteps = () => {
+                        setPreValues((pre) => ({
+                            ...pre, assesment: { ...values },
+                        }))
+                    }
+
                     return (
-                        <Form>
+                        <form>
                             <Box px={3} pb={3}>
                                 <Box>
                                     <Typography variant="h6">Assessment</Typography>
@@ -189,6 +196,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                             label="Date of Assessment"
                                             type="date"
                                             fullWidth
+                                            errors={errors}
                                             value={values?.dateOfAssessment || moment().format('DD/MM/YYYY')}
                                             InputLabelProps={{
                                                 shrink: true,
@@ -199,7 +207,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                     <Grid item xs={12} sm={6}>
                                         <FlotingLableInput
                                             name="preferredArea"
-                                            ref={(el) => (fieldRefs.current['preferredArea'] = el)}
+                                            // ref={(el) => (fieldRefs.current['preferredArea'] = el)}
                                             label="Preferred Area of Tenant"
                                             placeholder="Preferred Area of Tenant"
                                             type="text"
@@ -211,7 +219,6 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
-
                                         <RadioComponent
                                             defaultValue={false}
                                             title='Work No.'
@@ -221,6 +228,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                                 { label: 'No', value: false, checked: values.workNo === false, onChange: () => setValues((pre) => ({ ...pre, workNo: false })), defaultChecked: true }
                                             ]}
                                             name='workNo'
+                                            errors={errors}
                                             value={values.workNo}
                                         />
                                         {values?.workNo && (
@@ -852,7 +860,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                             )}
                                         </Grid>
                                         <Grid item xs={4} sm={4}>
-                                            
+
                                             <RadioComponent
                                                 defaultValue={false}
                                                 title="Have you been diagnosed with any mental health condition?"
@@ -1666,7 +1674,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                     >
                                         <Divider sx={{ my: 2 }} />
                                         <Button
-                                            onClick={() => backStep()}
+                                            onClick={() => { backStep(); handleBackSteps() }}
                                             variant="outlined"
                                             color="primary"
                                         >
@@ -1684,7 +1692,7 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                 </Grid>
 
                             </Box >
-                        </Form>
+                        </form>
                     )
                 }}
 

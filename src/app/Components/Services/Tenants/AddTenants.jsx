@@ -151,7 +151,19 @@ function AddTenantForm() {
             innerRef={formikRef}
             validationSchema={validationSchema}
             enableReinitialize={true}
-            const initialValues={editData?._id ? { ...editData, tenantSignupEmail: editData?.tenantSignupEmail || ['agent'].includes(user?.role) ? user?.coruspondingEmail : ['staff'].includes(user?.role) && user?.coruspondingEmail } : {
+            const initialValues={editData?._id ? {
+                ...editData, tenantSignupEmail: editData?.tenantSignupEmail || ['agent'].includes(user?.role) ? user?.coruspondingEmail : ['staff'].includes(user?.role) && user?.coruspondingEmail
+            } : {
+
+                // ...prevValues?.assesment,
+                // supportNeeds: prevValues?.assesment?.supportNeeds ? [...prevValues?.assesment?.supportNeeds] : [],
+                // dateOfAssessment: prevValues?.assesment?.dateOfAssessment ? moment(prevValues?.assesment?.dateOfAssessment).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+                // categories: prevValues?.assesment?.categories ? { ...prevValues?.assesment?.categories } : {},
+                // records: prevValues?.assesment?.records ? [...prevValues?.assesment?.records] : [{ natureOfOffence: '', date: '', sentence: '' }],
+                // supportNeeds: [],
+                // dateOfAssessment: moment().format('YYYY-MM-DD'),
+                // records: [{ natureOfOffence: '', date: '', sentence: '' }],
+                // categories: {},
                 property: p || '',
                 room: r || '',
                 rooms: 0,
@@ -507,28 +519,80 @@ function AddTenantForm() {
                                                         {signaturearray.map((com) => {
                                                             // console.log(values[`${com.name}_terms`])
                                                             return (
-                                                                <Grid item xs={4} mb={2}>
-                                                                    <Typography variant='h6'>{com.label}</Typography>
-                                                                    <div style={{ display: "flex", alignItems: "center", marginTop: "10px" }}>
+                                                                // <Grid item xs={4} mb={2}>
+                                                                //     <Typography variant='h6'>{com.label}</Typography>
+                                                                //     <div style={{ display: "flex", alignItems: "center", marginTop: "10px" }}>
+                                                                //         <input
+                                                                //             id={`${com.name}_terms`}
+                                                                //             type="checkbox"
+                                                                //             checked={values[`${com.name}_terms`]}
+                                                                //             onChange={(e) => { setFieldValue(`${com.name}_terms`, e.target.checked); if (e.target.checked == false) { setFieldValue('terms', false) } }}
+                                                                //             name={`${com.name}_terms`}
+                                                                //             style={{ width: "20px", height: "20px", marginRight: "10px" }}
+                                                                //         />
+                                                                //         <label htmlFor={`${com.name}_terms`} style={{ fontSize: 15 }}>
+                                                                //             I agree for Terms and condition
+                                                                //         </label>
+                                                                //     </div>
+                                                                //     <SignatureCanvas
+                                                                //         name={com.name}
+                                                                //         setFieldValue={setFieldValue}
+                                                                //         onSave={(sign) => setFieldValue(com.name, sign)}
+                                                                //         value={values[com.name]}
+                                                                //     />
+                                                                // </Grid>
+                                                                <Grid item xs={12} sm={6} md={4} mb={2}>
+                                                                    <Typography variant="h6">{com.label}</Typography>
+                                                                    <Box display="flex" alignItems="center" mt={1} flexWrap="wrap">
                                                                         <input
                                                                             id={`${com.name}_terms`}
                                                                             type="checkbox"
                                                                             checked={values[`${com.name}_terms`]}
-                                                                            onChange={(e) => { setFieldValue(`${com.name}_terms`, e.target.checked); if (e.target.checked == false) { setFieldValue('terms', false) } }}
+                                                                            onChange={(e) => {
+                                                                                setFieldValue(`${com.name}_terms`, e.target.checked);
+                                                                                if (!e.target.checked) {
+                                                                                    setFieldValue("terms", false);
+                                                                                }
+                                                                            }}
                                                                             name={`${com.name}_terms`}
-                                                                            style={{ width: "20px", height: "20px", marginRight: "10px" }}
+                                                                            style={{
+                                                                                width: 20,
+                                                                                height: 20,
+                                                                                marginRight: 10,
+                                                                            }}
                                                                         />
-                                                                        <label htmlFor={`${com.name}_terms`} style={{ fontSize: 15 }}>
-                                                                            I agree for Terms and condition
-                                                                        </label>
-                                                                    </div>
-                                                                    <SignatureCanvas
-                                                                        name={com.name}
-                                                                        setFieldValue={setFieldValue}
-                                                                        onSave={(sign) => setFieldValue(com.name, sign)}
-                                                                        value={values[com.name]}
-                                                                    />
+                                                                        <Typography
+                                                                            component="label"
+                                                                            htmlFor={`${com.name}_terms`}
+                                                                            fontSize={14}
+                                                                            sx={{
+                                                                                flex: 1,
+                                                                                minWidth: "200px",
+                                                                            }}
+                                                                        >
+                                                                            I agree to the Terms and Conditions
+                                                                        </Typography>
+                                                                    </Box>
+
+                                                                    {/* Signature Canvas */}
+                                                                    {/* <Box
+                                                                        mt={2}
+                                                                        sx={{
+                                                                            width: { xs: "100%", sm: "80%", md: "75%" },
+                                                                            border: "1px solid #ccc",
+                                                                            borderRadius: "5px",
+                                                                            padding: "10px",
+                                                                        }}
+                                                                    > */}
+                                                                        <SignatureCanvas
+                                                                            name={com.name}
+                                                                            setFieldValue={setFieldValue}
+                                                                            onSave={(sign) => setFieldValue(com.name, sign)}
+                                                                            value={values[com.name]}
+                                                                        />
+                                                                    {/* </Box> */}
                                                                 </Grid>
+
                                                             )
                                                         })}
                                                     </Grid>

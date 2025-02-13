@@ -406,7 +406,7 @@ function TenantDetails() {
                                                 Status:
                                             </TableCell>
                                             <TableCell>
-                                                {tenantdata?.status === 0 ? 'Not active' : `Active (${tenantdata?.sts_Str})`}
+                                                {tenantdata?.status === 0 ? `Not active (${tenantdata?.sts_Str})` : `Active (${tenantdata?.sts_Str})`}
                                             </TableCell>
                                         </TableRow>
 

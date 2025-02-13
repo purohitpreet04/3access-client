@@ -59,6 +59,12 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
             }}
         >
             {({ isSubmitting, values, setFieldValue, handleSubmit, setValues, handleChange, errors }) => {
+
+                const handleBackSteps = () => {
+                    setPreValues((pre) => ({
+                        ...pre,  ...values 
+                    }))
+                }
                 const tenetPartnerArray = [{ val: 'CL', label: `${values?.firstName} ${values?.lastName}` }, { val: 'both', label: 'BOTH' },]
                 return (
                     <Form>
@@ -1184,7 +1190,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             type="text"
                                             onChange={(e) => { handleChange(e) }}
                                             fullWidth
-                                            required
+                                            // required
                                             value={values.source_of_income}
                                             error={errors}
                                             helperText={errors}
@@ -1197,7 +1203,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                             type="text"
                                             onChange={(e) => { handleChange(e) }}
                                             fullWidth
-                                            required
+                                            // required
                                             value={values.total_amount}
                                             inputProps={{ inputMode: 'numeric' }}
                                             error={errors}
@@ -1310,7 +1316,7 @@ const Step3 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                 <Divider sx={{ my: 2 }} />
                                 <Button
 
-                                    onClick={() => backStep()}
+                                    onClick={() => { backStep(); handleBackSteps() }}
                                     variant="outlined"
                                     color="primary"
                                 >

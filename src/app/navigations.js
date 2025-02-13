@@ -22,6 +22,7 @@ export const usernavigations = [
       { name: "Sign Out Tenants", path: '/services/sign-out-tenants', iconText: "B", nav: 0 },
       { name: "Pending Tenants", path: '/services/pending-tenants', iconText: "C", nav:2 },
       { name: "Existing Tenants", path: '/services/existing-tenants', iconText: "D", nav:3 },
+      // { name: "Deleted Tenants", path: '/services/deleted-tenants', iconText: "E", nav:4 },
     ]
   },
   {
@@ -46,6 +47,7 @@ export const mainAgent = [
       { name: "Sign Out Tenants", path: '/services/sign-out-tenants', iconText: "B" },
       { name: "Pending Tenants", path: '/services/pending-tenants', iconText: "C" },
       { name: "Existing Tenants", path: '/services/existing-tenants', iconText: "D" },
+      // { name: "Deleted Tenants", path: '/services/deleted-tenants', iconText: "E" },
     ]
   },
   { name: "Registered RSL", path: "/services/listrsl", icon: "corporate_fare", title: "RSL" },

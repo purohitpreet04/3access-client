@@ -10,6 +10,11 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
     const [signatureData, setSignatureData] = useState(null); // State to store Base64 string
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        if (value) {
+            sigCanvas.current.fromDataURL(value);
+        }
+    }, []);
 
     const canvasRef = useRef(null);
     const ctxRef = useRef(null);
@@ -50,7 +55,6 @@ const SignatureCanvas = ({ width = 350, height = 160, onSave, name, setFieldValu
             }} gap={2}>
          
             <SignaturePad
-
                 ref={sigCanvas}
                 penColor="black"
                 onEnd={handleEnd} // Triggered when the user stops drawing

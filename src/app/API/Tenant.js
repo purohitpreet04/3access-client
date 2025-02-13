@@ -140,43 +140,85 @@ export const handleEditTenant = createAsyncThunk(
   })
 
 
-  export const handleExistingExelFileExport = createAsyncThunk(
-    "tenants/handleEditTenant",
-    async ({ _id, role }, { dispatch, rejectWithValue }) => {
-      try {
-        dispatch(setIsLoading({ data: true }));
-  
-        const result = await API.post(
-          "api/tenents/exportnotactivetenants",
-          { _id, role },
-          {
-            responseType: "arraybuffer",
-            headers: { Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }, 
-          }
-        );
-  
-        if (result.data) {
-          const blob = new Blob([result.data], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          });
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "NonActiveTenants.xlsx";
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-  
-          dispatch(showSnackbar({ message: "Excel file downloaded successfully!", severity: "success" }));
-        } else {
-          dispatch(showSnackbar({ message: "Failed to download file", severity: "error" }));
+export const handleExistingExelFileExport = createAsyncThunk(
+  "tenants/handleEditTenant",
+  async ({ _id, role }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }));
+
+      const result = await API.post(
+        "api/tenents/exportnotactivetenants",
+        { _id, role },
+        {
+          responseType: "arraybuffer",
+          headers: { Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
         }
-  
-        dispatch(setIsLoading({ data: false }));
-      } catch (error) {
-        dispatch(setIsLoading({ data: false }));
-        dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
+      );
+
+      if (result.data) {
+        const blob = new Blob([result.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "NonActiveTenants.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        dispatch(showSnackbar({ message: "Excel file downloaded successfully!", severity: "success" }));
+      } else {
+        dispatch(showSnackbar({ message: "Failed to download file", severity: "error" }));
       }
+
+      dispatch(setIsLoading({ data: false }));
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }));
+      dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
     }
-  );
-  
+  }
+);
+
+
+export const sendemailtoagent = createAsyncThunk(
+  "tenants/sendemailtoagent",
+  async ({ _id, status, email }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }));
+      const result = await API.get(
+        "api/tenents/sendemailtoagent",
+        { params: { _id, status, email } },
+      );
+      if (result.data.message) {
+        dispatch(showSnackbar({ message: result.data.message || "Email sended", severity: result.data.severity || "success" }));
+      }
+      dispatch(setIsLoading({ data: false }));
+
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }));
+      dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
+    }
+  }
+)
+
+export const handleDeleteTenantData = createAsyncThunk(
+  "tenants/handleDeleteTenantData",
+  async ({ _ids, userId }, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }));
+      const result = await API.post(
+        "api/tenents/delete-exported-data",
+        { _ids, userId }
+      );
+      if (result.data.message) {
+        dispatch(showSnackbar({ message: result.data.message || "Email sended", severity: result.data.severity || "success" }));
+      }
+      dispatch(setIsLoading({ data: false }));
+      return result
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }));
+      dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
+    }
+  }
+)

@@ -13,13 +13,18 @@ import {
     TableSortLabel,
     Paper,
     TableContainer,
-    colors
+    colors,
+    FormControlLabel,
+    Checkbox,
+    Button
 } from "@mui/material";
 import { getDate } from "@app/Utils/utils";
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import DOMPurify from 'dompurify';
 import clsx from 'clsx';
 import '../App.css';
+
+// import { Field } from "formik";
 
 const StyledTable = styled(Table)(({ theme }) => ({
     width: "100%",
@@ -92,7 +97,7 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     '& .css-167e5dj': {
         width: "150%"
     }
-    
+
 }));
 
 const TableCellstyle = styled(TableCell)(() => ({
@@ -108,10 +113,10 @@ const TableCellstyle = styled(TableCell)(() => ({
 }));
 
 
-export default function PaginationTable({ headCells = [], data = [], actionBtn, style, rowStye = () => { }, cellStye = () => ({}) }) {
+export default function PaginationTable({ headCells = [], data = [], actionBtn, style, rowStye = () => { }, cellStye = () => ({}), getSelectedRows }) {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('');
-
+    const [selectedRows, setSelectedRows] = useState([])
     const handleSortRequest = (property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -125,6 +130,13 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
             return a[orderBy] < b[orderBy] ? 1 : -1;
         }
     });
+
+
+    const handleSelectedRows = () => {
+        getSelectedRows && getSelectedRows(selectedRows)
+    }
+
+
 
     return (
 
@@ -145,16 +157,30 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                     </TableSortLabel>
                                 </TableCellstyle>)
                             } else if (isCheckbox) {
-                                <TableCellstyle key={i} style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }} align={align || 'center'}>
-                                    <TableSortLabel
-                                        align={align || 'center'}
-                                        active={orderBy === key}
-                                        direction={orderBy === key ? order : 'asc'}
-                                        onClick={() => handleSortRequest(key)}
-                                    >
-                                        {label}
-                                    </TableSortLabel>
-                                </TableCellstyle>
+                                return (
+                                    <TableCellstyle key={i} style={{ fontWeight: 'bold', fontSize: 20, wordBreak: 'break-word' }} align={align || 'center'}>
+
+                                        <label htmlFor="headcheckbox">
+                                            <input
+                                                id={`headcheckbox`}
+                                                type="checkbox"
+                                                checked={selectedRows.length == data?.length}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedRows((pre) => ([...sortedRows.map((row) => row?._id)]))
+                                                    } else {
+                                                        setSelectedRows([])
+                                                    }
+                                                }}
+                                                name={"headcheckbox"}
+                                                style={{ width: "20px", height: "20px", marginRight: "10px" }}
+                                            />
+                                            {label}
+                                        </label>
+
+                                    </TableCellstyle>
+                                )
+
                             } else {
                                 return (
                                     <TableCellstyle key={i}
@@ -179,19 +205,7 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                     {sortedRows.length > 0 ? (
                         sortedRows.map((subscriber, index) => (
                             <TableRow key={index} style={{ ...rowStye(subscriber) }}>
-                                {/* {headCells.map(({ key, date, html }) => (
-                                        <TableCell style={{ wordBreak: 'break-word' }} key={key} align="center">
-                                            {date || key === 'createdAt'
-                                                ? getDate(subscriber[key], "DD-MM-YYYY")
-                                                : html
-                                                    ? (
-                                                        <div
-                                                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(subscriber[key]) }}
-                                                        />
-                                                    )
-                                                    : subscriber[key]}
-                                        </TableCell>
-                                    ))} */}
+
                                 {headCells.map(({ key, date, html, isCheckbox, CheckBoxCom, formate }, i) => {
 
                                     let testhtml = '<p>hbhjvghv</p>'
@@ -204,17 +218,27 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
 
                                     return (
                                         <>
-                                            {(CheckBoxCom && isCheckbox) ? <TableCell key={i} style={{ wordBreak: 'break-word' }} align="center">{CheckBoxCom}</TableCell> :
-
+                                            {(CheckBoxCom && isCheckbox) ?
+                                                <TableCell key={i} style={{ wordBreak: 'break-word' }} align="center">
+                                                    <input
+                                                        id={`checkbox-${subscriber?._id}`}
+                                                        type="checkbox"
+                                                        checked={selectedRows.includes(subscriber?._id)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedRows((pre) => ([...pre, subscriber?._id]))
+                                                            } else {
+                                                                setSelectedRows((pre) => ([...selectedRows.filter(id => id != subscriber?._id)]))
+                                                            }
+                                                        }}
+                                                        name={`checkbox-${subscriber?._id}`}
+                                                        style={{ width: "20px", height: "20px", marginRight: "10px" }}
+                                                    />
+                                                    {/* {CheckBoxCom} */}
+                                                </TableCell> :
                                                 <TableCell
                                                     sx={{
-                                                        // padding: "10px 16px !important",
-                                                        // maxWidth: "fit-content !important",
-                                                        // whiteSpace: "nowrap !important",
-                                                        // width: "fit-content !important",
-                                                        // overflow: "hidden !important",
-                                                        // textOverflow: "ellipsis !important",
-                                                        // fontSize: "clamp(12px, 1vw, 16px) !important"
+
                                                     }}
                                                     style={{ wordBreak: 'break-word', fontSize: 18, ...cellStye(subscriber)[key] }} key={key} align="center">
                                                     {date || key === 'createdAt' ? (
@@ -243,12 +267,7 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                                                 color: 'inherit',
                                                             }
                                                         }} dangerouslySetInnerHTML={{ __html: senizedData }} >
-                                                            {/* <div
-
-                                                                
-                                                                dangerouslySetInnerHTML={{ __html: senizedData }}
-                                                            // dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(subscriber[key]) }}
-                                                            /> */}
+                                                           
                                                         </Box>
                                                     ) : (
                                                         subscriber[key]
@@ -258,18 +277,18 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                                     )
                                 })}
 
-                                {actionBtn && <TableCell 
-                                
-                                sx={{
-                                    padding: "10px 16px !important",
-                                    maxWidth: "fit-content !important",
-                                    whiteSpace: "nowrap !important",
-                                    width: "fit-content !important",
-                                    overflow: "hidden !important",
-                                    textOverflow: "ellipsis !important",
-                                    fontSize: "clamp(12px, 1vw, 16px) !important"
-                                }}
-                                style={{ wordBreak: 'break-word', fontSize: 18 }} align="center">{actionBtn(subscriber)}</TableCell>}
+                                {actionBtn && <TableCell
+
+                                    sx={{
+                                        padding: "10px 16px !important",
+                                        maxWidth: "fit-content !important",
+                                        whiteSpace: "nowrap !important",
+                                        width: "fit-content !important",
+                                        overflow: "hidden !important",
+                                        textOverflow: "ellipsis !important",
+                                        fontSize: "clamp(12px, 1vw, 16px) !important"
+                                    }}
+                                    style={{ wordBreak: 'break-word', fontSize: 18 }} align="center">{actionBtn(subscriber)}</TableCell>}
                             </TableRow>
                         ))
                     ) : (
@@ -295,6 +314,20 @@ export default function PaginationTable({ headCells = [], data = [], actionBtn, 
                     )}
                 </TableBody>
             </StyledTable>
+                {selectedRows.length > 0 && <Box display={'flex'} gap={3} my={3}>
+                    <Typography variant="h5" sx={{ color: "text.secondary", fontWeight: 400 }} >
+                        Selected:{selectedRows.length}
+                    </Typography>
+
+                    <Button
+                        color="error"
+                        variant="contained"
+                        onClick={() => { handleSelectedRows() }}
+                    >
+                        Delete
+                    </Button>
+                </Box>
+                }
         </StyledTableContainer>
     );
 }

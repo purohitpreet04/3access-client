@@ -2,8 +2,8 @@ import PaginationTable from '@app/CommonComponents/TableComponent';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
 import { getDate } from '@app/Utils/utils';
-import { Edit, EditNotifications } from '@mui/icons-material';
-import { Box, Button, Icon, IconButton, MenuItem, Paper, Select, styled, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material'
+import { Edit, EditNotifications, Email, SaveAlt } from '@mui/icons-material';
+import { Box, Button, Grid, Icon, IconButton, MenuItem, Paper, Select, styled, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material'
 import API from 'Constance';
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react'
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import EditTenantModal from './EditTenatns';
 import { logout } from '@app/Redux/Sclice/AuthSclice';
 import { mainuser, staffuser } from '@app/Utils/constant';
-import { CheckHasOneStaff, handleExistingExelFileExport, signOutTenant } from '@app/API/Tenant';
+import { CheckHasOneStaff, handleDeleteTenantData, handleExistingExelFileExport, sendemailtoagent, signOutTenant } from '@app/API/Tenant';
 import { confirm } from 'react-confirm-box';
 import When from '@app/CommonComponents/When';
 import SignOutModal from './SignOutModal';
@@ -162,6 +162,93 @@ const Tenants = () => {
     }
 
 
+    const handelSendEmail = async (status) => {
+        await dispatch(sendemailtoagent({ _id: user?._id, email: user?.coruspondingEmail, status }))
+    }
+
+
+    const ButtonsForNotActiveTenants = () => {
+        return (
+            <>
+                <Grid
+                    mb={2}
+                >
+                    <Button
+                        onClick={() => {
+                            handleExportTenants()
+                        }}
+                        sx={{
+                            p: 2,
+                        }}
+                        variant='contained'
+                        color='secondary'
+                    >
+                        <SaveAlt sx={{ mr: 2 }} />
+                        {/* <Icon component={FileDownloadIcon} /> */}
+                        Export Not-Active Tenants
+                    </Button>
+                    <Button
+                        sx={{
+                            p: 2,
+                            ml: 2,
+                            // borderRadius: "20px"
+
+                        }}
+                        onClick={() => {
+                            handelSendEmail(0)
+                        }}
+                        p={2}
+                        variant='contained'
+                        color='primary'
+                    >
+                        <Icon sx={{ mr: 2 }}>email</Icon>
+                        Email for Not-Active Tenants
+                    </Button>
+                    <Button
+                        sx={{
+                            p: 2,
+                            ml: 2,
+
+                        }}
+                        onClick={() => {
+                            handelSendEmail(1)
+                        }}
+                        p={2}
+                        variant='contained'
+                        color='success'
+                    >
+                        <Icon sx={{ mr: 2 }}>email</Icon>
+                        Email for Active Tenants
+                    </Button>
+                    <Button
+                        sx={{
+                            p: 2,
+                            ml: 2,
+                            float: 'right'
+                        }}
+                        onClick={() => {
+                            // handelSendEmail(1)
+                        }}
+                        p={2}
+                        variant='contained'
+                        color='error'
+                    >
+                        <Icon sx={{ mr: 2 }}>delete</Icon>
+                        Delete all data
+                    </Button>
+
+
+
+                </Grid>
+            </>
+        )
+    }
+
+    const handledeleteData = async (data) => {
+        await dispatch(handleDeleteTenantData({ _ids: data, userId: user?._id }))
+        fetchSignOutTenants()
+    }
+
     return (
         <Box p={2}>
             {
@@ -185,8 +272,9 @@ const Tenants = () => {
             <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={3}>
                 <TextField
                     fullWidth
-                    label="Search by Name"
+                    label="Search"
                     variant="outlined"
+                    placeholder="First Name/Middel Name/Last Name/NINO/Claim Reference No/Property"
                     // value={searchQuery}
                     onChange={handleSearchChange}
                 />
@@ -237,51 +325,21 @@ const Tenants = () => {
                 />
             </Box>
             <Box width="100%" overflow="auto">
-
-
-
-
                 {
                     mainuser.includes(user.role) ? (
                         <>
-                            <Box
-                                mb={2}
-                            >
-                                <Button
-                                    onClick={() => {
-                                        handleExportTenants()
-                                    }}
-                                    p={2}
-                                    variant='contained'
-                                    color='secondary'
-                                >
-                                    Export Not-Active Tenants
-                                </Button>
-                            </Box>
+                            <ButtonsForNotActiveTenants />
                         </>) :
                         (<>
-                            {user?.permmission.includes(10) && <Box
-                                mb={2}
-                            >
-                                <Button
-                                    onClick={() => {
-                                        handleExportTenants()
-                                    }}
-                                    p={2}
-                                    variant='contained'
-                                    color='secondary'
-                                >
-                                    Export Not-Active Tenants
-                                </Button>
-                            </Box>}
+                            {user?.permmission.includes(10) &&
+                                <ButtonsForNotActiveTenants />
+                            }
                         </>)
                 }
 
 
                 <PaginationTable
                     cellStye={(cell) => {
-                        console.log(cell);
-                        
                         return ({
                             status: {
                                 backgroundColor: cell.status != "active" ? '#ff000014' : '#4CAF50',
@@ -341,7 +399,9 @@ const Tenants = () => {
 
                         )
                     }}
+
                     headCells={[
+                        { label: '', key: "Select All", isCheckbox: true, CheckBoxCom: true },
                         { label: "Status", key: "status" },
                         { label: "Property", key: "property" },
                         { label: "First Name", key: "firstName" },
@@ -357,6 +417,9 @@ const Tenants = () => {
                         { label: "Role", key: "addedbyrole" },
                         { label: "Created Date", key: "createdAt" },
                     ]}
+                    getSelectedRows={(rows) => {
+                        handledeleteData(rows)
+                    }}
                 />
                 <TablePagination
                     sx={{ px: 2 }}
