@@ -35,7 +35,7 @@ const FlotingLableInput = forwardRef(({ form, field, defaultValue, allowedExtens
 
     const errorText = errors && errors[name] || ''
 
-    if (!select && ['text', 'date', "datetime - local"].includes(type)) {
+    if (!select && ['text'].includes(type)) {
         return (
             <>
                 <TextField
@@ -57,12 +57,44 @@ const FlotingLableInput = forwardRef(({ form, field, defaultValue, allowedExtens
                     value={value || ''}
                     error={Boolean(errorText)}
                     helperText={errorText}
-                    InputLabelProps={{ ...InputLabelProps, shrink: type === "date" || 'text' ? true : false, }}
+                    InputLabelProps={{ ...InputLabelProps }}
                     inputProps={inputProps}
                 />
             </>
         )
     }
+    if (!select && [ 'date', "datetime - local"].includes(type)) {
+        return (
+            <>
+                <TextField
+                    {...field}
+                    inputRef={ref}
+                    disabled={disabled}
+                    accept={accept}
+                    required={required}
+                    name={name}
+                    id={name}
+                    label={label}
+                    fullWidth={fullWidth}
+                    onChange={(e) => handleChange(e)}
+                    type={type}
+                    placeholder={placeholder}
+                    className={className}
+                    {...events}
+                    variant='outlined'
+                    value={value || ''}
+                    error={Boolean(errorText)}
+                    helperText={errorText}
+                    InputLabelProps={{ ...InputLabelProps, shrink: type === "date" && true, }}
+                    inputProps={inputProps}
+                />
+            </>
+        )
+    }
+
+
+
+
     if (['file'].includes(type)) {
         return (
             <FileUpload

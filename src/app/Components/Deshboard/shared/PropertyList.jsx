@@ -1,7 +1,7 @@
 import PaginationTable from '@app/CommonComponents/TableComponent';
 import { setIsLoading } from '@app/Redux/Sclice/manageStateSclice';
 import { showSnackbar } from '@app/Redux/Sclice/SnaackBarSclice';
-import { Box, Icon, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography, useTheme } from '@mui/material';
+import { Box, Icon, IconButton, MenuItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography, useTheme } from '@mui/material';
 import { styled } from '@mui/system';
 // import { makeStyles } from '@mui/styles';
 import API from 'Constance';
@@ -12,12 +12,13 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { mainuser, staffuser } from '@app/Utils/constant';
 import { StackCards } from '.';
-import { Bed, Group, House, Room } from '@mui/icons-material';
-import { CheckHasOneStaff, signOutTenant } from '@app/API/Tenant';
+import { Bed, Edit, Group, House, Room } from '@mui/icons-material';
+import { CheckHasOneStaff, handleTenantedit, listTenants, signOutTenant } from '@app/API/Tenant';
 import { getDate } from '@app/Utils/utils';
 import clsx from 'clsx';
 import When from '@app/CommonComponents/When';
 import SignOutModal from '@app/Components/Services/Tenants/SignOutModal';
+import EditTenantModal from '@app/Components/Services/Tenants/EditTenatns';
 
 const PropertyList = () => {
     const theme = useTheme();
@@ -43,18 +44,18 @@ const PropertyList = () => {
     const dispatch = useDispatch()
     const navigation = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-
-    const handleChangePage = (_, newPage) => {
-        if (newPage > 0) {
-            setPage(newPage);
-        }
-    };
+    const [filter, setFilter] = useState('');
+    // const [editdata, setEditData] = useState({});
+    // const [open, setOpen] = useState(false);
 
 
     useEffect(() => {
-        fetchStaff()
-    }, [page, rowsPerPage, searchQuery])
+        fetchSignOutTenants()
+    }, [page, rowsPerPage, searchQuery, filter])
 
+    const handleChangePage = (_, newPage) => {
+        setPage(newPage + 1);
+    };
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(event.target.value);
@@ -116,11 +117,12 @@ const PropertyList = () => {
             "& tr": { "& td": { paddingLeft: 0, textTransform: "capitalize" } }
         }
     }));
+
     const Clickablelink = styled(Link)(() => ({
         color: 'blue',
         fontSize: 15
-
     }));
+
     const TableCellstyle = styled(TableCell)(() => ({
         // fontSize: 20,
         fontWeight: 'bold',
@@ -134,7 +136,72 @@ const PropertyList = () => {
     }));
 
 
+    const fetchSignOutTenants = async () => {
+        // dispatch(setIsLoading({ data: true }))
+        setListData([])
 
+        let params = {
+            addedBy: user?._id,
+            page: page,
+            limit: rowsPerPage,
+            search: searchQuery,
+            // fromDate: fromdate,
+            // toDate: todate,
+            role: user?.role,
+            filter: filter
+        }
+        let res = await dispatch(listTenants(params))
+        // console.log(res);
+
+        // setPage(res?.payload?.pagination?.totalPages)
+        const stackModyData = stacklist.map((stack) => {
+            if (Object.keys(res.payload.stackcards).includes(stack.key)) {
+                return {
+                    ...stack,
+                    count: res.payload.stackcards[stack.key] || 0
+                }
+            }
+        })
+        setTotalCount(res?.payload?.pagination?.total)
+        setListData(res?.payload?.data)
+        setStackList([...stackModyData])
+        // try {
+        //     try {
+        //         const res = await API.get('api/tenents/ListTenents', {
+        //             params: {
+        //                 addedBy: user?._id,
+        //                 page: page,
+        //                 limit: rowsPerPage,
+        //                 search: searchQuery,
+        //                 fromDate: fromdate,
+        //                 toDate: todate,
+        //                 role: user?.role,
+        //                 filter: filter
+        //             }
+        //         });
+
+        //         setListData([...res?.data?.data])
+        //         setTotalPage(res?.data?.pagination?.totalPages)
+        //         setTotalCount(res?.data?.pagination?.total)
+        //         dispatch(setIsLoading({ data: false }))
+        //         // console.log(res);
+        //     } catch (error) {
+        //         dispatch(setIsLoading({ data: false }))
+        //         if (error.response?.status === 409) {
+        //             dispatch(logout());
+        //             navigation('/auth/login');
+        //         } else {
+        //             dispatch(showSnackbar({
+        //                 message: error.response?.data?.message || "An error occurred",
+        //                 severity: "error"
+        //             }));
+        //         }
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        //     dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
+        // }
+    }
 
 
     const rooms = [
@@ -149,16 +216,12 @@ const PropertyList = () => {
     ];
 
     const handleSignOut = async (id, propertyid) => {
-
         setSignOut({ isOpen: true, id, propertyid: propertyid, userId: user?._id, })
         return
-
     }
 
 
     const checkHasOneStaff = async (pro_id, room) => {
-
-
         if (staffuser.includes(user?.role)) {
             navigation(`/services/addtenants?p=${pro_id}&r=${room}`)
         } else {
@@ -166,11 +229,22 @@ const PropertyList = () => {
         }
     }
 
+    const navigateToTenantsDetails = (t_id, p_id) => {
+        navigation(`/services/tenetdetails?t=${t_id}&p=${p_id}`)
+    }
+
+    const handleeditdata = async (data) => {
+        let res = await dispatch(handleTenantedit({ _id: data?._id, }))
+        console.log(res.payload);
+
+        setEditData({ ...res.payload.data })
+        setOpen(true)
+    }
 
     return (
         <>
             <Box width="100%" overflow="auto">
-                <StackCards cardList={stackData} />
+                <StackCards cardList={[...stackData]} />
                 <Box
                     display="flex"
                     alignItems="center"
@@ -204,7 +278,127 @@ const PropertyList = () => {
                         </Typography>
                     </Box>
                 </Box>
-                <TableContainer
+
+
+                <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={3}>
+                    <TextField
+                        fullWidth
+                        label="Search"
+                        variant="outlined"
+                        placeholder="First Name/Middel Name/Last Name/NINO/Claim Reference No/Property"
+                        // value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
+                    <TextField
+                        name="filter"
+                        label="Tenant Status"
+                        // type="date"
+                        fullWidth
+                        value={filter}
+                        onChange={(val) => {
+                            setFilter(val.target.value)
+                        }}
+                        select
+                        defaultValue='Select'
+                    >
+                        <MenuItem value="">Select Status</MenuItem>
+                        <MenuItem value="1">Active</MenuItem>
+                        <MenuItem value="0">Not-Active</MenuItem>
+                    </TextField>
+                </Box>
+
+
+                <Box width="100%" overflow="auto">
+                    <PaginationTable
+                        cellStye={(cell) => {
+                            return ({
+                                status: {
+                                    backgroundColor: cell.status != "active" ? '#ff000014' : '#4CAF50',
+                                    position: "relative",
+                                    "::after": {
+                                        content: '""', // Required for pseudo-elements
+                                        position: "absolute",
+                                        left: "5px", // Adjust position
+                                        top: "50%",
+                                        transform: "translateY(-50%)",
+                                        width: "10px",
+                                        height: "10px",
+                                        borderRadius: "50%",
+                                        backgroundColor: cell.status === 1 ? "#4CAF50" : "#ff0000",
+                                    },
+                                }
+                            })
+                        }}
+                        headCells={[
+                            { label: "Status", key: "status" },
+                            { label: "Property Address", key: "property" },
+                            { label: "Room", key: "room" },
+                            { label: "First Name", key: "firstName" },
+                            { label: "Middel Name", key: "middleName" },
+                            { label: "Last Name", key: "lastName" },
+                            { label: "Sign In Date", key: "signInDate", date: true },
+                            { label: "Sign Out Date", key: "endDate", date: true },
+                            { label: "Claim Reference No", key: "claimReferenceNumber" },
+                            { label: "NINO", key: "nationalInsuranceNumber" },
+                            { label: "Referral Agency", key: "nationalInsuranceNumber" },
+                            { label: "Age", key: "age" },
+                            { label: "Gender", key: "gender" },
+                            { label: "Religion", key: "religion" },
+                            { label: "Ethnic Origin", key: "ethnicOrigin" },
+                            { label: "Nationality", key: "nationality" },
+                            { label: "Disabilty", key: "disabilty" },
+                            { label: "Sexual Orientation", key: "sexualOrientation" },
+                            { label: "Spoken Language", key: "spokenLang" },
+                            { label: "Risk Assesment", key: "riskassessment" },
+                            { label: "Date Of Birth", key: "dateOfBirth", date: true },
+                            { label: "Record Status", key: "recordStatus" },
+                            { label: "Created Date", key: "createdAt" },
+                            // { label: "Added By", key: "addedByusername" },
+                            // { label: "Role", key: "addedbyrole" },
+                        ]}
+                        data={listData}
+                        actionBtn={(item) => (
+                            <>
+
+
+                                <>
+                                    {mainuser.includes(user?.role) ?
+                                        <IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
+                                            <Icon>info</Icon>
+                                        </IconButton> : (
+                                            <>
+                                                {
+                                                    user?.permmission.includes(4) && <IconButton onClick={() => { navigateToTenantsDetails(item?._id, item?.propertyDetails?._id) }}>
+                                                        <Icon>info</Icon>
+                                                    </IconButton>
+                                                }
+                                            </>
+                                        )}
+                                    {mainuser.includes(user?.role) ?
+                                        <IconButton onClick={() => { handleeditdata(item) }}>
+                                            <Edit />
+                                        </IconButton>
+                                        : user?.permmission.includes(4) && <IconButton onClick={() => { handleeditdata(item) }}>
+                                            <Edit />
+                                        </IconButton>}
+                                    {mainuser.includes(user?.role) ? <IconButton onClick={() => { handleSignOut(item._id, item?.propertyDetails?._id) }}>
+                                        <Icon>logout</Icon>
+                                    </IconButton> : (
+                                        <>
+                                            {
+                                                user?.permmission.includes(2) && <IconButton onClick={() => { handleSignOut(item._id, item?.propertyDetails?._id) }}>
+                                                    <Icon>logout</Icon>
+                                                </IconButton>
+                                            }
+                                        </>
+                                    )}
+                                </>
+                            </>
+                        )
+                        }
+                    />
+                </Box>
+                {/* <TableContainer
                     sx={{
                         padding: 1,
                         width: "100%",
@@ -486,7 +680,7 @@ const PropertyList = () => {
 
                         </TableBody>
                     </StyledTable>
-                </TableContainer>
+                </TableContainer> */}
                 <TablePagination
                     sx={{ px: 2 }}
                     page={page - 1}
@@ -507,8 +701,12 @@ const PropertyList = () => {
                     open={signout?.isOpen}
                     data={{ ...signout }}
                     signOut={{ ...signout }}
-                    refetch={fetchStaff}
+                    refetch={fetchSignOutTenants}
                 />}
+            />
+            <When
+                when={open}
+                component={<EditTenantModal open={open} setOpen={setOpen} editdata={editData} refetch={fetchSignOutTenants} setEditdata={setEditData} />}
             />
         </>
     )

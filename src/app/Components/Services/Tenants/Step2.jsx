@@ -438,6 +438,20 @@ const Step2 = ({ nextStep, prevValues, backStep, setPreValues }) => {
                                         </Grid>
                                         <Grid item xs={12} sm={12} md={12}>
                                             <FlotingLableInput
+                                                name="refferralAgency"
+                                                label="Refferral Aggency"
+                                                placeholder=""
+                                                // type="email"
+                                                type='text'
+                                                errors={errors}
+                                                helperText={errors}
+                                                fullWidth
+                                                value={values?.refferralAgency}
+                                                onChange={(e) => { handleChange(e) }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={12} md={12}>
+                                            <FlotingLableInput
                                                 name="build"
                                                 label="Build"
                                                 select

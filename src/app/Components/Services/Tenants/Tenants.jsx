@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import EditTenantModal from './EditTenatns';
 import { logout } from '@app/Redux/Sclice/AuthSclice';
 import { mainuser, staffuser } from '@app/Utils/constant';
-import { CheckHasOneStaff, handleDeleteTenantData, handleExistingExelFileExport, sendemailtoagent, signOutTenant } from '@app/API/Tenant';
+import { CheckHasOneStaff, handleDeleteTenantData, handleExistingExelFileExport, handleTenantedit, listTenants, sendemailtoagent, signOutTenant } from '@app/API/Tenant';
 import { confirm } from 'react-confirm-box';
 import When from '@app/CommonComponents/When';
 import SignOutModal from './SignOutModal';
@@ -30,8 +30,8 @@ const Tenants = () => {
     const [todate, setTodate] = useState('');
     const [filter, setFilter] = useState('');
     const [editdata, setEditData] = useState({});
-    const [departmentFilter, setDepartmentFilter] = useState('');
     const [open, setOpen] = useState(false);
+    const [departmentFilter, setDepartmentFilter] = useState('');
     const [totalpage, setTotalPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
@@ -48,35 +48,38 @@ const Tenants = () => {
 
 
     const handleeditdata = async (id) => {
-        dispatch(setIsLoading({ data: true }))
-        try {
-            try {
-                const res = await API.get('api/tenents/edittenatns', {
-                    params: {
-                        _id: id,
-                    }
-                });
 
-                setEditData({ ...res?.data?.data })
-                setOpen(true)
-                dispatch(setIsLoading({ data: false }))
-                // console.log(res);
-            } catch (error) {
-                dispatch(setIsLoading({ data: false }))
-                if (error.response?.status === 409) {
-                    dispatch(logout());
-                    navigation('/auth/login');
-                } else {
-                    dispatch(showSnackbar({
-                        message: error.response?.data?.message || "An error occurred",
-                        severity: "error"
-                    }));
-                }
-            }
-        } catch (error) {
-            console.log(error)
-            dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
-        }
+
+        let res = await dispatch(handleTenantedit({ _id: id, }))
+        setEditData({ ...res?.payload })
+        setOpen(true)
+        // dispatch(setIsLoading({ data: true }))
+        // try {
+        //     try {
+        //         const res = await API.get('api/tenents/edittenatns', {
+        //             params: {
+        //                 _id: id,
+        //             }
+        //         });
+
+        //         dispatch(setIsLoading({ data: false }))
+        //         // console.log(res);
+        //     } catch (error) {
+        //         dispatch(setIsLoading({ data: false }))
+        //         if (error.response?.status === 409) {
+        //             dispatch(logout());
+        //             navigation('/auth/login');
+        //         } else {
+        //             dispatch(showSnackbar({
+        //                 message: error.response?.data?.message || "An error occurred",
+        //                 severity: "error"
+        //             }));
+        //         }
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        //     dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
+        // }
     }
 
 
@@ -86,44 +89,60 @@ const Tenants = () => {
 
 
     const fetchSignOutTenants = async () => {
-        dispatch(setIsLoading({ data: true }))
-        setListData([])
-        try {
-            try {
-                const res = await API.get('api/tenents/ListTenents', {
-                    params: {
-                        addedBy: user?._id,
-                        page: page,
-                        limit: rowsPerPage,
-                        search: searchQuery,
-                        fromDate: fromdate,
-                        toDate: todate,
-                        role: user?.role,
-                        filter: filter
-                    }
-                });
+        // dispatch(setIsLoading({ data: true }))
+        // setListData([])
 
-                setListData([...res?.data?.data])
-                setTotalPage(res?.data?.pagination?.totalPages)
-                setTotalCount(res?.data?.pagination?.total)
-                dispatch(setIsLoading({ data: false }))
-                // console.log(res);
-            } catch (error) {
-                dispatch(setIsLoading({ data: false }))
-                if (error.response?.status === 409) {
-                    dispatch(logout());
-                    navigation('/auth/login');
-                } else {
-                    dispatch(showSnackbar({
-                        message: error.response?.data?.message || "An error occurred",
-                        severity: "error"
-                    }));
-                }
-            }
-        } catch (error) {
-            console.log(error)
-            dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
+        let params = {
+            addedBy: user?._id,
+            page: page,
+            limit: rowsPerPage,
+            search: searchQuery,
+            fromDate: fromdate,
+            toDate: todate,
+            role: user?.role,
+            filter: filter
         }
+        let res = await dispatch(listTenants(params))
+        // console.log(res?.payload);
+        setListData([...res?.payload?.data])
+        setTotalPage(res.payload?.pagination?.totalPages)
+        setTotalCount(res.payload?.pagination?.total)
+        // try {
+        //     try {
+        //         const res = await API.get('api/tenents/ListTenents', {
+        //             params: {
+        //                 addedBy: user?._id,
+        //                 page: page,
+        //                 limit: rowsPerPage,
+        //                 search: searchQuery,
+        //                 fromDate: fromdate,
+        //                 toDate: todate,
+        //                 role: user?.role,
+        //                 filter: filter
+        //             }
+        //         });
+
+        //         setListData([...res?.data?.data])
+        //         setTotalPage(res?.data?.pagination?.totalPages)
+        //         setTotalCount(res?.data?.pagination?.total)
+        //         dispatch(setIsLoading({ data: false }))
+        //         // console.log(res);
+        //     } catch (error) {
+        //         dispatch(setIsLoading({ data: false }))
+        //         if (error.response?.status === 409) {
+        //             dispatch(logout());
+        //             navigation('/auth/login');
+        //         } else {
+        //             dispatch(showSnackbar({
+        //                 message: error.response?.data?.message || "An error occurred",
+        //                 severity: "error"
+        //             }));
+        //         }
+        //     }
+        // } catch (error) {
+        //     console.log(error)
+        //     dispatch(showSnackbar({ message: 'error while fetching staff list', severity: 'error' }))
+        // }
     }
     const handleChangePage = (_, newPage) => {
         setPage(newPage + 1);
@@ -220,7 +239,7 @@ const Tenants = () => {
                         <Icon sx={{ mr: 2 }}>email</Icon>
                         Email for Active Tenants
                     </Button>
-                    <Button
+                    {/* <Button
                         sx={{
                             p: 2,
                             ml: 2,
@@ -235,7 +254,7 @@ const Tenants = () => {
                     >
                         <Icon sx={{ mr: 2 }}>delete</Icon>
                         Delete all data
-                    </Button>
+                    </Button> */}
 
 
 

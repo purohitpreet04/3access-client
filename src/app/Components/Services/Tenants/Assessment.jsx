@@ -760,7 +760,6 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                                         value={values?.probationOfficerContactNo}
                                                     />
                                                 </Grid>
-
                                                 {/* Row 2 */}
                                                 <Grid item xs={4}>
                                                     <FlotingLableInput
@@ -795,7 +794,6 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                             </Grid>
                                         </>)}
                                     <Divider sx={{ marginTop: 4 }} />
-
                                     <Typography variant="h6" marginTop={4}>PHYSICAL AND MENTAL HEALTH</Typography>
                                     <Grid container spacing={2}>
                                         <Grid item xs={4} sm={4}>
@@ -813,7 +811,6 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                             {values?.physicalHealthcon && (
                                                 <>
                                                     <FlotingLableInput
-                                                        // placeholder="Psychiatrist/Psychologist"
                                                         type="text"
                                                         name="physicalHealthdetails"
                                                         onChange={handleChange}
@@ -860,7 +857,6 @@ const Assessment = ({ nextStep, prevValues, backStep, setPreValues, }) => {
                                             )}
                                         </Grid>
                                         <Grid item xs={4} sm={4}>
-
                                             <RadioComponent
                                                 defaultValue={false}
                                                 title="Have you been diagnosed with any mental health condition?"

@@ -222,3 +222,46 @@ export const handleDeleteTenantData = createAsyncThunk(
     }
   }
 )
+export const listTenants = createAsyncThunk(
+  "tenants/listTenants",
+  async (paramsData, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }));
+      const result = await API.get(
+        "api/tenents/ListTenents",
+        { params: { ...paramsData } }
+      );
+      if (result.data.message) {
+        dispatch(showSnackbar({ message: result.data.message || "Email sended", severity: result.data.severity || "success" }));
+      }
+      dispatch(setIsLoading({ data: false }));
+      return result.data
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }));
+      dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
+    }
+  }
+)
+
+export const handleTenantedit =  createAsyncThunk(
+  "tenants/editTenant",
+  async (paramsData, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(setIsLoading({ data: true }));
+      const result = await API.get(
+        "api/tenents/edittenatns",
+        { params: { ...paramsData } }
+      );
+      if (result.data.message) {
+        dispatch(showSnackbar({ message: result.data.message || "Email sended", severity: result.data.severity || "success" }));
+      }
+      dispatch(setIsLoading({ data: false }));
+      return result.data
+    } catch (error) {
+      dispatch(setIsLoading({ data: false }));
+      dispatch(showSnackbar({ message: error.message || "File download error", severity: "error" }));
+    }
+  }
+)
+
+

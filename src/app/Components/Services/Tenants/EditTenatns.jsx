@@ -50,6 +50,11 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
     const { user } = useSelector(state => state.auth)
     const initialValues = { ...editdata };
 
+    const convertToUppercase = (str) => {
+        return str.replace(/[a-z]/g, (match) => match.toUpperCase());
+    };
+
+
     return (
         <>
             <Modal open={open} onClose={handleClose}>
@@ -186,7 +191,12 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
                                         <FlotingLableInput
                                             type='text'
                                             value={values.nationalInsuranceNumber}
-                                            onChange={handleChange}
+                                            onChange={(e) => {
+                                                const uppercasedValue = convertToUppercase(e?.target?.value);
+                                                handleChange({
+                                                    target: { name: "nationalInsuranceNumber", value: uppercasedValue }
+                                                });
+                                            }}
                                             name="nationalInsuranceNumber"
                                             label="National Insurance Number *"
                                             fullWidth
@@ -206,7 +216,7 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
                                     </Grid>
                                     <Grid item xs={6}>
                                         <FlotingLableInput
-                                        select
+                                            select
                                             type='text'
                                             onChange={handleChange}
                                             name="gender"
@@ -216,10 +226,21 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
                                             fullWidth
                                             errors={errors}
                                             helperText={touched.gender && errors.gender}
-                                            menuItems={[{val:'', label:'Select'}, {val:'male', label:'Male'}, {val:'female', label:'Female'}]}
+                                            menuItems={[{ val: '', label: 'Select' }, { val: 'male', label: 'Male' }, { val: 'female', label: 'Female' }]}
                                         />
-                                            {/* <MenuItem value="male">Male</MenuItem>
-                                            <MenuItem value="female">Female</MenuItem> */}
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <FlotingLableInput
+                                            type='text'
+                                            onChange={handleChange}
+                                            name="recordStatus"
+                                            label="Record Status"
+                                            // select
+                                            value={values.recordStatus}
+                                            fullWidth
+                                            errors={errors}
+                                            helperText={touched.recordStatus && errors.recordStatus}
+                                        />
                                     </Grid>
                                 </Grid>
                                 <Box mt={3} textAlign="right">
