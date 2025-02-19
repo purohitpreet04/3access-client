@@ -429,115 +429,14 @@ function TenantDetails() {
                                                 </Typography>
                                             </TableCell>
                                         </TableRow>}
-                                        {tenantdata?.Housing_benefit_weekly_amount && <TableRow
-                                            sx={{
-                                                '& td, & th': {
-                                                    border: 'none',
-                                                    padding: '8px 16px 8px 0'
-                                                }
-                                            }}
-                                        >
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-                                                sx={{
-                                                    wordWrap: 'break-word',
-                                                    width: '250px',
-                                                    color: '#666'
-                                                }}
-                                            >
-                                                Housing Benefit Weekly Amount:
-                                            </TableCell>
-                                            <TableCell>
-                                                {tenantdata?.Housing_benefit_weekly_amount}
-                                            </TableCell>
-                                        </TableRow>}
-                                        {tenantdata?.Next_HB_payment_amount && <TableRow
-                                            sx={{
-                                                '& td, & th': {
-                                                    border: 'none',
-                                                    padding: '8px 16px 8px 0'
-                                                }
-                                            }}
-                                        >
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
 
-                                                sx={{
-                                                    wordWrap: 'break-word',
-                                                    width: '250px',
-                                                    color: '#666'
-                                                }}
-                                            >
-                                                Next HB Payment Amount:
-                                            </TableCell>
-                                            <TableCell>
-                                                {tenantdata?.Next_HB_payment_amount}
-                                            </TableCell>
-                                        </TableRow>}
-                                        {tenantdata?.Next_HB_payment_date && <TableRow
-                                            sx={{
-                                                '& td, & th': {
-                                                    border: 'none',
-                                                    padding: '8px 16px 8px 0'
-                                                }
-                                            }}
-                                        >
-                                            <TableCell
-                                                component="th"
-                                                scope="row"
-
-                                                sx={{
-                                                    wordWrap: 'break-word',
-                                                    width: '250px',
-                                                    color: '#666'
-                                                }}
-                                            >
-                                                Next HB Payment Date:
-                                            </TableCell>
-                                            <TableCell>
-                                                {getDate(tenantdata?.Next_HB_payment_date)}
-                                            </TableCell>
-                                        </TableRow>}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
 
 
-                            <Box>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell><strong>Date</strong></TableCell>
-                                            <TableCell><strong>HB</strong></TableCell>
-                                            <TableCell><strong>DHP</strong></TableCell>
-                                            <TableCell><strong>Adjustments</strong></TableCell>
-                                            <TableCell><strong>Amount</strong></TableCell>
-                                            <TableCell><strong>From date</strong></TableCell>
-                                            <TableCell><strong>To date</strong></TableCell>
-                                            <TableCell><strong>Method</strong></TableCell>
-                                            <TableCell><strong>Payee</strong></TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {tenantdata?.paymentdata.map((payment) => (
-                                            <TableRow key={payment._id} hover>
-                                                <TableCell>{payment.date}</TableCell>
-                                                <TableCell>{payment.hb}</TableCell>
-                                                <TableCell>{payment.dhp}</TableCell>
-                                                <TableCell>{payment.adjustments}</TableCell>
-                                                <TableCell>{payment.amount}</TableCell>
-                                                <TableCell>{payment.from_date}</TableCell>
-                                                <TableCell>{payment.to_date}</TableCell>
-                                                <TableCell>{payment.method}</TableCell>
-                                                <TableCell>{payment.payee}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Box>
-                            
+
+
                             <Box sx={{ mt: 2, textAlign: 'right' }}>
                                 <Button
                                     onClick={() => { handleeditdata(tenantdata?._id) }}
@@ -687,7 +586,7 @@ function TenantDetails() {
 
                     {/* Right Panel - Documents List */}
                     <Grid item xs={12} md={6}>
-                        <Paper sx={{ p: 2 }}>
+                        <Paper sx={{ p: 2, mb: 2 }}>
                             <Typography variant="subtitle1"
                                 sx={{
                                     color: 'white',
@@ -715,58 +614,6 @@ function TenantDetails() {
 
                             <Box role="tabpanel" hidden={tabValue !== 0}>
                                 <PdfHandle documents={tenantdata?.rslDocument} />
-                                {/* {documents.signup.map((doc) => (
-                                    <Box
-                                        key={doc.name}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            borderBottom: '1px solid #eee',
-                                            py: 1
-                                        }}
-                                    >
-                                        <Typography>{doc.name}</Typography>
-                                        <Box>
-                                            <Button
-                                                size="small"
-                                                startIcon={<DownloadIcon />}
-                                                sx={{
-                                                    bgcolor: '#337ab7',
-                                                    color: 'white',
-                                                    mr: 1,
-                                                    '&:hover': {
-                                                        bgcolor: '#286090'
-                                                    }
-                                                }}
-
-                                                onClick={() => {
-                                                    // window.open(`/document?type=${doc.type}&t=${tenantId}`, '_blank')
-                                                    handleDownload({ type: doc.type, id: tenantId }, dispatch)
-                                                }}
-                                            >
-                                                Download
-                                            </Button>
-                                            <Button
-                                                size="small"
-                                                startIcon={<VisibilityIcon />}
-                                                sx={{
-                                                    bgcolor: '#337ab7',
-                                                    color: 'white',
-                                                    '&:hover': {
-                                                        bgcolor: '#286090'
-                                                    }
-                                                }}
-                                                onClick={() => {
-                                                    window.open(`/document?type=${doc.type}&t=${tenantId}`, '_blank')
-                                                    // handleView({ type: doc.type, id: tenantId })
-                                                }}
-                                            >
-                                                View
-                                            </Button>
-                                        </Box>
-                                    </Box>
-                                ))} */}
                             </Box>
 
                             <Box role="tabpanel" hidden={tabValue !== 1}>
@@ -965,8 +812,132 @@ function TenantDetails() {
                                 </Box>
                             </Box>
                         </Paper>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="subtitle1"
+                                sx={{
+                                    color: 'white',
+                                    bgcolor: '#337ab7',
+                                    p: 1,
+                                    mb: 2,
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>Finance</Typography>
+                            <TableContainer>
+                                <Table>
+                                    <TableBody>
+                                        {tenantdata?.Housing_benefit_weekly_amount && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Housing Benefit Weekly Amount:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.Housing_benefit_weekly_amount}
+                                            </TableCell>
+                                        </TableRow>}
+                                        {tenantdata?.Next_HB_payment_amount && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Next HB Payment Amount:
+                                            </TableCell>
+                                            <TableCell>
+                                                {tenantdata?.Next_HB_payment_amount}
+                                            </TableCell>
+                                        </TableRow>}
+                                        {tenantdata?.Next_HB_payment_date && <TableRow
+                                            sx={{
+                                                '& td, & th': {
+                                                    border: 'none',
+                                                    padding: '8px 16px 8px 0'
+                                                }
+                                            }}
+                                        >
+                                            <TableCell
+                                                component="th"
+                                                scope="row"
+
+                                                sx={{
+                                                    wordWrap: 'break-word',
+                                                    width: '250px',
+                                                    color: '#666'
+                                                }}
+                                            >
+                                                Next HB Payment Date:
+                                            </TableCell>
+                                            <TableCell>
+                                                {getDate(tenantdata?.Next_HB_payment_date)}
+                                            </TableCell>
+                                        </TableRow>}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Box>
+                                {tenantdata?.paymentdata && <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><strong>Date</strong></TableCell>
+                                            <TableCell><strong>HB</strong></TableCell>
+                                            <TableCell><strong>DHP</strong></TableCell>
+                                            <TableCell><strong>Adjustments</strong></TableCell>
+                                            <TableCell><strong>Amount</strong></TableCell>
+                                            <TableCell><strong>From date</strong></TableCell>
+                                            <TableCell><strong>To date</strong></TableCell>
+                                            <TableCell><strong>Method</strong></TableCell>
+                                            <TableCell><strong>Payee</strong></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {tenantdata?.paymentdata && tenantdata?.paymentdata.map((payment) => (
+                                            <TableRow key={payment._id} hover>
+                                                <TableCell>{payment.date}</TableCell>
+                                                <TableCell>{payment.hb}</TableCell>
+                                                <TableCell>{payment.dhp}</TableCell>
+                                                <TableCell>{payment.adjustments}</TableCell>
+                                                <TableCell>{payment.amount}</TableCell>
+                                                <TableCell>{payment.from_date}</TableCell>
+                                                <TableCell>{payment.to_date}</TableCell>
+                                                <TableCell>{payment.method}</TableCell>
+                                                <TableCell>{payment.payee}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>}
+                            </Box>
+                        </Paper>
                     </Grid>
+
                 </Grid>
+
+
                 <EditTenantModal open={open} setOpen={setOpen} editdata={editdata} setEditdata={setEditData} refetch={getTenantDetails} />
             </Box>
         </>
