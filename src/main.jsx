@@ -14,7 +14,6 @@ import CustomSnackbar from '@app/CommonComponents/CustomSnackbar.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-
     <SettingsProvider>
       <Provider store={store}>
         {/* <PersistGate loading={null} persistor={persistor}> */}

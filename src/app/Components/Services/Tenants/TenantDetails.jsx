@@ -17,7 +17,8 @@ import {
     Tab,
     AppBar,
     Toolbar,
-    IconButton
+    IconButton,
+    TableHead
 } from '@mui/material';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -424,7 +425,7 @@ function TenantDetails() {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography sx={{ color: 'red' }}>
-                                                {tenantdata?.error}
+                                                    {tenantdata?.error}
                                                 </Typography>
                                             </TableCell>
                                         </TableRow>}
@@ -472,7 +473,7 @@ function TenantDetails() {
                                                 Next HB Payment Amount:
                                             </TableCell>
                                             <TableCell>
-                                                 {tenantdata?.Next_HB_payment_amount}
+                                                {tenantdata?.Next_HB_payment_amount}
                                             </TableCell>
                                         </TableRow>}
                                         {tenantdata?.Next_HB_payment_date && <TableRow
@@ -499,44 +500,44 @@ function TenantDetails() {
                                                 {getDate(tenantdata?.Next_HB_payment_date)}
                                             </TableCell>
                                         </TableRow>}
-                                        {/* {tenantInfo.map((row) => (
-                            <TableRow
-                                key={row.label}
-                                sx={{
-                                    '& td, & th': {
-                                        border: 'none',
-                                        padding: '8px 16px 8px 0'
-                                    }
-                                }}
-                            >
-                                <TableCell
-                                    component="th"
-                                    scope="row"
-                                    sx={{
-                                        width: '200px',
-                                        color: '#666'
-                                    }}
-                                >
-                                    {row.label}
-                                </TableCell>
-                                <TableCell>
-                                    {row.value}
-                                    {row.hasLink && (
-                                        <LaunchIcon
-                                            sx={{
-                                                ml: 1,
-                                                fontSize: 16,
-                                                color: '#337ab7',
-                                                cursor: 'pointer'
-                                            }}
-                                        />
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))} */}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
+
+
+                            <Box>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><strong>Date</strong></TableCell>
+                                            <TableCell><strong>HB</strong></TableCell>
+                                            <TableCell><strong>DHP</strong></TableCell>
+                                            <TableCell><strong>Adjustments</strong></TableCell>
+                                            <TableCell><strong>Amount</strong></TableCell>
+                                            <TableCell><strong>From date</strong></TableCell>
+                                            <TableCell><strong>To date</strong></TableCell>
+                                            <TableCell><strong>Method</strong></TableCell>
+                                            <TableCell><strong>Payee</strong></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {tenantdata?.paymentdata.map((payment) => (
+                                            <TableRow key={payment._id} hover>
+                                                <TableCell>{payment.date}</TableCell>
+                                                <TableCell>{payment.hb}</TableCell>
+                                                <TableCell>{payment.dhp}</TableCell>
+                                                <TableCell>{payment.adjustments}</TableCell>
+                                                <TableCell>{payment.amount}</TableCell>
+                                                <TableCell>{payment.from_date}</TableCell>
+                                                <TableCell>{payment.to_date}</TableCell>
+                                                <TableCell>{payment.method}</TableCell>
+                                                <TableCell>{payment.payee}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </Box>
+                            
                             <Box sx={{ mt: 2, textAlign: 'right' }}>
                                 <Button
                                     onClick={() => { handleeditdata(tenantdata?._id) }}
@@ -552,6 +553,7 @@ function TenantDetails() {
                                     Edit Tenant Details
                                 </Button>
                             </Box>
+
                         </Paper>
 
                         <Paper sx={{ p: 2, mb: 2 }}>

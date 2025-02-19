@@ -138,7 +138,7 @@ const PropertyList = () => {
 
     const fetchSignOutTenants = async () => {
         // dispatch(setIsLoading({ data: true }))
-        setListData([])
+        // setListData([])
 
         let params = {
             addedBy: user?._id,
@@ -163,7 +163,7 @@ const PropertyList = () => {
             }
         })
         setTotalCount(res?.payload?.pagination?.total)
-        setListData(res?.payload?.data)
+        setListData([...res?.payload?.data])
         setStackList([...stackModyData])
         // try {
         //     try {
