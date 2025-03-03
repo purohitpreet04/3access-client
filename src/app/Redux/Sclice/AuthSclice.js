@@ -16,17 +16,21 @@ export const login = createAsyncThunk(
             const res = await API.post('/api/auth/login', data)
 
             if (res.status === 200 && res.data.user?._id) {
-                localStorage.setItem('authToken', JSON.stringify(res.data.token))
-                localStorage.setItem('user', JSON.stringify({ _id: res.data.user?._id, role: res.data.user?.role }))
-
-                let token = await JSON.parse(localStorage.getItem('authToken'))
-                if (token) {
-
-                    dispatch(showSnackbar({ message: 'Register successful', severity: 'success' }));
-                    dispatch(setIsLoading({ data: false }));
-                    navigate('/desh')
-                    return { user: res.data.user, token: token, isAuthenticate: true }
+                navigate('/auth/verify-otp')
+                if (res.data.message) {
+                    dispatch(showSnackbar({ message: res.data.message, severity: 'info' }));
                 }
+                // localStorage.setItem('authToken', JSON.stringify(res.data.token))
+                // localStorage.setItem('user', JSON.stringify({ _id: res.data.user?._id, role: res.data.user?.role }))
+                // let token = await JSON.parse(localStorage.getItem('authToken'))
+                // if (token) {
+                // dispatch(showSnackbar({ message: 'Register successful', severity: 'success' }));
+                // dispatch(setIsLoading({ data: false }));
+                // navigate('/dashboard')
+                // return { user: res.data.user, token: token, isAuthenticate: false }
+                // }
+                dispatch(setIsLoading({ data: false }));
+                return { user: { email: data?.email, userId: res.data?.user?._id, token: null, isAuthenticate: false } }
 
             } else {
                 dispatch(setIsLoading({ data: false }));
@@ -34,7 +38,7 @@ export const login = createAsyncThunk(
                 return { user: {}, token: null, isAuthenticate: false }
             }
         } catch (error) {
-            // console.log(error)
+            console.log(error)
             dispatch(setIsLoading({ data: false }));
             dispatch(showSnackbar({ message: error.response.data.message, severity: error.response.data.severity }))
             return { user: {}, token: null, isAuthenticate: false, loading: false }
@@ -58,7 +62,7 @@ export const register = createAsyncThunk(
                 if (token) {
                     dispatch(showSnackbar({ message: 'Register successful', severity: 'success' }));
                     dispatch(setIsLoading({ data: false }));
-                    navigate('/desh')
+                    navigate('/dashboard')
                     return { user: res.data.user, token: token, isAuthenticate: true }
                 }
             }
@@ -156,6 +160,34 @@ export const fetchUserDetails = createAsyncThunk(
 );
 
 
+export const verifyOtp = createAsyncThunk(
+    'auth/verifyOtp',
+    async ({ email, otp, navigate, userId }, { rejectWithValue, dispatch }) => {
+        try {
+            dispatch(setIsLoading({ data: true }));
+            const res = await API.post('/api/auth/verify-otp', { email, otp, userId });
+
+            if (res.status === 200) {
+                localStorage.setItem('authToken', JSON.stringify(res.data.token));
+                localStorage.setItem('user', JSON.stringify({ _id: res.data.user._id, role: res.data.user.role }));
+                dispatch(setIsLoading({ data: false }));
+                navigate('/dashboard');
+                return { user: res.data.user, token: res.data.token, isAuthenticate: true };
+            } else {
+                navigate('/auth/login')
+                dispatch(showSnackbar({ message: res.data.message, severity: res.data.severity }));
+                dispatch(setIsLoading({ data: false }));
+                return rejectWithValue(res.data.message);
+            }
+        } catch (error) {
+            dispatch(showSnackbar({ message: error.response?.data?.message || 'OTP verification failed', severity: 'error' }));
+            dispatch(setIsLoading({ data: false }));
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+
 export const logout = createAsyncThunk('auth/logout', async ({ navigate }) => {
     localStorage.clear()
 
@@ -217,6 +249,22 @@ export const AuthSlice = createSlice({
                 state.loading = false
             })
             .addCase(login.rejected, (state, action) => {
+                state.status = 'failed';
+                state.loading = false
+                state.error = action.payload // Action payload is error message if rejected
+            })
+            .addCase(verifyOtp.pending, (state) => {
+                state.status = 'failed';
+                state.loading = false
+            })
+            .addCase(verifyOtp.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.user = action.payload.user;
+                state.token = action.payload.token;
+                state.isAuthenticate = action.payload.isAuthenticate
+                state.loading = false
+            })
+            .addCase(verifyOtp.rejected, (state, action) => {
                 state.status = 'failed';
                 state.loading = false
                 state.error = action.payload // Action payload is error message if rejected

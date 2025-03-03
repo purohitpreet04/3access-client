@@ -98,7 +98,7 @@ export const HandleApprovalOfTenants = createAsyncThunk(
             message: "You don't have any staff or agent. Please add staff first.",
             severity: "info"
           }));
-          navigation('/desh')
+          navigation('/dashboard')
           dispatch(setIsLoading({ data: false }))
         }
       } catch (error) {

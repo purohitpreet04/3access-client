@@ -9,7 +9,7 @@ import CustomSnackbar from './CommonComponents/CustomSnackbar.jsx';
 import LoadingOverlay from './Components/LoadingOverlay.jsx';
 import DynamicTitle from './CommonComponents/DynamicTitle.jsx';
 
-import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, Assessment, DeshboardCom, ExistingTenants, ListRsl, LoginScreen, NotFound, Notificaiton, OtpInput, PendingTenants, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
+import { AddNewProperty, AddRsl, AddTenants, AgentPermmision, Agents, ArchiveStaffList, Assessment, DeshboardCom, ExistingTenants, ListRsl, LoginScreen, NotFound, Notificaiton, OtpInput, OTPpage, PendingTenants, Profile, PropertyList, SettingEmails, SignOutTenants, StaffList, TenantDetails, Tenants } from './Components/Services/index.js';
 import { ActivityLogs, DocumentCom, MatxLoading } from './Components/index.js';
 import { allUsers } from './Utils/constant.js';
 
@@ -35,7 +35,7 @@ function App() {
   // Fetch user details on app load
   useEffect(() => {
     dispatch(fetchUserDetails({ navigate }));
-  }, [navigate]);
+  }, []);
 
 
   useEffect(() => {
@@ -46,20 +46,22 @@ function App() {
 
 
   const authRoutes = [
-    { path: '/', element: <Navigate to={isAuthenticate ? '/desh' : '/auth/login'} replace /> },
-    { path: '/auth/login', element: !isAuthenticate ? <LoginScreen /> : <Navigate to="/desh" /> },
-    { path: '/auth/verify-user/:id/:token', element: !isAuthenticate ? <OtpInput /> : <Navigate to="/desh" /> },
+    { path: '/', element: <Navigate to={isAuthenticate ? '/dashboard' : '/auth/login'} replace /> },
+    { path: '/auth/login', element: !isAuthenticate ? <LoginScreen /> : <Navigate to='/dashboard' /> },
+    { path: '/auth/verify-user/:id/:token', element: !isAuthenticate ? <OtpInput /> : <Navigate to='/dashboard' /> },
+    { path: '/auth/verify-otp', element: !isAuthenticate ? <OTPpage /> : <Navigate to='/dashboard' /> },
 
   ];
 
   const appRoutes = [
     ...authRoutes,
-    { path: '/', element: <Navigate to={isAuthenticate ? '/desh' : '/auth/login'} replace /> },
+    { path: '/', element: <Navigate to={isAuthenticate ? '/dashboard' : '/auth/login'} replace /> },
     {
       element: isAuthenticate ? <MatxLayout /> : <Navigate to="/auth/login" replace />,
       children: [
-        { path: '/desh', element: <DeshboardCom /> },
+        { path: '/dashboard', element: <DeshboardCom /> },
         { path: '/services/staff', element: allUsers.includes(user?.role) ? <StaffList /> : <Navigate to="*" /> },
+        { path: '/services/archive-staff', element: allUsers.includes(user?.role) ? <ArchiveStaffList /> : <Navigate to="*" /> },
         { path: '/services/property', element: allUsers.includes(user?.role) ? <PropertyList /> : <Navigate to="*" /> },
         { path: '/services/tenants', element: allUsers.includes(user?.role) ? <Tenants /> : <Navigate to="*" /> },
         { path: '/services/pending-tenants', element: allUsers.includes(user?.role) ? <PendingTenants /> : <Navigate to="*" /> },

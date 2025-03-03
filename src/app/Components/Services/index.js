@@ -6,9 +6,10 @@ export const OtpInput = Loadable(lazy(() => import("../Auth/OTPInput.jsx")))
 export const NotFound = Loadable(lazy(() => import("../NotFound.jsx")))
 export const DeshboardCom = Loadable(lazy(() => import("../Deshboard/DeshboardCom.jsx")))
 // const StaffList = Loadable(lazy(() => import("./Components/Services/Staff/StaffList.jsx")))
-
+export const OTPpage = Loadable(lazy(()=>import("../Auth/OTPpage.jsx")))
 
 export const StaffList = Loadable(lazy(() => import("./Staff/StaffList.jsx")))
+export const ArchiveStaffList = Loadable(lazy(() => import("./Staff/ArchiveStaff.jsx")))
 export const PropertyList = Loadable(lazy(() => import("./Property/PropertyList.jsx")))
 export const AddNewProperty = Loadable(lazy(() => import("./Property/AddProperty.jsx")))
 export const Tenants = Loadable(lazy(() => import("./Tenants/Tenants.jsx")))

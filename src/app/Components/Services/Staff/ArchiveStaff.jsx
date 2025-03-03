@@ -16,15 +16,12 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
-import { Archive } from '@mui/icons-material';
-import { HandleArchiveStaff } from '@app/API/StaffAction';
-import PersonOffIcon from '@mui/icons-material/PersonOff';
-import TransferWorkDialog from './StaffUnAvailbilityModal';
+import { Archive, Unarchive } from '@mui/icons-material';
+import { HandleArchiveStaff, Restorestaff } from '@app/API/StaffAction';
+
+const Archivestaff = () => {
 
 
-
-
-const StaffList = () => {
     const location = useLocation()
     const queryParams = new URLSearchParams(location.search);
     const o = queryParams.get('open') === 'true';
@@ -40,8 +37,8 @@ const StaffList = () => {
     const [editData, setEditData] = useState({})
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState({})
     const [confirmDelete, setConfirmDelete] = useState(false)
-    const [deactivateStaff, setDeactivateStaff] = useState({})
     const { user } = useSelector(state => state.auth)
+
 
     const dispatch = useDispatch()
     const navigation = useNavigate();
@@ -70,8 +67,6 @@ const StaffList = () => {
         setRoleFilter(e.target.value);
     }, 500), []);
 
-
-
     const fetchStaff = async () => {
         try {
             dispatch(setIsLoading({ data: true }))
@@ -83,7 +78,7 @@ const StaffList = () => {
                         limit: rowsPerPage,
                         search: searchQuery,
                         filterby: roleFilter,
-                        status: 0
+                        status: 2
                     }
                 });
                 if (res.data.message) {
@@ -110,76 +105,10 @@ const StaffList = () => {
         }
     }
 
-    const deleteStaff = async (id, granted = 0) => {
-        dispatch(setIsLoading({ data: true }))
-        try {
-            const res = await API.get('/api/staff/deleteStaff', {
-                params: {
-                    granted,
-                    staffId: id,
-                }
-            });
 
-            if (res?.data?.property > 0) {
-                setConfirmDeleteOpen({ data: true, id })
-                dispatch(setIsLoading({ data: false }))
-            }
-
-            if (res.data.success == true) {
-                setConfirmDeleteOpen({})
-                fetchStaff()
-            }
-            dispatch(setIsLoading({ data: false }))
-        } catch (error) {
-            dispatch(setIsLoading({ data: false }))
-            dispatch(showSnackbar({ message: 'error while deleting staff ', severity: 'error' }))
-        }
-    }
-
-
-
-
-    const ConfirmDelete = () => {
-        return (
-            <Dialog
-                open={confirmDeleteOpen?.data}
-                onClose={() => setConfirmDeleteOpen(false)}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {`This Staff has access for some property, are you sure to perform this action`}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setConfirmDeleteOpen({})} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={() => deleteStaff(confirmDeleteOpen?.id, 1)} color="primary" autoFocus>
-                        Yes, I am sure
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        )
-    }
-
-
-
-
-    const openLogs = (id) => {
-        navigation(`/logs?user=${id}`)
-    }
-
-    const handleArchiveStaff = async (id) => {
-        await dispatch(HandleArchiveStaff({ staffId: id }))
+    const handleRestoreStaff = async (id) => {
+        await dispatch(Restorestaff({ staffId: id }))
         fetchStaff()
-    }
-
-    const handleDeactivateStaff = async (cell) => {
-        let staffList = listData.filter((staff) => staff?._id !== cell?._id)
-        setDeactivateStaff({ ...cell, open: true, staffList })
     }
 
     const ThreeDotMenu = ({ cell }) => {
@@ -210,37 +139,32 @@ const StaffList = () => {
                         },
                     }}
                 >
-                    <MenuItem onClick={() => { handleClose(); setOpen(true); setEditData(cell) }}>
+
+                    <MenuItem onClick={() => { handleClose(); handleRestoreStaff(cell?._id) }}>
                         <ListItemIcon>
-                            <EditIcon style={{ color: '#1976d2' }} fontSize="medium" />
-                        </ListItemIcon>
-                        <Typography variant="inherit">Edit Staff</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => { handleClose(); handleArchiveStaff(cell?._id) }}>
-                        <ListItemIcon>
-                            <Archive style={{ color: 'green' }} fontSize="medium" />
+                            <Unarchive style={{ color: 'green' }} fontSize="medium" />
                             {/* <IconButton onClick={() => { }}>
                                 <Icon style={{ color: 'red' }} fontSize='small' color='red'>delete</Icon>
                                 </IconButton> */}
                         </ListItemIcon>
-                        <Typography variant="inherit">Archive Staff</Typography>
+                        <Typography variant="inherit">Restore Staff</Typography>
                     </MenuItem>
-                    <MenuItem onClick={() => { handleClose(); handleDeactivateStaff(cell) }}>
+                    {/* <MenuItem onClick={() => { handleClose(); setEditData(cell) }}>
                         <ListItemIcon>
-                            <PersonOffIcon style={{ color: 'tomato' }} fontSize="medium" />
+                            <EditIcon style={{ color: '#1976d2' }} fontSize="medium" />
                         </ListItemIcon>
-                        <Typography variant="inherit">Deactivate Staff</Typography>
-                    </MenuItem>
-                    <MenuItem onClick={() => { handleClose(); openLogs(cell?._id) }}>
+                        <Typography variant="inherit">Edit Staff</Typography>
+                    </MenuItem> */}
+                    {/* <MenuItem onClick={() => { handleClose(); openLogs(cell?._id) }}>
                         <ListItemIcon>
-                            <HistoryIcon style={{ color: 'steelblue' }} fontSize="medium" />
+                            <HistoryIcon style={{ color: 'green' }} fontSize="medium" /> 
                         </ListItemIcon>
                         <Typography variant="inherit">Logs</Typography>
-                    </MenuItem>
+                    </MenuItem> */}
                     {/* <MenuItem onClick={() => { handleClose(); deleteStaff(cell?._id) }}>
                         <ListItemIcon>
                             <DeleteIcon style={{ color: 'red' }} fontSize="medium" />
-                           
+
                         </ListItemIcon>
                         <Typography variant="inherit">Delete Staff</Typography>
                     </MenuItem> */}
@@ -250,16 +174,15 @@ const StaffList = () => {
         );
     };
 
-
     return (
         <>
             <DynamicTitle title={open ? 'Add Staff' : 'Staff Menagement'} />
             <Box p={2}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                {/* <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Button onClick={() => setOpen(true)} variant="contained" color="primary">
                         Add New Staff
                     </Button>
-                </Box>
+                </Box> */}
                 <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={3}>
                     {/* Search Bar */}
                     <TextField
@@ -295,11 +218,11 @@ const StaffList = () => {
                             { label: "Username", key: "username" },
                             { label: "First Name", key: "fname" },
                             { label: "Last Name", key: "lname" },
-                            { label: "Phone", key: "phonenumber" },
-                            { label: "Gender", key: "gender" },
-                            { label: "Email", key: "email" },
-                            { label: "RSL Email", key: "companyEmail" },
-                            { label: "Added At", key: "createdAt" },
+                            // { label: "Phone", key: "phonenumber" },
+                            // { label: "Gender", key: "gender" },
+                            // { label: "Email", key: "email" },
+                            // { label: "RSL Email", key: "companyEmail" },
+                            { label: "Archived At", key: "updatedAt", date: true },
                         ]}
                         data={listData}
                         actionBtn={(cell) => (
@@ -334,13 +257,10 @@ const StaffList = () => {
                     nextIconButtonProps={{ "aria-label": "Next Page" }}
                     backIconButtonProps={{ "aria-label": "Previous Page" }}
                 />
-
                 {/* <When when={confirmDeleteOpen?.data} component={<ConfirmDelete />} /> */}
-                <When when={deactivateStaff?.open}  component={<TransferWorkDialog onClose={() => { setDeactivateStaff(null) }} data={deactivateStaff} open={deactivateStaff?.open} />} />
             </Box>
         </>
+    )
+}
 
-    );
-};
-
-export default StaffList;
+export default Archivestaff;

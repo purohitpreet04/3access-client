@@ -85,7 +85,7 @@ const EditTenantModal = ({ open, setOpen, editdata, setEditdata, refetch }) => {
                                 if (refetch) {
                                     refetch()
                                 }
-                                // navigation('/desh')
+                                // navigation('/dashboard')
                                 handleClose();
                                 dispatch(setIsLoading({ data: false }))
                             } catch (error) {

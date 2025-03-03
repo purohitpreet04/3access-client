@@ -22,6 +22,7 @@ export const fetchActivityLogs = createAsyncThunk(
                     dispatch(setIsLoading({ data: false }))
                     return res.data
                 }
+              
                 // console.log(res);
             } catch (error) {
                 dispatch(setIsLoading({ data: false }))

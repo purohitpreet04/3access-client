@@ -97,7 +97,6 @@ const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
     '& .css-167e5dj': {
         width: "150%"
     }
-
 }));
 
 const TableCellstyle = styled(TableCell)(() => ({

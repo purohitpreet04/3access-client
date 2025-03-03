@@ -195,9 +195,7 @@ function AddProperty({ open, onClose, editData }) {
                 initialValues={initialValues}
                 validationSchema={AddPropertySchema}
                 onSubmit={debounce(async (values, { resetForm }) => {
-
                     const modifyVal = { ...values, addedByModel: ['company', 'agent'].includes(user?.role) ? "User" : "Staff", addedBy: user?._id }
-
                     try {
                         dispatch(setIsLoading({ data: true }))
                         const res = await API.post('/api/property/addnewproperty', modifyVal)

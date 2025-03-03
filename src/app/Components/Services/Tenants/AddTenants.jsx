@@ -263,7 +263,7 @@ function AddTenantForm() {
                     if (res.data.success == true) {
                         resetForm()
                     }
-                    navigation('/desh')
+                    navigation('/dashboard')
                     dispatch(setIsLoading({ data: false }))
                 } catch (error) {
                     dispatch(setIsLoading({ data: false }))
